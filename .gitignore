@@ -1,3 +1,4 @@
+HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -172,3 +173,17 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+﻿# Ignorar archivos innecesarios
+**pycache**/
+*.pyc
+*.pyo
+*.log
+# Archivos de entorno virtual
+venv/
+.env
+*.sqlite3
+# Archivos de configuración de VSCode
+.vscode/
+# Dependencias de Node.js
+node_modules/
+19f229f (Primer commit - No lo había subido)
