@@ -18,7 +18,7 @@ const MateriasGestion = () => {
     cargarGrados();
   }, []);
 
-  // Cargar la lista de grados desde el servicio
+  // Inicializa y recupera la lista de grados disponibles
   const cargarGrados = async () => {
     try {
       const data = await obtenerGrados();
@@ -28,71 +28,55 @@ const MateriasGestion = () => {
     }
   };
 
-  // Cargar las materias correspondientes al grado seleccionado
+  // Obtiene las materias asociadas al grado seleccionado
   const cargarMaterias = async (gradoId) => {
     try {
+      if (!gradoId) {
+        setMaterias([]);
+        return;
+      }
       const data = await obtenerMateriasPorGrado(gradoId);
       setMaterias(data);
     } catch (error) {
-      console.error("Error al cargar materias del grado:", error);
+      console.error("Error al cargar materias:", error);
     }
   };
 
-  // Manejar el cambio en la selección del grado
+  // Actualiza el grado seleccionado y obtiene sus materias
   const manejarCambioGrado = (e) => {
     const gradoId = e.target.value;
     setGradoSeleccionado(gradoId);
-    if (gradoId) cargarMaterias(gradoId);
+    cargarMaterias(gradoId);
   };
 
-  // Manejar cambios en el campo de entrada para nueva materia
+  // Actualiza el estado del formulario para nueva materia
   const manejarCambioMateria = (e) => {
     setNuevaMateria({ ...nuevaMateria, [e.target.name]: e.target.value });
   };
 
-  // Crear una nueva materia y asignarla al grado seleccionado
-  const manejarEnvio = async (e) => {
+  // Procesa el envío del formulario para crear materia
+  const manejarEnvioMateria = async (e) => {
     e.preventDefault();
-
-    console.log("Datos enviados al backend:", formData); // Para depuración
+    
+    if (!gradoSeleccionado) {
+      alert("Por favor, selecciona un grado antes de agregar una materia.");
+      return;
+    }
 
     try {
-      const estudianteData = {
-        ...formData,
-        grado_id: formData.grado_id || null, // Asegurar que el grado_id se envíe correctamente
-        course_id: formData.course_id || null, // Asegurar que course_id no sea undefined
-      };
-
-      if (editando) {
-        await actualizarEstudiante(editando, estudianteData);
-      } else {
-        await crearEstudiante(estudianteData);
-      }
-
-      setFormData({
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        second_last_name: "",
-        date_of_birth: "",
-        email: "",
-        grade_level: "",
-        grado_id: "", // Limpiar después de enviar
-        course_id: "",
-      });
-      setGradoSeleccionado("");
-      setEditando(null);
-      cargarEstudiantes();
+      await crearMateriaEnGrado(gradoSeleccionado, nuevaMateria);
+      setNuevaMateria({ name: "" }); // Reinicia el formulario
+      cargarMaterias(gradoSeleccionado); // Actualiza la lista de materias
     } catch (error) {
-      console.error("Error al guardar estudiante:", error);
+      console.error("Error al agregar materia:", error);
     }
   };
 
-  // Eliminar una materia del grado seleccionado
+  // Elimina una materia y actualiza la lista
   const manejarEliminacionMateria = async (materiaId) => {
     try {
       await eliminarMateriaDeGrado(gradoSeleccionado, materiaId);
-      cargarMaterias(gradoSeleccionado);
+      cargarMaterias(gradoSeleccionado); // Actualiza la lista después de eliminar
     } catch (error) {
       console.error("Error al eliminar materia:", error);
     }
@@ -105,7 +89,7 @@ const MateriasGestion = () => {
         Volver
       </button>
 
-      {/* Selección de grado */}
+      {/* Selector de grado académico */}
       <select onChange={manejarCambioGrado} className="border p-2 mb-4 w-full">
         <option value="">Selecciona un grado</option>
         {grados.map((grado) => (
@@ -131,7 +115,7 @@ const MateriasGestion = () => {
         </button>
       </form>
 
-      {/* Tabla que muestra las materias del grado seleccionado */}
+      {/* Tabla de materias existentes */}
       <table className="min-w-full bg-white border">
         <thead>
           <tr>

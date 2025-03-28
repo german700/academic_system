@@ -16,12 +16,6 @@ const CursosGestion = () => {
     description: "",
     grado_id: "",
   });
-
-  useEffect(() => {
-    cargarGrados();
-    cargarCursos();
-  }, []);
-
   // Cargar la lista de grados desde el servicio
   const cargarGrados = async () => {
     try {
@@ -29,9 +23,9 @@ const CursosGestion = () => {
       setGrados(data);
     } catch (error) {
       console.error("Error al cargar grados:", error);
-    }
-  };
 
+    };
+  }
   // Cargar la lista de cursos desde el servicio
   const cargarCursos = async () => {
     try {
@@ -86,14 +80,18 @@ const CursosGestion = () => {
     return <div className="p-6 text-red-500">Acceso restringido. Solo los administradores pueden gestionar cursos.</div>;
   }
 
+  useEffect(() => {
+    cargarGrados();
+    cargarCursos();
+  }, []);
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Gestión de Cursos</h1>
       <button onClick={() => navigate(-1)} className="p-2 bg-gray-500 text-white mb-4">Volver</button>
 
       {/* Botón para mostrar el formulario de agregar curso */}
-      <button 
-        onClick={() => setMostrarFormulario(true)} 
+      <button
+        onClick={() => setMostrarFormulario(true)}
         className="p-2 bg-blue-500 text-white mb-4">
         + Agregar Curso
       </button>
@@ -104,9 +102,9 @@ const CursosGestion = () => {
           <div className="bg-white p-6 rounded-lg w-96">
             <h2 className="text-xl font-bold mb-4">Agregar Nuevo Curso</h2>
             <form onSubmit={manejarEnvio}>
-              <select 
-                name="grado_id" 
-                onChange={manejarCambio} 
+              <select
+                name="grado_id"
+                onChange={manejarCambio}
                 className="border p-2 w-full mb-2"
               >
                 <option value="">Selecciona un grado</option>
@@ -117,29 +115,29 @@ const CursosGestion = () => {
                 ))}
               </select>
 
-              <input 
-                type="text" 
-                name="name" 
-                placeholder="Nombre del curso" 
-                value={formData.name} 
-                onChange={manejarCambio} 
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre del curso"
+                value={formData.name}
+                onChange={manejarCambio}
                 className="border p-2 w-full mb-2"
               />
 
-              <input 
-                type="text" 
-                name="description" 
-                placeholder="Descripción" 
-                value={formData.description} 
-                onChange={manejarCambio} 
+              <input
+                type="text"
+                name="description"
+                placeholder="Descripción"
+                value={formData.description}
+                onChange={manejarCambio}
                 className="border p-2 w-full mb-2"
               />
 
               <div className="flex justify-between">
                 <button type="submit" className="p-2 bg-green-500 text-white">Guardar</button>
-                <button 
-                  type="button" 
-                  className="p-2 bg-red-500 text-white" 
+                <button
+                  type="button"
+                  className="p-2 bg-red-500 text-white"
                   onClick={() => setMostrarFormulario(false)}
                 >
                   Cancelar
@@ -189,5 +187,4 @@ const CursosGestion = () => {
     </div>
   );
 };
-
 export default CursosGestion;
