@@ -1,5 +1,6 @@
+#C:\Users\germa\Desktop\academic_system\backend\academic\serializers.py
 from rest_framework import serializers
-from .models import Student, Teacher, Course, Grade, Administrator, Subject, CourseSubject, Grado
+from .models import Student, Teacher, Course, Grade, Administrator, Subject, CourseSubject, Grado, GradeEntry, Attendance, Assignment
 
 # Serializadores básicos (sin dependencias circulares)
 class TeacherSerializer(serializers.ModelSerializer):
@@ -22,13 +23,40 @@ class GradoSerializer(serializers.ModelSerializer):
         model = Grado
         fields = '__all__'
 
+# Serializador para las subnotas (entries)
+class GradeEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GradeEntry
+        fields = ['id','assignment','score','submitted_date','late_submission','comments']
+
+# Serializador simplificado para Teacher (para uso en GradeSerializer)
+class TeacherBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Teacher
+        fields = ['id', 'first_name', 'last_name', 'email']
+
+# Serializador para Calificaciones con subnotas
+class GradeSerializer(serializers.ModelSerializer):
+    entries = GradeEntrySerializer(many=True, read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    teacher = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Grade
+        fields = ['id', 'course_name', 'teacher', 'value', 'period', 'year', 'comments', 'entries']
+
+    def get_teacher(self, obj):
+        course = obj.course
+        teacher = course.teacher if hasattr(course, 'teacher') else None
+        return TeacherBriefSerializer(teacher).data if teacher else None
+
 # Serializador para la relación Curso-Materia-Docente
 class CourseSubjectSerializer(serializers.ModelSerializer):
-    subject = SubjectSerializer(read_only=True)  # Muestra información completa de la materia
-    teacher = TeacherSerializer(read_only=True)  # Muestra información completa del docente
+    subject = SubjectSerializer(read_only=True)
+    teacher = TeacherSerializer(read_only=True)
     teacher_id = serializers.PrimaryKeyRelatedField(
         queryset=Teacher.objects.all(), source='teacher', write_only=True
-    )  # Permite enviar teacher_id en POST/PUT
+    )
 
     class Meta:
         model = CourseSubject
@@ -39,6 +67,26 @@ class CourseBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'name', 'code']
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
+        fields = '__all__'
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    course_subject = CourseSubjectSerializer(read_only=True)
+    course_subject_id = serializers.PrimaryKeyRelatedField(
+        queryset=CourseSubject.objects.all(), 
+        source='course_subject', 
+        write_only=True
+    )
+
+    class Meta:
+        model = Assignment
+        fields = [
+            'id', 'title', 'description', 'due_date', 
+            'course_subject', 'course_subject_id', 'created_at'
+        ]
 
 # Serializador para Cursos completos
 class CourseSerializer(serializers.ModelSerializer):
@@ -61,7 +109,7 @@ class CourseSerializer(serializers.ModelSerializer):
         ]
 
     def get_students(self, obj):
-        from .serializers import StudentSerializer  # Importación diferida para evitar circularidad
+        from .serializers import StudentSerializer
         students = obj.students.all()
         return StudentSerializer(students, many=True).data
 
@@ -126,8 +174,32 @@ class StudentSerializer(serializers.ModelSerializer):
             'date_of_birth', 'email', 'student_id', 'photo', 'grado', 'grado_id', 'course', 'course_id'
         ]
 
-# Serializador para Calificaciones
-class GradeSerializer(serializers.ModelSerializer):
+class StudentProfileSerializer(serializers.ModelSerializer):
+    curso = serializers.SerializerMethodField()
+    materias = serializers.SerializerMethodField()
+
     class Meta:
-        model = Grade
-        fields = '__all__'
+        model = Student
+        fields = ["id", "first_name", "last_name", "student_id", "curso", "materias"]
+
+    def get_curso(self, obj):
+        if obj.course:                      # aquí ya usa obj.course
+            return {
+                "id": obj.course.id,
+                "nombre": obj.course.name,
+                "grado": obj.course.grado.numero if obj.course.grado else None,
+            }
+        return None
+
+    def get_materias(self, obj):
+        if obj.course:
+            asignaciones = obj.course.course_subjects.select_related("subject")
+            return [
+                {
+                    "id": asig.subject.id,
+                    "nombre": asig.subject.name,
+                    "codigo": asig.subject.code
+                }
+                for asig in asignaciones
+            ]
+        return []

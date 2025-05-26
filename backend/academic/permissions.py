@@ -1,4 +1,4 @@
-# academic/permissions.py
+# C:\Users\germa\Desktop\academic_system\backend\academic\permissions.py
 from rest_framework import permissions
 
 class IsTeacherOrAdmin(permissions.BasePermission):

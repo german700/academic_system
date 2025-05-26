@@ -1,3 +1,4 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\services\materiasService.js
 const API_URL = `http://localhost:8000/api/academic/subjects/`;
 const GRADE_API_URL = `http://localhost:8000/api/academic/grados/`;
 

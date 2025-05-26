@@ -1,3 +1,4 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\MateriasGestion.jsx
 import React, { useEffect, useState } from "react";
 import { obtenerGrados } from "../services/gradosService";
 import {

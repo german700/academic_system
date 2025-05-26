@@ -1,4 +1,4 @@
-// academic_system/frontend/academic-frontend/src/context/AuthContext.jsx
+// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\context\AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);

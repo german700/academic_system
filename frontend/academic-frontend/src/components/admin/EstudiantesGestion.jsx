@@ -5,7 +5,7 @@ import {
   actualizarEstudiante, 
   eliminarEstudiante 
 } from "../services/estudiantesService";
-import { obtenerCursos } from "../services/estudiantesService"; // Asumiendo que se obtiene desde este servicio
+import { obtenerCursos } from "../services/estudiantesService";
 import { obtenerGrados } from "../services/gradosService";
 
 const EstudiantesGestion = () => {
@@ -20,8 +20,7 @@ const EstudiantesGestion = () => {
     second_last_name: "",
     date_of_birth: "",
     email: "",
-    grade_level: "",  
-    grado_id: "",  // Campo para almacenar el ID del grado
+    grado_id: "",
     course_id: "",
   });
   const [editando, setEditando] = useState(null);
@@ -32,7 +31,6 @@ const EstudiantesGestion = () => {
     cargarGrados();
   }, []);
 
-  // Cargar la lista de estudiantes desde el servicio
   const cargarEstudiantes = async () => {
     try {
       const data = await obtenerEstudiantes();
@@ -42,7 +40,6 @@ const EstudiantesGestion = () => {
     }
   };
 
-  // Cargar la lista de cursos desde el servicio
   const cargarCursos = async () => {
     try {
       const data = await obtenerCursos();
@@ -52,7 +49,6 @@ const EstudiantesGestion = () => {
     }
   };
 
-  // Cargar la lista de grados desde el servicio
   const cargarGrados = async () => {
     try {
       const data = await obtenerGrados();
@@ -62,47 +58,29 @@ const EstudiantesGestion = () => {
     }
   };
 
-  // Manejar cambios en los campos del formulario
   const manejarCambio = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Manejar cambios en la selección del grado
   const manejarCambioGrado = (e) => {
     const gradoId = e.target.value;
     setGradoSeleccionado(gradoId);
-  
-    // Buscar el objeto del grado seleccionado
-    const gradoObj = grados.find((g) => g.id.toString() === gradoId);
-    if (gradoObj) {
-      setFormData({ 
-        ...formData, 
-        grado_id: gradoObj.id,  // Guardar el ID del grado
-        grade_level: `Grado ${gradoObj.numero} (${gradoObj.categoria})`
-      });
-    } else {
-      setFormData({ ...formData, grado_id: "", grade_level: "" });
-    }
+    setFormData({ ...formData, grado_id: gradoId });
   };
 
-  // Filtrar los cursos según el grado seleccionado
   const cursosFiltrados = gradoSeleccionado 
     ? cursos.filter((curso) => curso.grado && curso.grado.id.toString() === gradoSeleccionado)
     : cursos;
 
-  // Manejar el envío del formulario para crear o actualizar un estudiante
   const manejarEnvio = async (e) => {
     e.preventDefault();
-  
-    console.log("Datos enviados al backend:", formData); // Para depuración
-  
     try {
       if (editando) {
         await actualizarEstudiante(editando, formData);
       } else {
         await crearEstudiante(formData);
       }
-  
+
       setFormData({
         first_name: "",
         middle_name: "",
@@ -110,8 +88,7 @@ const EstudiantesGestion = () => {
         second_last_name: "",
         date_of_birth: "",
         email: "",
-        grade_level: "",
-        grado_id: "",  // Limpiar después de enviar
+        grado_id: "",
         course_id: "",
       });
       setGradoSeleccionado("");
@@ -122,9 +99,7 @@ const EstudiantesGestion = () => {
     }
   };
 
-  // Manejar la edición de un estudiante
   const manejarEdicion = (estudiante) => {
-    // Para edición, asumimos que el estudiante tiene un campo "course" (relación) y "grade_level" ya establecido.
     setFormData({
       first_name: estudiante.first_name || "",
       middle_name: estudiante.middle_name || "",
@@ -132,19 +107,13 @@ const EstudiantesGestion = () => {
       second_last_name: estudiante.second_last_name || "",
       date_of_birth: estudiante.date_of_birth || "",
       email: estudiante.email || "",
-      grade_level: estudiante.grade_level || "",
-      course_id: estudiante.course ? estudiante.course.id : "",
+      grado_id: estudiante.grado?.id || "",
+      course_id: estudiante.course?.id || "",
     });
-    // Establecer el grado seleccionado según el curso, si está asignado
-    if (estudiante.course && estudiante.course.grado) {
-      setGradoSeleccionado(estudiante.course.grado.id.toString());
-    } else {
-      setGradoSeleccionado("");
-    }
+    setGradoSeleccionado(estudiante.grado?.id?.toString() || "");
     setEditando(estudiante.id);
   };
 
-  // Manejar la eliminación de un estudiante
   const manejarEliminacion = async (id) => {
     try {
       await eliminarEstudiante(id);
@@ -166,8 +135,7 @@ const EstudiantesGestion = () => {
         <input type="email" name="email" placeholder="Correo Electrónico" value={formData.email} onChange={manejarCambio} className="border p-2"/>
         <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={manejarCambio} className="border p-2"/>
         
-        {/* Selector para elegir el grado */}
-        <select name="grado" value={gradoSeleccionado} onChange={manejarCambioGrado} className="border p-2">
+        <select name="grado_id" value={gradoSeleccionado} onChange={manejarCambioGrado} className="border p-2">
           <option value="">Selecciona un Grado</option>
           {grados.map((grado) => (
             <option key={grado.id} value={grado.id}>
@@ -176,7 +144,6 @@ const EstudiantesGestion = () => {
           ))}
         </select>
         
-        {/* Selector para elegir el curso, filtrado por grado */}
         <select name="course_id" value={formData.course_id} onChange={manejarCambio} className="border p-2">
           <option value="">Selecciona un Curso</option>
           {cursosFiltrados.map((curso) => (
@@ -206,7 +173,7 @@ const EstudiantesGestion = () => {
             <tr key={estudiante.id}>
               <td className="border px-4 py-2">{`${estudiante.first_name} ${estudiante.last_name}`}</td>
               <td className="border px-4 py-2">{estudiante.email}</td>
-              <td className="border px-4 py-2">{estudiante.grade_level}</td>
+              <td className="border px-4 py-2">{estudiante.grado ? `${estudiante.grado.numero} - ${estudiante.grado.categoria}` : "Sin grado"}</td>
               <td className="border px-4 py-2">
                 {estudiante.course ? `${estudiante.course.name} - ${estudiante.course.code}` : "Sin curso"}
               </td>

@@ -1,8 +1,7 @@
-# .\academic_system\backend\analytics\urls.py
+# C:\Users\germa\Desktop\academic_system\backend\analytics\urls.py
 from django.urls import path
-from . import views
+from .views import student_analysis_view
 
 urlpatterns = [
-    path('student-analysis/<int:student_id>/', views.StudentAnalysisView.as_view(), name='student-analysis'),
-    path('course-statistics/<int:course_id>/', views.CourseStatisticsView.as_view(), name='course-statistics'),
+    path('student-analysis/', student_analysis_view, name='student-analysis'),
 ]

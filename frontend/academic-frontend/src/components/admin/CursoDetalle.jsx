@@ -1,3 +1,4 @@
+// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\CursoDetalle.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { obtenerCurso } from "../services/cursosService";

@@ -1,25 +1,28 @@
-# \academic_system\backend\authentication\admin.py
+# C:\Users\germa\Desktop\academic_system\backend\authentication\admin.py
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User
 
-class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'email', 'user_type')
-    list_filter = ('user_type',)
-    # Simplificamos los campos mostrados
+@admin.register(User)
+class CustomUserAdmin(BaseUserAdmin):
+    model = User
+    list_display = ('email', 'first_name', 'last_name', 'user_type', 'is_active', 'is_staff')
+    list_filter = ('user_type', 'is_active', 'is_staff', 'is_superuser')
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering = ('email',)  # 👈 CAMBIADO: antes era 'username'
+
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Información Personal', {'fields': ('first_name', 'last_name', 'email', 'user_type', 'profile_picture')}),
-        ('Estado', {'fields': ('is_active',)}),
+        (None, {'fields': ('email', 'password')}),
+        ('Información personal', {'fields': ('first_name', 'middle_name', 'last_name', 'second_last_name', 'date_of_birth', 'profile_picture')}),
+        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Fechas importantes', {'fields': ('last_login', 'date_joined')}),
+        ('Tipo de usuario', {'fields': ('user_type',)}),
+        ('Verificación', {'fields': ('email_confirmed',)}),
     )
-    # Simplificamos los campos para nuevo usuario
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'user_type', 'first_name', 'last_name', 'email'),
+            'fields': ('email', 'password1', 'password2', 'user_type', 'is_active', 'is_staff', 'is_superuser'),
         }),
     )
-    search_fields = ('username', 'first_name', 'last_name', 'email')
-    ordering = ('username',)
-
-admin.site.register(User, CustomUserAdmin)

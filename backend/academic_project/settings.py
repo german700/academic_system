@@ -1,9 +1,11 @@
-# \academic_system\backend\academic_project\settings.py
+# C:\Users\germa\Desktop\academic_system\backend\academic_project\settings.py
 
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
+import ssl
+import certifi
+ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,12 +135,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configuración SMTP para enviar correos con Brevo
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp-relay.brevo.com")
+#EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = os.getenv("EMAIL_HOST", "885793001@smtp-brevo.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "german0409dealba@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "jhBkf7g3C2crptL9")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

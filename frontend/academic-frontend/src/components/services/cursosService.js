@@ -1,3 +1,4 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\services\cursosService.js
 const API_URL = `http://localhost:8000/api/academic/courses/`;
 const COURSE_SUBJECT_API_URL = `http://localhost:8000/api/academic/course-subjects/`;
 

@@ -1,4 +1,4 @@
-# ..\academic_system\backend\academic\admin.py
+# C:\Users\germa\Desktop\academic_system\backend\academic\admin.py
 from django.contrib import admin
 from .models import Student, Teacher, Course, Grade, Subject, CourseSubject
 from authentication.models import User
@@ -39,7 +39,7 @@ class TeacherAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('get_first_name', 'get_last_name', 'get_username', 'grade_level', 'student_id')
+    list_display = ('get_first_name', 'get_last_name', 'get_username', 'student_id')
     search_fields = ('user__first_name', 'user__last_name', 'user__username', 'student_id')
 
     def get_first_name(self, obj):
@@ -72,13 +72,13 @@ class StudentAdmin(admin.ModelAdmin):
             obj.user.save()
         super().save_model(request, obj, form, change)
 
+# ✅ Eliminado filter_horizontal porque 'students' ya no es ManyToMany
 if not admin.site.is_registered(Course):
     @admin.register(Course)
     class CourseAdmin(admin.ModelAdmin):
         list_display = ('name', 'code', 'academic_year')
-        list_filter = ('academic_year',)  
+        list_filter = ('academic_year',)
         search_fields = ('name', 'code')
-        filter_horizontal = ('students',)
 
 class CourseSubjectAdmin(admin.ModelAdmin):
     list_display = ('course', 'subject', 'teacher')

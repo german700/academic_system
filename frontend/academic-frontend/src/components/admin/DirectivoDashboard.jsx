@@ -1,3 +1,4 @@
+// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\DirectivoDashboard.jsx
 import React from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";

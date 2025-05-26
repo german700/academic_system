@@ -1,11 +1,11 @@
-// academic_system\frontend\academic-frontend\src\components\auth\Login.jsx
+// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\auth\Login.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // Agregamos el estado de loading
@@ -16,22 +16,22 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
-      const authData = await authService.login({ username, password });
-  
+      const authData = await authService.login({ email, password });
+
       // Guardamos el token en localStorage
       localStorage.setItem('token', authData.access);
       localStorage.setItem('refresh', authData.refresh);
-  
+
       // Obtenemos el perfil del usuario
       const userData = await authService.getUserProfile();
-  
+
       console.log('User Data:', userData); // Agrega esta línea para depuración
-  
+
       // Guardamos el tipo de usuario
       localStorage.setItem('user_type', userData.user_type);
-  
+
       // Pasamos los datos correctos al contexto de autenticación
       login({
         token: authData.access,
@@ -39,18 +39,24 @@ const Login = () => {
         user_type: userData.user_type,
         is_superuser: userData.is_superuser, // Agregar esta línea
       });
-  
+
       // Redirigimos según el tipo de usuario
       console.log('User type from API:', userData.user_type);
+      const userId = userData.id || userData.user?.id;
+
       if (userData.user_type === 'student') {
-        navigate(`/Estudiante/${userData.id}`);
+        if (userId) {
+          navigate('/student');
+        } else {
+          console.error('No se pudo obtener el ID del estudiante.');
+        }
       } else if (userData.user_type === 'teacher') {
         navigate('/Docente-dashboard');
       } else if (userData.user_type === 'director') {
         navigate('/Directivo-dashboard');
       } else {
+        console.error('Tipo de usuario no reconocido:', userData.user_type);
         navigate('/login');
-        console.log('NO SE RECONOCE EL TIPO DE USUARIO.');
       }
     } catch (err) {
       console.error('Error completo:', err);
@@ -59,8 +65,8 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
-  
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -78,18 +84,18 @@ const Login = () => {
           )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">
-                Usuario
+              <label htmlFor="email" className="sr-only">
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Usuario"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -114,9 +120,8 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-              }`}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
               disabled={loading}
             >
               {loading ? (

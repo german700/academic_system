@@ -1,7 +1,10 @@
+# C:\Users\germa\Desktop\academic_system\backend\academic\models.py
 from django.db import models
 from django.utils import timezone
 from authentication.models import User
 import uuid
+import random
+import string
 
 def generate_unique_username(first_name, last_name):
     base_username = f"{first_name.lower()}{last_name.lower()}"
@@ -24,25 +27,17 @@ class Teacher(models.Model):
     middle_name = models.CharField(max_length=100, blank=True, null=True, default="Defecto")
     last_name = models.CharField(max_length=100, default="Defecto")
     second_last_name = models.CharField(max_length=100, blank=True, null=True, default="Defecto")
-    title = models.CharField(max_length=50, default="Defecto")  # Ejemplo: "Lic.", "Dr.", etc.
+    title = models.CharField(max_length=50, default="Defecto")
     date_of_birth = models.DateField(default=timezone.now)
     email = models.EmailField(unique=True, default="default@gmail.com")
     specialization = models.CharField(max_length=100, default="General")
-    teacher_id = models.CharField(max_length=20, unique=True, blank=True)  # Generado automáticamente
+    teacher_id = models.CharField(max_length=20, unique=True, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.specialization}"
 
     def save(self, *args, **kwargs):
-        if not self.user:
-            username = generate_unique_username(self.first_name, self.last_name)
-            self.user = User.objects.create(
-                username=username,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                email=self.email,
-                user_type="teacher"
-            )
+        # Solo generar el teacher_id si no existe
         if not self.teacher_id:
             self.teacher_id = f"TCH{str(uuid.uuid4())[:5].upper()}"
         super().save(*args, **kwargs)
@@ -63,7 +58,7 @@ class Administrator(models.Model):
     middle_name = models.CharField(max_length=100, blank=True, null=True, default="Defecto")
     last_name = models.CharField(max_length=100, default="Defecto")
     second_last_name = models.CharField(max_length=100, blank=True, null=True, default="Defecto")
-    title = models.CharField(max_length=50, blank=True, default="")  # Título opcional
+    title = models.CharField(max_length=50, blank=True, default="")
     date_of_birth = models.DateField(null=True, blank=True, default=timezone.now)
     email = models.EmailField(unique=True, default="default@gmail.com")
 
@@ -71,6 +66,8 @@ class Administrator(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
+        # Para Administrator mantenemos la creación automática del usuario
+        # ya que no se crea desde las vistas (solo desde Django admin)
         if not self.user:
             username = generate_unique_username(self.first_name, self.last_name)
             self.user = User.objects.create(
@@ -87,7 +84,7 @@ class Administrator(models.Model):
         verbose_name_plural = "Administrativos"
 
 class Grado(models.Model):
-    numero = models.PositiveSmallIntegerField(unique=True)  # Ejemplo: 1, 2, …, 12
+    numero = models.PositiveSmallIntegerField(unique=True)
     categoria = models.CharField(max_length=20, blank=True)
 
     def save(self, *args, **kwargs):
@@ -122,6 +119,20 @@ class Subject(models.Model):
         verbose_name_plural = "Materias"
 
 class Student(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Masculino'),
+        ('F', 'Femenino'),
+        ('O', 'Otro'),
+    ]
+    
+    SOCIOECONOMIC_CHOICES = [
+        ('BAJO', 'Bajo'),
+        ('MEDIO_BAJO', 'Medio Bajo'),
+        ('MEDIO', 'Medio'),
+        ('MEDIO_ALTO', 'Medio Alto'),
+        ('ALTO', 'Alto'),
+    ]
+
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE,
@@ -135,13 +146,22 @@ class Student(models.Model):
     second_last_name = models.CharField(max_length=100, blank=True, null=True, default="Defecto")
     date_of_birth = models.DateField(default=timezone.now)
     email = models.EmailField(unique=True, default="default@gmail.com")
-    grade_level = models.CharField(max_length=50, default="10")
     student_id = models.CharField(max_length=20, unique=True, blank=True)
     photo = models.ImageField(upload_to='student_photos/', null=True, blank=True)
     
+    # Nuevos campos socio-demográficos
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    neighborhood = models.CharField(max_length=100, blank=True, verbose_name="Barrio/Zona")
+    socioeconomic_status = models.CharField(
+        max_length=50, 
+        choices=SOCIOECONOMIC_CHOICES, 
+        blank=True,
+        verbose_name="Nivel Socioeconómico"
+    )
+    
     course = models.ForeignKey(
         "Course", on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="students_in_course"
+        related_name="students"
     )
 
     grado = models.ForeignKey(
@@ -153,15 +173,7 @@ class Student(models.Model):
         return f"{self.first_name} {self.last_name} - {self.student_id}"
 
     def save(self, *args, **kwargs):
-        if not self.user:
-            username = generate_unique_username(self.first_name, self.last_name)
-            self.user = User.objects.create(
-                username=username,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                email=self.email,
-                user_type="student"
-            )
+        # Solo generar el student_id si no existe
         if not self.student_id:
             self.student_id = f"STD{str(uuid.uuid4())[:5].upper()}"
         super().save(*args, **kwargs)
@@ -174,7 +186,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100, default="Curso sin nombre")
     code = models.CharField(max_length=20, unique=True, blank=True)
     subjects = models.ManyToManyField("Subject", through="CourseSubject", blank=True)
-    students = models.ManyToManyField("Student", blank=True, related_name="courses_m2m")
+    # students = models.ManyToManyField("Student", blank=True, related_name="courses_m2m") ← eliminado
     teachers = models.ManyToManyField("Teacher", blank=True)
     academic_year = models.CharField(max_length=9, default="2023-2024")
     description = models.TextField(blank=True, default="")
@@ -185,7 +197,6 @@ class Course(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            import uuid
             self.code = f"CRS{str(uuid.uuid4())[:8].upper()}"
         super().save(*args, **kwargs)
 
@@ -206,13 +217,65 @@ class CourseSubject(models.Model):
     def __str__(self):
         return f"{self.course.name} - {self.subject.name}"
 
+# Nuevo modelo para registrar asistencias
+class Attendance(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='attendances')
+    date = models.DateField()
+    present = models.BooleanField(default=True)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='attendances', null=True, blank=True)
+    comments = models.TextField(blank=True, help_text="Justificación de ausencia o comentarios")
+    
+    class Meta:
+        unique_together = ('student', 'date', 'subject')
+        verbose_name = "Asistencia"
+        verbose_name_plural = "Asistencias"
+        ordering = ['-date']
+
+    def __str__(self):
+        status = "Presente" if self.present else "Ausente"
+        subject_name = f" - {self.subject.name}" if self.subject else ""
+        return f"{self.student.first_name} {self.student.last_name} - {self.date} - {status}{subject_name}"
+
+# Nuevo modelo para tareas/actividades con peso
+class Assignment(models.Model):
+    ASSIGNMENT_TYPES = [
+        ('EXAMEN', 'Examen'),
+        ('QUIZ', 'Quiz'),
+        ('TAREA', 'Tarea'),
+        ('PROYECTO', 'Proyecto'),
+        ('PARTICIPACION', 'Participación'),
+        ('LABORATORIO', 'Laboratorio'),
+        ('ENSAYO', 'Ensayo'),
+        ('PRESENTACION', 'Presentación'),
+        ('OTRO', 'Otro'),
+    ]
+    
+    course_subject = models.ForeignKey('CourseSubject', on_delete=models.CASCADE, related_name='assignments')
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    assignment_type = models.CharField(max_length=20, choices=ASSIGNMENT_TYPES, default='TAREA')
+    date_assigned = models.DateField(default=timezone.now)
+    due_date = models.DateField(null=True, blank=True)
+    weight = models.FloatField(default=1.0, help_text="Peso relativo en la nota del periodo")
+    max_score = models.DecimalField(max_digits=5, decimal_places=2, default=100.00)
+    period = models.PositiveSmallIntegerField(default=1)
+    year = models.CharField(max_length=4, default="2024")
+    
+    class Meta:
+        verbose_name = "Actividad/Tarea"
+        verbose_name_plural = "Actividades/Tareas"
+        ordering = ['-date_assigned']
+
+    def __str__(self):
+        return f"{self.course_subject.course.name} - {self.course_subject.subject.name} - {self.name} ({self.assignment_type})"
+
 class Grade(models.Model):
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     value = models.FloatField(default=0.0)
     date_assigned = models.DateTimeField(default=timezone.now)
-    period = models.PositiveSmallIntegerField(default=1)  # Valores: 1, 2, 3 o 4
-    year = models.CharField(max_length=4, default="2023")  # Año en formato "2023"
+    period = models.PositiveSmallIntegerField(default=1)
+    year = models.CharField(max_length=4, default="2023")
     comments = models.TextField(blank=True, default="")
 
     class Meta:
@@ -222,3 +285,34 @@ class Grade(models.Model):
 
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name} - {self.course.name} - {self.value}"
+
+# Modelo actualizado para entradas de calificaciones con relación a tareas
+class GradeEntry(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, null=True, blank=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)   
+    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='entries')
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+    submitted_date = models.DateTimeField(null=True, blank=True)
+    late_submission = models.BooleanField(default=False)
+    comments = models.TextField(blank=True)
+    
+    class Meta:
+        unique_together = ('assignment', 'student')
+        verbose_name = "Entrada de Calificación"
+        verbose_name_plural = "Entradas de Calificaciones"
+
+    def __str__(self):
+        return f"{self.student.first_name} {self.student.last_name} - {self.assignment.name}: {self.score}"
+
+    def get_percentage(self):
+        """Calcula el porcentaje obtenido sobre el puntaje máximo"""
+        if self.assignment.max_score > 0:
+            return (float(self.score) / float(self.assignment.max_score)) * 100
+        return 0
+
+    def is_passing(self, passing_threshold=60):
+        """Determina si la calificación es aprobatoria"""
+        return self.get_percentage() >= passing_threshold
+    
+
+    
