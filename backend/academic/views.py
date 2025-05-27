@@ -1,3 +1,4 @@
+#C:\Users\germa\Desktop\academic_system\backend\academic\views.py
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -192,12 +193,21 @@ class StudentViewSet(viewsets.ModelViewSet):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def student_grades_view(request):
-    user = request.user
-    if not hasattr(user, "student"):
-        return Response({"detail": "Este usuario no es un estudiante."}, status=403)
-    
-    student = user.student
-    grades = Grade.objects.filter(student=student)
+    # 1) intenta por related_name…
+    student = getattr(request.user, 'student_profile', None)
+    # 2) …y si falla, busca directamente en la tabla Student
+    if student is None:
+        from academic.models import Student
+        try:
+            student = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            return Response(
+                {"error": "No es un estudiante."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+    # A partir de aquí, ya tienes student garantizado
+    grades = Grade.objects.filter(student=student).order_by('period')
     serializer = GradeSerializer(grades, many=True)
     return Response(serializer.data)
 

@@ -1,9 +1,10 @@
 // C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\students\StudentAnalysis.jsx
 
 import React, { useEffect, useState } from "react";
-import { getStudentAnalysis } from "../services/analyticsService";
+import { getStudentFullAnalysis } from "../services/analyticsService";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import StudentCharts from "./StudentCharts";
+import { AlertCircle, TrendingUp, TrendingDown, Brain, Target, BookOpen, Award, AlertTriangle, User, Calendar, BarChart3 } from 'lucide-react';
 
 // Colores para el gráfico de pastel
 const COLORS = ['#ef4444', '#f97316', '#22c55e', '#3b82f6']; // Rojo, Naranja, Verde, Azul
@@ -11,21 +12,32 @@ const COLORS = ['#ef4444', '#f97316', '#22c55e', '#3b82f6']; // Rojo, Naranja, V
 const StudentAnalysis = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getStudentAnalysis()
+    getStudentFullAnalysis()
       .then(setData)
-      .catch(() => setError("No se pudo cargar el análisis de IA"));
+      .catch(() => setError("No se pudo cargar el análisis de IA"))
+      .finally(() => setLoading(false));
   }, []);
 
-  if (error) return <p className="text-red-500 p-4">{error}</p>;
-  if (!data) return <p className="p-4">Cargando análisis...</p>;
-  if (data.mensaje) return <p className="p-4">{data.mensaje}</p>;
+  const getRiskColor = (nivel) => {
+    switch (nivel?.toLowerCase()) {
+      case 'alto': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medio': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'bajo': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
-  const chartData = Object.entries(data.niveles_desempeno || {}).map(([nivel, value]) => ({
-    name: nivel,
-    value: value,
-  }));
+  const getRiskIcon = (nivel) => {
+    switch (nivel?.toLowerCase()) {
+      case 'alto': return <AlertTriangle className="w-5 h-5" />;
+      case 'medio': return <AlertCircle className="w-5 h-5" />;
+      case 'bajo': return <Award className="w-5 h-5" />;
+      default: return <BarChart3 className="w-5 h-5" />;
+    }
+  };
 
   const getGradeColor = (nota) => {
     if (nota >= 4.5) return 'text-green-600';
@@ -34,33 +46,139 @@ const StudentAnalysis = () => {
     return 'text-red-600';
   };
 
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p className="ml-4 text-gray-600">Cargando análisis de IA...</p>
+    </div>
+  );
+
+  if (error) return <p className="text-red-500 p-4 bg-red-50 rounded">{error}</p>;
+  if (!data) return <p className="p-4">No hay datos disponibles</p>;
+
+  // Extraer datos del análisis y predicción
+  const analysisData = data.analisis_rendimiento || {};
+  const riskData = data.prediccion_riesgo || {};
+  const studentInfo = data.estudiante || {};
+
+  if (analysisData.mensaje) return <p className="p-4">{analysisData.mensaje}</p>;
+
+  const chartData = Object.entries(analysisData.niveles_desempeno || {}).map(([nivel, value]) => ({
+    name: nivel,
+    value: value,
+  }));
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Análisis Personalizado</h2>
+    <div className="p-6 max-w-6xl mx-auto bg-gray-50 min-h-screen">
+      {/* Header con información del estudiante */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <User className="w-8 h-8 text-blue-600 mr-3" />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Análisis Personalizado con IA</h1>
+              <p className="text-gray-600">{studentInfo.nombre || 'Estudiante'}</p>
+            </div>
+          </div>
+          <div className="flex items-center text-sm text-gray-500">
+            <Calendar className="w-4 h-4 mr-1" />
+            {new Date().toLocaleDateString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Tarjeta de Predicción de Riesgo IA */}
+      {riskData && Object.keys(riskData).length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-blue-500">
+          <div className="flex items-center mb-4">
+            <Brain className="w-6 h-6 text-blue-600 mr-2" />
+            <h2 className="text-xl font-bold text-gray-800">Predicción de Riesgo Académico (IA)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Nivel de Riesgo */}
+            {riskData.nivel_riesgo && (
+              <div className={`p-4 rounded-lg border-2 ${getRiskColor(riskData.nivel_riesgo)}`}>
+                <div className="flex items-center mb-2">
+                  {getRiskIcon(riskData.nivel_riesgo)}
+                  <span className="ml-2 font-semibold">Nivel de Riesgo</span>
+                </div>
+                <p className="text-2xl font-bold">{riskData.nivel_riesgo}</p>
+              </div>
+            )}
+
+            {/* Probabilidad */}
+            {riskData.probabilidad_riesgo && (
+              <div className="bg-purple-50 border-2 border-purple-200 text-purple-800 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <Target className="w-5 h-5" />
+                  <span className="ml-2 font-semibold">Probabilidad</span>
+                </div>
+                <p className="text-2xl font-bold">{(riskData.probabilidad_riesgo * 100).toFixed(1)}%</p>
+              </div>
+            )}
+
+            {/* Confianza del Modelo */}
+            {riskData.confianza_modelo && (
+              <div className="bg-indigo-50 border-2 border-indigo-200 text-indigo-800 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <BarChart3 className="w-5 h-5" />
+                  <span className="ml-2 font-semibold">Confianza IA</span>
+                </div>
+                <p className="text-2xl font-bold">{(riskData.confianza_modelo * 100).toFixed(1)}%</p>
+              </div>
+            )}
+          </div>
+
+          {/* Factores de Riesgo */}
+          {riskData.factores_riesgo && riskData.factores_riesgo.length > 0 && (
+            <div className="mt-4 bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <h4 className="font-semibold text-orange-800 mb-2">⚠️ Factores de Riesgo Identificados:</h4>
+              <ul className="list-disc list-inside text-orange-700">
+                {riskData.factores_riesgo.map((factor, index) => (
+                  <li key={index}>{factor}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Recomendaciones IA */}
+          {riskData.recomendaciones_ia && riskData.recomendaciones_ia.length > 0 && (
+            <div className="mt-4 bg-green-50 p-4 rounded-lg border border-green-200">
+              <h4 className="font-semibold text-green-800 mb-2">🤖 Recomendaciones de la IA:</h4>
+              <ul className="list-disc list-inside text-green-700">
+                {riskData.recomendaciones_ia.map((rec, index) => (
+                  <li key={index}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Informe Narrativo */}
-      {data.informe_narrativo && (
-        <div className="bg-gray-50 p-4 rounded mb-6 whitespace-pre-line text-gray-700">
-          <h3 className="text-lg font-semibold mb-2">Informe Narrativo</h3>
-          <p>{data.informe_narrativo}</p>
+      {analysisData.informe_narrativo && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">📋 Informe Narrativo</h3>
+          <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-line text-gray-700">
+            {analysisData.informe_narrativo}
+          </div>
         </div>
       )}
 
       {/* Promedio General */}
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <h3 className="text-lg font-semibold text-blue-800 mb-2">Promedio General</h3>
-        <p className="text-3xl font-bold text-blue-600">
-          {typeof data.promedio_general === 'number' ? data.promedio_general.toFixed(2) : data.promedio_general}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg mb-6">
+        <h3 className="text-lg font-semibold mb-2">📊 Promedio General</h3>
+        <p className="text-4xl font-bold">
+          {typeof analysisData.promedio_general === 'number' ? analysisData.promedio_general.toFixed(2) : analysisData.promedio_general}
         </p>
-        <p className="text-sm text-blue-700 mt-1">
-          Escala de 1.0 a 5.0
-        </p>
+        <p className="text-blue-100 mt-1">Escala de 1.0 a 5.0</p>
       </div>
 
       {/* Gráfico de Niveles de Desempeño */}
-      {data.niveles_desempeno && Object.keys(data.niveles_desempeno).length > 0 && (
+      {analysisData.niveles_desempeno && Object.keys(analysisData.niveles_desempeno).length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">Niveles de Desempeño</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">📈 Niveles de Desempeño</h3>
           <div className="flex flex-col lg:flex-row items-center">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -83,10 +201,9 @@ const StudentAnalysis = () => {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Resumen de niveles */}
             <div className="lg:ml-6 mt-4 lg:mt-0">
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(data.niveles_desempeno).map(([nivel, cantidad], index) => (
+                {Object.entries(analysisData.niveles_desempeno).map(([nivel, cantidad], index) => (
                   <div key={nivel} className="flex items-center">
                     <div
                       className="w-4 h-4 rounded mr-2"
@@ -106,11 +223,11 @@ const StudentAnalysis = () => {
       {/* Layout de dos columnas para el resto del contenido */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Promedios por Materia */}
-        {data.promedios_por_materia && data.promedios_por_materia.length > 0 && (
+        {analysisData.promedios_por_materia && analysisData.promedios_por_materia.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Promedios por Materia</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">📚 Promedios por Materia</h3>
             <div className="space-y-2">
-              {data.promedios_por_materia.map((m, index) => (
+              {analysisData.promedios_por_materia.map((m, index) => (
                 <div key={`${m.materia}-${index}`} className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="font-medium">{m.materia}</span>
                   <span className={`font-bold text-lg ${getGradeColor(m.nota)}`}>
@@ -126,11 +243,11 @@ const StudentAnalysis = () => {
         )}
 
         {/* Resumen por Periodo */}
-        {data.resumen_por_periodo && data.resumen_por_periodo.length > 0 && (
+        {analysisData.resumen_por_periodo && analysisData.resumen_por_periodo.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Resumen por Periodo</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">📅 Resumen por Periodo</h3>
             <div className="space-y-2">
-              {data.resumen_por_periodo.map((p, index) => (
+              {analysisData.resumen_por_periodo.map((p, index) => (
                 <div key={`periodo-${p.periodo}-${index}`} className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="font-medium">Periodo {p.periodo}</span>
                   <span className={`font-bold text-lg ${getGradeColor(p.nota)}`}>
@@ -149,13 +266,13 @@ const StudentAnalysis = () => {
       {/* Alertas y Recomendaciones */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Materias con Bajo Rendimiento */}
-        {data.materias_con_bajo_rendimiento && data.materias_con_bajo_rendimiento.length > 0 && (
+        {analysisData.materias_con_bajo_rendimiento && analysisData.materias_con_bajo_rendimiento.length > 0 && (
           <div className="bg-red-50 p-6 rounded-lg border border-red-200">
             <h3 className="text-lg font-semibold text-red-800 mb-4">
               ⚠️ Materias con Bajo Rendimiento
             </h3>
             <ul className="space-y-2">
-              {data.materias_con_bajo_rendimiento.map((m, index) => (
+              {analysisData.materias_con_bajo_rendimiento.map((m, index) => (
                 <li key={`bajo-${index}`} className="text-red-700 font-medium">• {m}</li>
               ))}
             </ul>
@@ -166,13 +283,13 @@ const StudentAnalysis = () => {
         )}
 
         {/* Recomendaciones */}
-        {data.recomendaciones && data.recomendaciones.length > 0 && (
+        {analysisData.recomendaciones && analysisData.recomendaciones.length > 0 && (
           <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
             <h3 className="text-lg font-semibold text-yellow-800 mb-4">
               💡 Recomendaciones
             </h3>
             <ul className="space-y-2">
-              {data.recomendaciones.map((r, i) => (
+              {analysisData.recomendaciones.map((r, i) => (
                 <li key={`rec-${i}`} className="text-yellow-700">• {r}</li>
               ))}
             </ul>
@@ -181,9 +298,9 @@ const StudentAnalysis = () => {
       </div>
 
       {/* Componente StudentCharts */}
-      {data && (
+      {analysisData && (
         <div className="mt-8">
-          <StudentCharts analysis={data} />
+          <StudentCharts analysis={analysisData} />
         </div>
       )}
     </div>

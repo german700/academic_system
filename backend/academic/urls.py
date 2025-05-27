@@ -20,8 +20,9 @@ router.register(r'grade-entries', views.GradeEntryViewSet)
 
 urlpatterns = [
     path('students/my-profile/', StudentProfileView.as_view(), name='my-student-profile'),
+    path("students/my-grades/", student_grades_view),
     path('', include(router.urls)),
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),
     path('grados/<int:grado_id>/materias/<int:materia_id>/', GradoMateriaViewSet.as_view({'delete': 'destroy'}), name='eliminar_materia_grado'),
-    path("students/my-grades/", student_grades_view),
+    
 ]

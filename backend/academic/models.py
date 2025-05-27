@@ -290,12 +290,14 @@ class Grade(models.Model):
 class GradeEntry(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)   
-    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='entries')
+    grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='entries', null=True, blank=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)
     submitted_date = models.DateTimeField(null=True, blank=True)
     late_submission = models.BooleanField(default=False)
     comments = models.TextField(blank=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         unique_together = ('assignment', 'student')
         verbose_name = "Entrada de Calificación"
