@@ -1,11 +1,14 @@
+#C:\Users\germa\Desktop\academic_system\backend\analytics\ml_model\predictor.py
+import os
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import joblib
 
-# Cargar modelo entrenado
-model = load_model("backend/analytics/ml_model/modelo_riesgo.keras")
+# Cargar modelo entrenado (relativo a este script)
+base_dir = os.path.dirname(__file__)
+model = load_model(os.path.join(base_dir, "modelo_riesgo.keras"))
 
 # Simulación de nuevos datos
 nuevo = pd.DataFrame([{
@@ -24,11 +27,11 @@ nuevo = pd.DataFrame([{
 
 # Codificación
 encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-encoder.fit(pd.read_csv("backend/analytics/ml_model/dataset.csv")[["subject", "course", "assignment_type"]])
+encoder.fit(pd.read_csv(os.path.join(base_dir, "dataset.csv"))[["subject", "course", "assignment_type"]])
 encoded_cat = encoder.transform(nuevo[["subject", "course", "assignment_type"]])
 
 scaler = StandardScaler()
-scaler.fit(pd.read_csv("backend/analytics/ml_model/dataset.csv")[["grade", "late", "period", "attendance", "exam_score", "task_score", "estrato", "edad"]])
+scaler.fit(pd.read_csv(os.path.join(base_dir, "dataset.csv"))[["grade", "late", "period", "attendance", "exam_score", "task_score", "estrato", "edad"]])
 scaled_num = scaler.transform(nuevo[["grade", "late", "period", "attendance", "exam_score", "task_score", "estrato", "edad"]])
 
 X = np.concatenate([encoded_cat, scaled_num], axis=1)

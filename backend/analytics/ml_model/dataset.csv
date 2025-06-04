@@ -1,0 +1,556 @@
+student_id,student_email,course,grade,subject,period,late,year,attendance,assignment_type,exam_score,task_score,estrato,edad
+3,pedro@correo.com,1-A,4.8,Matemáticas,1,0,2025,0.95,TAREA,0,4.8,3,5
+3,pedro@correo.com,1-A,5.0,Matemáticas,1,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,2.0,Matemáticas,1,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,5.0,Matemáticas,2,0,2025,0.95,TAREA,0,5.0,3,5
+3,pedro@correo.com,1-A,4.9,Matemáticas,2,0,2025,0.95,PROYECTO,0,4.9,3,5
+3,pedro@correo.com,1-A,5.0,Matemáticas,2,0,2025,0.95,EXAMEN,5.0,0,3,5
+3,pedro@correo.com,1-A,4.3,Matemáticas,2,0,2025,0.95,PROYECTO,0,4.3,3,5
+3,pedro@correo.com,1-A,4.7,Matemáticas,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,3.9,Matemáticas,3,0,2025,0.95,TAREA,0,3.9,3,5
+3,pedro@correo.com,1-A,4.2,Matemáticas,3,0,2025,0.95,TAREA,0,4.2,3,5
+3,pedro@correo.com,1-A,4.6,Matemáticas,3,0,2025,0.95,TAREA,0,4.6,3,5
+3,pedro@correo.com,1-A,4.5,Matemáticas,3,0,2025,0.95,TAREA,0,4.5,3,5
+3,pedro@correo.com,1-A,4.1,Matemáticas,4,0,2025,0.95,TAREA,0,4.1,3,5
+3,pedro@correo.com,1-A,4.7,Matemáticas,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.0,Matemáticas,4,0,2025,0.95,EXAMEN,4.0,0,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,1,0,2025,0.95,EXAMEN,4.7,0,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,1,0,2025,0.95,PROYECTO,0,4.7,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,1,0,2025,0.95,TAREA,0,4.7,3,5
+3,pedro@correo.com,1-A,4.6,Lengua,2,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Lengua,2,0,2025,0.95,PROYECTO,0,4.4,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,2,0,2025,0.95,TAREA,0,4.7,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,3,0,2025,0.95,EXAMEN,4.7,0,3,5
+3,pedro@correo.com,1-A,4.3,Lengua,3,0,2025,0.95,PROYECTO,0,4.3,3,5
+3,pedro@correo.com,1-A,4.3,Lengua,3,0,2025,0.95,PROYECTO,0,4.3,3,5
+3,pedro@correo.com,1-A,4.5,Lengua,3,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.6,Lengua,4,0,2025,0.95,PROYECTO,0,4.6,3,5
+3,pedro@correo.com,1-A,4.7,Lengua,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.8,Lengua,4,0,2025,0.95,PROYECTO,0,4.8,3,5
+3,pedro@correo.com,1-A,4.4,Lengua,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Lengua,4,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.8,Primerología,1,0,2025,0.95,TAREA,0,4.8,3,5
+3,pedro@correo.com,1-A,4.2,Primerología,1,0,2025,0.95,EXAMEN,4.2,0,3,5
+3,pedro@correo.com,1-A,4.6,Primerología,1,0,2025,0.95,TAREA,0,4.6,3,5
+3,pedro@correo.com,1-A,4.4,Primerología,1,0,2025,0.95,PROYECTO,0,4.4,3,5
+3,pedro@correo.com,1-A,3.8,Primerología,1,0,2025,0.95,EXAMEN,3.8,0,3,5
+3,pedro@correo.com,1-A,4.4,Primerología,2,0,2025,0.95,TAREA,0,4.4,3,5
+3,pedro@correo.com,1-A,4.7,Primerología,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Primerología,2,0,2025,0.95,EXAMEN,4.9,0,3,5
+3,pedro@correo.com,1-A,4.5,Primerología,3,0,2025,0.95,TAREA,0,4.5,3,5
+3,pedro@correo.com,1-A,4.3,Primerología,3,0,2025,0.95,PROYECTO,0,4.3,3,5
+3,pedro@correo.com,1-A,4.2,Primerología,3,0,2025,0.95,EXAMEN,4.2,0,3,5
+3,pedro@correo.com,1-A,4.2,Primerología,3,0,2025,0.95,EXAMEN,4.2,0,3,5
+3,pedro@correo.com,1-A,1.8,Primerología,4,0,2025,0.95,EXAMEN,1.8,0,3,5
+3,pedro@correo.com,1-A,4.1,Primerología,4,0,2025,0.95,EXAMEN,4.1,0,3,5
+3,pedro@correo.com,1-A,4.7,Primerología,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.0,Primerología,4,0,2025,0.95,EXAMEN,4.0,0,3,5
+3,pedro@correo.com,1-A,4.5,Lengua Castellana,1,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.5,Lengua Castellana,1,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Lengua Castellana,1,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Lengua Castellana,1,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.7,Lengua Castellana,2,0,2025,0.95,TAREA,0,4.7,3,5
+3,pedro@correo.com,1-A,4.5,Lengua Castellana,2,0,2025,0.95,PROYECTO,0,4.5,3,5
+3,pedro@correo.com,1-A,4.9,Lengua Castellana,2,0,2025,0.95,PROYECTO,0,4.9,3,5
+3,pedro@correo.com,1-A,4.7,Lengua Castellana,2,0,2025,0.95,PROYECTO,0,4.7,3,5
+3,pedro@correo.com,1-A,4.6,Lengua Castellana,3,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.8,Lengua Castellana,3,0,2025,0.95,TAREA,0,4.8,3,5
+3,pedro@correo.com,1-A,2.4,Lengua Castellana,3,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Lengua Castellana,4,0,2025,0.95,TAREA,0,4.9,3,5
+3,pedro@correo.com,1-A,3.7,Lengua Castellana,4,0,2025,0.95,EXAMEN,3.7,0,3,5
+3,pedro@correo.com,1-A,4.0,Lengua Castellana,4,0,2025,0.95,EXAMEN,4.0,0,3,5
+3,pedro@correo.com,1-A,4.8,Lengua Castellana,4,0,2025,0.95,TAREA,0,4.8,3,5
+3,pedro@correo.com,1-A,4.5,Inglés,1,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.8,Inglés,1,0,2025,0.95,EXAMEN,4.8,0,3,5
+3,pedro@correo.com,1-A,4.7,Inglés,1,0,2025,0.95,TAREA,0,4.7,3,5
+3,pedro@correo.com,1-A,4.9,Inglés,1,0,2025,0.95,PROYECTO,0,4.9,3,5
+3,pedro@correo.com,1-A,4.7,Inglés,1,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Inglés,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.2,Inglés,2,0,2025,0.95,TAREA,0,4.2,3,5
+3,pedro@correo.com,1-A,4.5,Inglés,2,0,2025,0.95,PROYECTO,0,4.5,3,5
+3,pedro@correo.com,1-A,4.4,Inglés,3,0,2025,0.95,EXAMEN,4.4,0,3,5
+3,pedro@correo.com,1-A,4.6,Inglés,3,0,2025,0.95,TAREA,0,4.6,3,5
+3,pedro@correo.com,1-A,4.5,Inglés,3,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Inglés,3,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,5.0,Inglés,3,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.6,Inglés,4,0,2025,0.95,TAREA,0,4.6,3,5
+3,pedro@correo.com,1-A,4.5,Inglés,4,0,2025,0.95,EXAMEN,4.5,0,3,5
+3,pedro@correo.com,1-A,1.4,Inglés,4,1,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.8,Inglés,4,0,2025,0.95,PROYECTO,0,4.8,3,5
+3,pedro@correo.com,1-A,4.2,Religión,1,0,2025,0.95,TAREA,0,4.2,3,5
+3,pedro@correo.com,1-A,4.4,Religión,1,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.7,Religión,1,0,2025,0.95,PROYECTO,0,4.7,3,5
+3,pedro@correo.com,1-A,4.6,Religión,1,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Religión,2,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.6,Religión,2,0,2025,0.95,PROYECTO,0,4.6,3,5
+3,pedro@correo.com,1-A,5.0,Religión,2,0,2025,0.95,PROYECTO,0,5.0,3,5
+3,pedro@correo.com,1-A,4.5,Religión,2,0,2025,0.95,EXAMEN,4.5,0,3,5
+3,pedro@correo.com,1-A,5.0,Religión,3,0,2025,0.95,PROYECTO,0,5.0,3,5
+3,pedro@correo.com,1-A,4.5,Religión,3,0,2025,0.95,TAREA,0,4.5,3,5
+3,pedro@correo.com,1-A,4.0,Religión,3,0,2025,0.95,PROYECTO,0,4.0,3,5
+3,pedro@correo.com,1-A,5.0,Religión,3,0,2025,0.95,PROYECTO,0,5.0,3,5
+3,pedro@correo.com,1-A,4.0,Religión,4,0,2025,0.95,TAREA,0,4.0,3,5
+3,pedro@correo.com,1-A,4.8,Religión,4,0,2025,0.95,TAREA,0,4.8,3,5
+3,pedro@correo.com,1-A,3.6,Religión,4,1,2025,0.95,EXAMEN,3.6,0,3,5
+3,pedro@correo.com,1-A,4.4,Religión,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Informática,1,0,2025,0.95,PROYECTO,0,4.4,3,5
+3,pedro@correo.com,1-A,4.3,Informática,1,0,2025,0.95,EXAMEN,4.3,0,3,5
+3,pedro@correo.com,1-A,4.3,Informática,1,0,2025,0.95,EXAMEN,4.3,0,3,5
+3,pedro@correo.com,1-A,4.6,Informática,1,0,2025,0.95,EXAMEN,4.6,0,3,5
+3,pedro@correo.com,1-A,4.6,Informática,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.3,Informática,2,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.9,Informática,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,5.0,Informática,2,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Informática,3,0,2025,0.95,PROYECTO,0,4.4,3,5
+3,pedro@correo.com,1-A,4.5,Informática,3,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.0,Informática,3,0,2025,0.95,PROYECTO,0,4.0,3,5
+3,pedro@correo.com,1-A,4.9,Informática,4,0,2025,0.95,PARTICIPACION,0,0,3,5
+3,pedro@correo.com,1-A,4.1,Informática,4,0,2025,0.95,TAREA,0,4.1,3,5
+3,pedro@correo.com,1-A,4.2,Informática,4,0,2025,0.95,QUIZ,0,0,3,5
+3,pedro@correo.com,1-A,4.4,Informática,4,0,2025,0.95,PROYECTO,0,4.4,3,5
+3,pedro@correo.com,1-A,4.1,Informática,4,0,2025,0.95,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.6,Matemáticas,1,0,2025,0.94,TAREA,0,3.6,3,5
+5,paula@correo.com,1-A,3.6,Matemáticas,1,0,2025,0.94,TAREA,0,3.6,3,5
+5,paula@correo.com,1-A,4.2,Matemáticas,1,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.7,Matemáticas,1,0,2025,0.94,TAREA,0,3.7,3,5
+5,paula@correo.com,1-A,4.5,Matemáticas,2,0,2025,0.94,PROYECTO,0,4.5,3,5
+5,paula@correo.com,1-A,3.9,Matemáticas,2,0,2025,0.94,PROYECTO,0,3.9,3,5
+5,paula@correo.com,1-A,4.4,Matemáticas,2,0,2025,0.94,PROYECTO,0,4.4,3,5
+5,paula@correo.com,1-A,3.8,Matemáticas,2,0,2025,0.94,TAREA,0,3.8,3,5
+5,paula@correo.com,1-A,4.0,Matemáticas,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.6,Matemáticas,3,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.3,Matemáticas,3,0,2025,0.94,TAREA,0,4.3,3,5
+5,paula@correo.com,1-A,4.2,Matemáticas,3,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.2,Matemáticas,4,0,2025,0.94,EXAMEN,3.2,0,3,5
+5,paula@correo.com,1-A,3.9,Matemáticas,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.3,Matemáticas,4,0,2025,0.94,PROYECTO,0,4.3,3,5
+5,paula@correo.com,1-A,1.6,Lengua,1,0,2025,0.94,EXAMEN,1.6,0,3,5
+5,paula@correo.com,1-A,2.5,Lengua,1,0,2025,0.94,TAREA,0,2.5,3,5
+5,paula@correo.com,1-A,4.6,Lengua,1,0,2025,0.94,TAREA,0,4.6,3,5
+5,paula@correo.com,1-A,4.1,Lengua,2,0,2025,0.94,TAREA,0,4.1,3,5
+5,paula@correo.com,1-A,1.1,Lengua,2,0,2025,0.94,EXAMEN,1.1,0,3,5
+5,paula@correo.com,1-A,4.6,Lengua,2,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.5,Lengua,3,0,2025,0.94,EXAMEN,3.5,0,3,5
+5,paula@correo.com,1-A,3.7,Lengua,3,0,2025,0.94,EXAMEN,3.7,0,3,5
+5,paula@correo.com,1-A,1.0,Lengua,3,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.2,Lengua,3,0,2025,0.94,PROYECTO,0,4.2,3,5
+5,paula@correo.com,1-A,2.1,Lengua,4,0,2025,0.94,EXAMEN,2.1,0,3,5
+5,paula@correo.com,1-A,4.0,Lengua,4,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.4,Lengua,4,0,2025,0.94,PROYECTO,0,3.4,3,5
+5,paula@correo.com,1-A,1.4,Lengua,4,0,2025,0.94,PROYECTO,0,1.4,3,5
+5,paula@correo.com,1-A,4.1,Lengua,4,0,2025,0.94,PROYECTO,0,4.1,3,5
+5,paula@correo.com,1-A,3.8,Primerología,1,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.0,Primerología,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.0,Primerología,1,0,2025,0.94,EXAMEN,4.0,0,3,5
+5,paula@correo.com,1-A,2.0,Primerología,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.8,Primerología,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.6,Primerología,2,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.1,Primerología,3,0,2025,0.94,TAREA,0,4.1,3,5
+5,paula@correo.com,1-A,1.4,Primerología,3,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.6,Primerología,3,0,2025,0.94,EXAMEN,3.6,0,3,5
+5,paula@correo.com,1-A,2.4,Primerología,4,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.6,Primerología,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,2.4,Primerología,4,0,2025,0.94,PROYECTO,0,2.4,3,5
+5,paula@correo.com,1-A,3.8,Primerología,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.7,Primerología,4,0,2025,0.94,EXAMEN,3.7,0,3,5
+5,paula@correo.com,1-A,4.3,Lengua Castellana,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.5,Lengua Castellana,1,0,2025,0.94,TAREA,0,3.5,3,5
+5,paula@correo.com,1-A,3.8,Lengua Castellana,1,0,2025,0.94,TAREA,0,3.8,3,5
+5,paula@correo.com,1-A,4.3,Lengua Castellana,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.6,Lengua Castellana,2,1,2025,0.94,TAREA,0,3.6,3,5
+5,paula@correo.com,1-A,3.8,Lengua Castellana,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.5,Lengua Castellana,2,0,2025,0.94,TAREA,0,4.5,3,5
+5,paula@correo.com,1-A,4.5,Lengua Castellana,2,0,2025,0.94,EXAMEN,4.5,0,3,5
+5,paula@correo.com,1-A,3.7,Lengua Castellana,3,0,2025,0.94,PROYECTO,0,3.7,3,5
+5,paula@correo.com,1-A,3.7,Lengua Castellana,3,0,2025,0.94,EXAMEN,3.7,0,3,5
+5,paula@correo.com,1-A,4.1,Lengua Castellana,3,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.9,Lengua Castellana,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.1,Lengua Castellana,4,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.4,Lengua Castellana,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.8,Inglés,1,0,2025,0.94,TAREA,0,3.8,3,5
+5,paula@correo.com,1-A,4.0,Inglés,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.1,Inglés,1,0,2025,0.94,TAREA,0,4.1,3,5
+5,paula@correo.com,1-A,1.5,Inglés,1,1,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.8,Inglés,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.6,Inglés,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,2.4,Inglés,2,0,2025,0.94,TAREA,0,2.4,3,5
+5,paula@correo.com,1-A,3.9,Inglés,2,0,2025,0.94,EXAMEN,3.9,0,3,5
+5,paula@correo.com,1-A,1.4,Inglés,3,0,2025,0.94,TAREA,0,1.4,3,5
+5,paula@correo.com,1-A,3.2,Inglés,3,0,2025,0.94,PROYECTO,0,3.2,3,5
+5,paula@correo.com,1-A,4.0,Inglés,3,0,2025,0.94,PROYECTO,0,4.0,3,5
+5,paula@correo.com,1-A,4.4,Inglés,3,0,2025,0.94,PROYECTO,0,4.4,3,5
+5,paula@correo.com,1-A,2.1,Inglés,4,0,2025,0.94,PROYECTO,0,2.1,3,5
+5,paula@correo.com,1-A,2.2,Inglés,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.1,Inglés,4,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.6,Inglés,4,0,2025,0.94,PROYECTO,0,3.6,3,5
+5,paula@correo.com,1-A,4.3,Religión,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.3,Religión,1,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.8,Religión,1,0,2025,0.94,EXAMEN,3.8,0,3,5
+5,paula@correo.com,1-A,3.7,Religión,1,0,2025,0.94,EXAMEN,3.7,0,3,5
+5,paula@correo.com,1-A,3.7,Religión,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.7,Religión,2,0,2025,0.94,PROYECTO,0,4.7,3,5
+5,paula@correo.com,1-A,3.8,Religión,2,0,2025,0.94,TAREA,0,3.8,3,5
+5,paula@correo.com,1-A,3.9,Religión,3,0,2025,0.94,EXAMEN,3.9,0,3,5
+5,paula@correo.com,1-A,4.4,Religión,3,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.0,Religión,3,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.3,Religión,4,0,2025,0.94,PROYECTO,0,4.3,3,5
+5,paula@correo.com,1-A,2.4,Religión,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.9,Religión,4,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,1.1,Religión,4,1,2025,0.94,EXAMEN,1.1,0,3,5
+5,paula@correo.com,1-A,4.5,Informática,1,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,3.7,Informática,1,0,2025,0.94,PROYECTO,0,3.7,3,5
+5,paula@correo.com,1-A,4.1,Informática,1,0,2025,0.94,PROYECTO,0,4.1,3,5
+5,paula@correo.com,1-A,4.1,Informática,1,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,3.9,Informática,2,0,2025,0.94,QUIZ,0,0,3,5
+5,paula@correo.com,1-A,4.1,Informática,2,0,2025,0.94,PROYECTO,0,4.1,3,5
+5,paula@correo.com,1-A,4.5,Informática,2,1,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,5.0,Informática,2,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.1,Informática,3,0,2025,0.94,TAREA,0,4.1,3,5
+5,paula@correo.com,1-A,3.4,Informática,3,0,2025,0.94,PROYECTO,0,3.4,3,5
+5,paula@correo.com,1-A,4.2,Informática,3,0,2025,0.94,PROYECTO,0,4.2,3,5
+5,paula@correo.com,1-A,3.8,Informática,3,0,2025,0.94,EXAMEN,3.8,0,3,5
+5,paula@correo.com,1-A,3.6,Informática,4,0,2025,0.94,TAREA,0,3.6,3,5
+5,paula@correo.com,1-A,3.9,Informática,4,0,2025,0.94,PARTICIPACION,0,0,3,5
+5,paula@correo.com,1-A,4.1,Informática,4,0,2025,0.94,TAREA,0,4.1,3,5
+6,juan@coreo.com,1-A,4.1,Matemáticas,1,0,2025,0.91,PROYECTO,0,4.1,3,3
+6,juan@coreo.com,1-A,2.9,Matemáticas,1,0,2025,0.91,EXAMEN,2.9,0,3,3
+6,juan@coreo.com,1-A,2.5,Matemáticas,1,0,2025,0.91,PROYECTO,0,2.5,3,3
+6,juan@coreo.com,1-A,3.6,Matemáticas,2,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Matemáticas,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Matemáticas,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,4.5,Matemáticas,2,0,2025,0.91,PROYECTO,0,4.5,3,3
+6,juan@coreo.com,1-A,3.7,Matemáticas,3,1,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Matemáticas,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.4,Matemáticas,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.4,Matemáticas,3,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.7,Matemáticas,4,1,2025,0.91,TAREA,0,3.7,3,3
+6,juan@coreo.com,1-A,3.4,Matemáticas,4,0,2025,0.91,TAREA,0,3.4,3,3
+6,juan@coreo.com,1-A,2.8,Matemáticas,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.8,Matemáticas,4,0,2025,0.91,PROYECTO,0,3.8,3,3
+6,juan@coreo.com,1-A,3.4,Matemáticas,4,1,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Lengua,1,0,2025,0.91,TAREA,0,3.6,3,3
+6,juan@coreo.com,1-A,3.9,Lengua,1,0,2025,0.91,TAREA,0,3.9,3,3
+6,juan@coreo.com,1-A,3.4,Lengua,1,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,4.0,Lengua,1,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.2,Lengua,1,0,2025,0.91,TAREA,0,3.2,3,3
+6,juan@coreo.com,1-A,3.6,Lengua,2,0,2025,0.91,TAREA,0,3.6,3,3
+6,juan@coreo.com,1-A,4.0,Lengua,2,0,2025,0.91,TAREA,0,4.0,3,3
+6,juan@coreo.com,1-A,2.7,Lengua,2,1,2025,0.91,TAREA,0,2.7,3,3
+6,juan@coreo.com,1-A,1.5,Lengua,3,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.9,Lengua,3,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.1,Lengua,3,0,2025,0.91,PROYECTO,0,3.1,3,3
+6,juan@coreo.com,1-A,1.6,Lengua,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.1,Lengua,3,1,2025,0.91,EXAMEN,2.1,0,3,3
+6,juan@coreo.com,1-A,2.4,Lengua,4,1,2025,0.91,PROYECTO,0,2.4,3,3
+6,juan@coreo.com,1-A,1.2,Lengua,4,0,2025,0.91,EXAMEN,1.2,0,3,3
+6,juan@coreo.com,1-A,3.7,Lengua,4,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.2,Lengua,4,0,2025,0.91,EXAMEN,3.2,0,3,3
+6,juan@coreo.com,1-A,2.4,Lengua,4,0,2025,0.91,EXAMEN,2.4,0,3,3
+6,juan@coreo.com,1-A,3.1,Primerología,1,0,2025,0.91,PROYECTO,0,3.1,3,3
+6,juan@coreo.com,1-A,4.2,Primerología,1,0,2025,0.91,TAREA,0,4.2,3,3
+6,juan@coreo.com,1-A,3.7,Primerología,1,0,2025,0.91,TAREA,0,3.7,3,3
+6,juan@coreo.com,1-A,1.4,Primerología,1,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.0,Primerología,1,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,2.8,Primerología,2,1,2025,0.91,TAREA,0,2.8,3,3
+6,juan@coreo.com,1-A,3.9,Primerología,2,0,2025,0.91,TAREA,0,3.9,3,3
+6,juan@coreo.com,1-A,2.4,Primerología,2,1,2025,0.91,TAREA,0,2.4,3,3
+6,juan@coreo.com,1-A,3.8,Primerología,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.7,Primerología,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.1,Primerología,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.8,Primerología,3,1,2025,0.91,EXAMEN,2.8,0,3,3
+6,juan@coreo.com,1-A,4.0,Primerología,4,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.2,Primerología,4,0,2025,0.91,TAREA,0,3.2,3,3
+6,juan@coreo.com,1-A,3.0,Primerología,4,0,2025,0.91,PROYECTO,0,3.0,3,3
+6,juan@coreo.com,1-A,3.4,Primerología,4,0,2025,0.91,EXAMEN,3.4,0,3,3
+6,juan@coreo.com,1-A,3.1,Lengua Castellana,1,0,2025,0.91,TAREA,0,3.1,3,3
+6,juan@coreo.com,1-A,2.3,Lengua Castellana,1,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.3,Lengua Castellana,1,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,2.3,Lengua Castellana,1,0,2025,0.91,PROYECTO,0,2.3,3,3
+6,juan@coreo.com,1-A,3.1,Lengua Castellana,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,1.5,Lengua Castellana,2,0,2025,0.91,PROYECTO,0,1.5,3,3
+6,juan@coreo.com,1-A,2.2,Lengua Castellana,2,0,2025,0.91,EXAMEN,2.2,0,3,3
+6,juan@coreo.com,1-A,4.1,Lengua Castellana,2,0,2025,0.91,TAREA,0,4.1,3,3
+6,juan@coreo.com,1-A,3.5,Lengua Castellana,3,0,2025,0.91,EXAMEN,3.5,0,3,3
+6,juan@coreo.com,1-A,2.8,Lengua Castellana,3,0,2025,0.91,EXAMEN,2.8,0,3,3
+6,juan@coreo.com,1-A,2.0,Lengua Castellana,3,1,2025,0.91,TAREA,0,2.0,3,3
+6,juan@coreo.com,1-A,3.2,Lengua Castellana,4,0,2025,0.91,PROYECTO,0,3.2,3,3
+6,juan@coreo.com,1-A,2.4,Lengua Castellana,4,0,2025,0.91,EXAMEN,2.4,0,3,3
+6,juan@coreo.com,1-A,3.1,Lengua Castellana,4,0,2025,0.91,TAREA,0,3.1,3,3
+6,juan@coreo.com,1-A,3.7,Lengua Castellana,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.7,Inglés,1,0,2025,0.91,EXAMEN,3.7,0,3,3
+6,juan@coreo.com,1-A,1.1,Inglés,1,0,2025,0.91,EXAMEN,1.1,0,3,3
+6,juan@coreo.com,1-A,3.4,Inglés,1,0,2025,0.91,TAREA,0,3.4,3,3
+6,juan@coreo.com,1-A,1.9,Inglés,2,1,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,4.2,Inglés,2,0,2025,0.91,PROYECTO,0,4.2,3,3
+6,juan@coreo.com,1-A,3.1,Inglés,2,0,2025,0.91,PROYECTO,0,3.1,3,3
+6,juan@coreo.com,1-A,4.0,Inglés,2,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,4.5,Inglés,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.8,Inglés,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.0,Inglés,3,1,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.2,Inglés,3,0,2025,0.91,TAREA,0,3.2,3,3
+6,juan@coreo.com,1-A,2.9,Inglés,3,0,2025,0.91,EXAMEN,2.9,0,3,3
+6,juan@coreo.com,1-A,2.7,Inglés,4,0,2025,0.91,EXAMEN,2.7,0,3,3
+6,juan@coreo.com,1-A,3.1,Inglés,4,0,2025,0.91,TAREA,0,3.1,3,3
+6,juan@coreo.com,1-A,2.4,Inglés,4,1,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.2,Religión,1,0,2025,0.91,TAREA,0,2.2,3,3
+6,juan@coreo.com,1-A,2.4,Religión,1,0,2025,0.91,EXAMEN,2.4,0,3,3
+6,juan@coreo.com,1-A,3.0,Religión,1,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,4.1,Religión,1,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.8,Religión,2,0,2025,0.91,TAREA,0,2.8,3,3
+6,juan@coreo.com,1-A,3.1,Religión,2,0,2025,0.91,EXAMEN,3.1,0,3,3
+6,juan@coreo.com,1-A,4.4,Religión,2,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.9,Religión,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,1.5,Religión,3,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.4,Religión,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.5,Religión,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,1.7,Religión,4,1,2025,0.91,PROYECTO,0,1.7,3,3
+6,juan@coreo.com,1-A,3.4,Religión,4,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.4,Religión,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.0,Religión,4,0,2025,0.91,PROYECTO,0,3.0,3,3
+6,juan@coreo.com,1-A,3.6,Informática,1,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Informática,1,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,4.1,Informática,1,0,2025,0.91,PROYECTO,0,4.1,3,3
+6,juan@coreo.com,1-A,3.8,Informática,2,0,2025,0.91,PROYECTO,0,3.8,3,3
+6,juan@coreo.com,1-A,4.0,Informática,2,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,2.9,Informática,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,4.1,Informática,2,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,2.6,Informática,3,0,2025,0.91,EXAMEN,2.6,0,3,3
+6,juan@coreo.com,1-A,3.5,Informática,3,0,2025,0.91,QUIZ,0,0,3,3
+6,juan@coreo.com,1-A,3.6,Informática,3,0,2025,0.91,EXAMEN,3.6,0,3,3
+6,juan@coreo.com,1-A,3.4,Informática,3,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.4,Informática,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.2,Informática,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+6,juan@coreo.com,1-A,3.8,Informática,4,0,2025,0.91,PARTICIPACION,0,0,3,3
+7,pablito@correo.com,1-A,1.1,Matemáticas,1,1,2025,0.84,TAREA,0,1.1,3,5
+7,pablito@correo.com,1-A,1.7,Matemáticas,1,0,2025,0.84,PROYECTO,0,1.7,3,5
+7,pablito@correo.com,1-A,4.3,Matemáticas,1,0,2025,0.84,TAREA,0,4.3,3,5
+7,pablito@correo.com,1-A,1.9,Matemáticas,1,1,2025,0.84,PROYECTO,0,1.9,3,5
+7,pablito@correo.com,1-A,2.1,Matemáticas,1,0,2025,0.84,EXAMEN,2.1,0,3,5
+7,pablito@correo.com,1-A,1.0,Matemáticas,2,1,2025,0.84,TAREA,0,1.0,3,5
+7,pablito@correo.com,1-A,3.1,Matemáticas,2,0,2025,0.84,TAREA,0,3.1,3,5
+7,pablito@correo.com,1-A,4.1,Matemáticas,2,0,2025,0.84,TAREA,0,4.1,3,5
+7,pablito@correo.com,1-A,3.5,Matemáticas,2,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.5,Matemáticas,2,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.6,Matemáticas,3,0,2025,0.84,PROYECTO,0,2.6,3,5
+7,pablito@correo.com,1-A,1.1,Matemáticas,3,0,2025,0.84,TAREA,0,1.1,3,5
+7,pablito@correo.com,1-A,2.5,Matemáticas,3,0,2025,0.84,PROYECTO,0,2.5,3,5
+7,pablito@correo.com,1-A,1.5,Matemáticas,4,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.2,Matemáticas,4,0,2025,0.84,EXAMEN,2.2,0,3,5
+7,pablito@correo.com,1-A,3.2,Matemáticas,4,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.6,Lengua,1,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.1,Lengua,1,1,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,1.6,Lengua,1,1,2025,0.84,TAREA,0,1.6,3,5
+7,pablito@correo.com,1-A,1.8,Lengua,1,0,2025,0.84,PROYECTO,0,1.8,3,5
+7,pablito@correo.com,1-A,1.7,Lengua,2,1,2025,0.84,EXAMEN,1.7,0,3,5
+7,pablito@correo.com,1-A,1.6,Lengua,2,1,2025,0.84,EXAMEN,1.6,0,3,5
+7,pablito@correo.com,1-A,2.8,Lengua,2,1,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.0,Lengua,2,0,2025,0.84,EXAMEN,2.0,0,3,5
+7,pablito@correo.com,1-A,2.3,Lengua,3,0,2025,0.84,EXAMEN,2.3,0,3,5
+7,pablito@correo.com,1-A,2.6,Lengua,3,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.3,Lengua,3,1,2025,0.84,TAREA,0,3.3,3,5
+7,pablito@correo.com,1-A,2.4,Lengua,4,0,2025,0.84,TAREA,0,2.4,3,5
+7,pablito@correo.com,1-A,2.4,Lengua,4,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.8,Lengua,4,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Lengua,4,0,2025,0.84,PROYECTO,0,2.4,3,5
+7,pablito@correo.com,1-A,3.0,Lengua,4,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.1,Primerología,1,0,2025,0.84,EXAMEN,3.1,0,3,5
+7,pablito@correo.com,1-A,2.9,Primerología,1,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.7,Primerología,1,1,2025,0.84,TAREA,0,2.7,3,5
+7,pablito@correo.com,1-A,2.6,Primerología,1,1,2025,0.84,TAREA,0,2.6,3,5
+7,pablito@correo.com,1-A,3.7,Primerología,2,0,2025,0.84,PROYECTO,0,3.7,3,5
+7,pablito@correo.com,1-A,3.1,Primerología,2,1,2025,0.84,TAREA,0,3.1,3,5
+7,pablito@correo.com,1-A,1.3,Primerología,2,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.0,Primerología,3,0,2025,0.84,EXAMEN,2.0,0,3,5
+7,pablito@correo.com,1-A,2.3,Primerología,3,1,2025,0.84,PROYECTO,0,2.3,3,5
+7,pablito@correo.com,1-A,2.6,Primerología,3,0,2025,0.84,PROYECTO,0,2.6,3,5
+7,pablito@correo.com,1-A,3.7,Primerología,3,0,2025,0.84,EXAMEN,3.7,0,3,5
+7,pablito@correo.com,1-A,2.7,Primerología,3,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.3,Primerología,4,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.9,Primerología,4,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,3.5,Primerología,4,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.1,Primerología,4,0,2025,0.84,EXAMEN,2.1,0,3,5
+7,pablito@correo.com,1-A,1.2,Primerología,4,0,2025,0.84,EXAMEN,1.2,0,3,5
+7,pablito@correo.com,1-A,2.8,Lengua Castellana,1,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.6,Lengua Castellana,1,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,1.2,Lengua Castellana,1,0,2025,0.84,PROYECTO,0,1.2,3,5
+7,pablito@correo.com,1-A,2.0,Lengua Castellana,1,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.2,Lengua Castellana,2,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,3.4,Lengua Castellana,2,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.3,Lengua Castellana,2,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.8,Lengua Castellana,3,0,2025,0.84,TAREA,0,2.8,3,5
+7,pablito@correo.com,1-A,2.2,Lengua Castellana,3,1,2025,0.84,EXAMEN,2.2,0,3,5
+7,pablito@correo.com,1-A,3.6,Lengua Castellana,3,0,2025,0.84,EXAMEN,3.6,0,3,5
+7,pablito@correo.com,1-A,2.0,Lengua Castellana,3,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.2,Lengua Castellana,3,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Lengua Castellana,4,0,2025,0.84,EXAMEN,2.4,0,3,5
+7,pablito@correo.com,1-A,2.3,Lengua Castellana,4,1,2025,0.84,TAREA,0,2.3,3,5
+7,pablito@correo.com,1-A,2.4,Lengua Castellana,4,0,2025,0.84,TAREA,0,2.4,3,5
+7,pablito@correo.com,1-A,1.9,Lengua Castellana,4,0,2025,0.84,EXAMEN,1.9,0,3,5
+7,pablito@correo.com,1-A,2.5,Lengua Castellana,4,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.2,Inglés,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Inglés,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,1.9,Inglés,1,0,2025,0.84,EXAMEN,1.9,0,3,5
+7,pablito@correo.com,1-A,3.3,Inglés,1,0,2025,0.84,PROYECTO,0,3.3,3,5
+7,pablito@correo.com,1-A,1.5,Inglés,1,0,2025,0.84,EXAMEN,1.5,0,3,5
+7,pablito@correo.com,1-A,1.8,Inglés,2,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.2,Inglés,2,1,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,4.0,Inglés,2,1,2025,0.84,EXAMEN,4.0,0,3,5
+7,pablito@correo.com,1-A,2.1,Inglés,2,1,2025,0.84,PROYECTO,0,2.1,3,5
+7,pablito@correo.com,1-A,2.8,Inglés,3,0,2025,0.84,TAREA,0,2.8,3,5
+7,pablito@correo.com,1-A,2.7,Inglés,3,1,2025,0.84,EXAMEN,2.7,0,3,5
+7,pablito@correo.com,1-A,3.0,Inglés,3,0,2025,0.84,PROYECTO,0,3.0,3,5
+7,pablito@correo.com,1-A,2.4,Inglés,3,1,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.1,Inglés,3,1,2025,0.84,TAREA,0,2.1,3,5
+7,pablito@correo.com,1-A,2.7,Inglés,4,1,2025,0.84,PROYECTO,0,2.7,3,5
+7,pablito@correo.com,1-A,3.7,Inglés,4,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,4.0,Inglés,4,0,2025,0.84,PROYECTO,0,4.0,3,5
+7,pablito@correo.com,1-A,2.3,Inglés,4,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.5,Religión,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Religión,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,3.1,Religión,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,1.3,Religión,1,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Religión,1,1,2025,0.84,EXAMEN,2.4,0,3,5
+7,pablito@correo.com,1-A,2.8,Religión,2,0,2025,0.84,PROYECTO,0,2.8,3,5
+7,pablito@correo.com,1-A,3.5,Religión,2,0,2025,0.84,TAREA,0,3.5,3,5
+7,pablito@correo.com,1-A,3.0,Religión,2,1,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.6,Religión,3,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.5,Religión,3,0,2025,0.84,PROYECTO,0,3.5,3,5
+7,pablito@correo.com,1-A,1.5,Religión,3,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.0,Religión,3,1,2025,0.84,EXAMEN,2.0,0,3,5
+7,pablito@correo.com,1-A,3.0,Religión,4,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.4,Religión,4,0,2025,0.84,TAREA,0,2.4,3,5
+7,pablito@correo.com,1-A,4.0,Religión,4,0,2025,0.84,PROYECTO,0,4.0,3,5
+7,pablito@correo.com,1-A,2.7,Religión,4,0,2025,0.84,TAREA,0,2.7,3,5
+7,pablito@correo.com,1-A,2.4,Religión,4,0,2025,0.84,EXAMEN,2.4,0,3,5
+7,pablito@correo.com,1-A,4.0,Informática,1,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,1.7,Informática,1,0,2025,0.84,PROYECTO,0,1.7,3,5
+7,pablito@correo.com,1-A,2.5,Informática,1,1,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,2.9,Informática,1,0,2025,0.84,PROYECTO,0,2.9,3,5
+7,pablito@correo.com,1-A,3.9,Informática,2,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,2.8,Informática,2,0,2025,0.84,PROYECTO,0,2.8,3,5
+7,pablito@correo.com,1-A,4.3,Informática,2,0,2025,0.84,TAREA,0,4.3,3,5
+7,pablito@correo.com,1-A,2.3,Informática,2,0,2025,0.84,TAREA,0,2.3,3,5
+7,pablito@correo.com,1-A,2.4,Informática,2,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,3.3,Informática,3,1,2025,0.84,PROYECTO,0,3.3,3,5
+7,pablito@correo.com,1-A,2.3,Informática,3,0,2025,0.84,QUIZ,0,0,3,5
+7,pablito@correo.com,1-A,3.0,Informática,3,0,2025,0.84,PROYECTO,0,3.0,3,5
+7,pablito@correo.com,1-A,2.5,Informática,4,0,2025,0.84,PARTICIPACION,0,0,3,5
+7,pablito@correo.com,1-A,1.2,Informática,4,1,2025,0.84,PROYECTO,0,1.2,3,5
+7,pablito@correo.com,1-A,2.6,Informática,4,0,2025,0.84,TAREA,0,2.6,3,5
+7,pablito@correo.com,1-A,3.5,Informática,4,0,2025,0.84,PROYECTO,0,3.5,3,5
+8,ligia@correo.com,1-A,2.6,Matemáticas,1,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.1,Matemáticas,1,1,2025,0.73,EXAMEN,1.1,0,3,7
+8,ligia@correo.com,1-A,2.5,Matemáticas,1,0,2025,0.73,EXAMEN,2.5,0,3,7
+8,ligia@correo.com,1-A,2.1,Matemáticas,1,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.3,Matemáticas,1,0,2025,0.73,EXAMEN,1.3,0,3,7
+8,ligia@correo.com,1-A,2.5,Matemáticas,2,1,2025,0.73,PROYECTO,0,2.5,3,7
+8,ligia@correo.com,1-A,2.2,Matemáticas,2,0,2025,0.73,EXAMEN,2.2,0,3,7
+8,ligia@correo.com,1-A,2.6,Matemáticas,2,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.9,Matemáticas,3,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.5,Matemáticas,3,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.8,Matemáticas,3,0,2025,0.73,TAREA,0,1.8,3,7
+8,ligia@correo.com,1-A,1.8,Matemáticas,4,1,2025,0.73,PROYECTO,0,1.8,3,7
+8,ligia@correo.com,1-A,2.4,Matemáticas,4,0,2025,0.73,PROYECTO,0,2.4,3,7
+8,ligia@correo.com,1-A,1.7,Matemáticas,4,0,2025,0.73,EXAMEN,1.7,0,3,7
+8,ligia@correo.com,1-A,1.6,Matemáticas,4,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.7,Lengua,1,0,2025,0.73,PROYECTO,0,2.7,3,7
+8,ligia@correo.com,1-A,1.3,Lengua,1,1,2025,0.73,EXAMEN,1.3,0,3,7
+8,ligia@correo.com,1-A,3.2,Lengua,1,0,2025,0.73,TAREA,0,3.2,3,7
+8,ligia@correo.com,1-A,2.9,Lengua,1,0,2025,0.73,TAREA,0,2.9,3,7
+8,ligia@correo.com,1-A,1.9,Lengua,1,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.7,Lengua,2,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.4,Lengua,2,0,2025,0.73,TAREA,0,2.4,3,7
+8,ligia@correo.com,1-A,2.0,Lengua,2,0,2025,0.73,EXAMEN,2.0,0,3,7
+8,ligia@correo.com,1-A,2.4,Lengua,2,1,2025,0.73,TAREA,0,2.4,3,7
+8,ligia@correo.com,1-A,1.5,Lengua,2,1,2025,0.73,PROYECTO,0,1.5,3,7
+8,ligia@correo.com,1-A,2.2,Lengua,3,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.4,Lengua,3,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.3,Lengua,3,0,2025,0.73,EXAMEN,2.3,0,3,7
+8,ligia@correo.com,1-A,1.7,Lengua,3,1,2025,0.73,EXAMEN,1.7,0,3,7
+8,ligia@correo.com,1-A,2.8,Lengua,4,1,2025,0.73,EXAMEN,2.8,0,3,7
+8,ligia@correo.com,1-A,1.6,Lengua,4,0,2025,0.73,TAREA,0,1.6,3,7
+8,ligia@correo.com,1-A,1.0,Lengua,4,1,2025,0.73,EXAMEN,1.0,0,3,7
+8,ligia@correo.com,1-A,1.7,Lengua,4,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.0,Lengua,4,1,2025,0.73,TAREA,0,2.0,3,7
+8,ligia@correo.com,1-A,1.5,Primerología,1,0,2025,0.73,EXAMEN,1.5,0,3,7
+8,ligia@correo.com,1-A,3.3,Primerología,1,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.0,Primerología,1,1,2025,0.73,TAREA,0,1.0,3,7
+8,ligia@correo.com,1-A,3.1,Primerología,1,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,3.4,Primerología,1,0,2025,0.73,PROYECTO,0,3.4,3,7
+8,ligia@correo.com,1-A,2.2,Primerología,2,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.3,Primerología,2,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,3.0,Primerología,2,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.2,Primerología,3,1,2025,0.73,EXAMEN,1.2,0,3,7
+8,ligia@correo.com,1-A,2.2,Primerología,3,0,2025,0.73,PROYECTO,0,2.2,3,7
+8,ligia@correo.com,1-A,2.5,Primerología,3,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.8,Primerología,3,1,2025,0.73,PROYECTO,0,1.8,3,7
+8,ligia@correo.com,1-A,2.0,Primerología,3,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.6,Primerología,4,1,2025,0.73,PROYECTO,0,1.6,3,7
+8,ligia@correo.com,1-A,2.9,Primerología,4,1,2025,0.73,PROYECTO,0,2.9,3,7
+8,ligia@correo.com,1-A,2.6,Primerología,4,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,1.8,Primerología,4,1,2025,0.73,TAREA,0,1.8,3,7
+8,ligia@correo.com,1-A,2.8,Primerología,4,0,2025,0.73,PROYECTO,0,2.8,3,7
+8,ligia@correo.com,1-A,1.3,Lengua Castellana,1,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.5,Lengua Castellana,1,0,2025,0.73,TAREA,0,1.5,3,7
+8,ligia@correo.com,1-A,2.9,Lengua Castellana,1,0,2025,0.73,TAREA,0,2.9,3,7
+8,ligia@correo.com,1-A,1.0,Lengua Castellana,1,1,2025,0.73,EXAMEN,1.0,0,3,7
+8,ligia@correo.com,1-A,2.9,Lengua Castellana,1,0,2025,0.73,PROYECTO,0,2.9,3,7
+8,ligia@correo.com,1-A,3.0,Lengua Castellana,2,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.3,Lengua Castellana,2,0,2025,0.73,TAREA,0,2.3,3,7
+8,ligia@correo.com,1-A,2.2,Lengua Castellana,2,0,2025,0.73,TAREA,0,2.2,3,7
+8,ligia@correo.com,1-A,1.9,Lengua Castellana,2,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.5,Lengua Castellana,3,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.6,Lengua Castellana,3,0,2025,0.73,TAREA,0,2.6,3,7
+8,ligia@correo.com,1-A,1.0,Lengua Castellana,3,1,2025,0.73,TAREA,0,1.0,3,7
+8,ligia@correo.com,1-A,2.0,Lengua Castellana,4,0,2025,0.73,TAREA,0,2.0,3,7
+8,ligia@correo.com,1-A,1.4,Lengua Castellana,4,1,2025,0.73,PROYECTO,0,1.4,3,7
+8,ligia@correo.com,1-A,2.1,Lengua Castellana,4,0,2025,0.73,EXAMEN,2.1,0,3,7
+8,ligia@correo.com,1-A,2.4,Lengua Castellana,4,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.8,Lengua Castellana,4,0,2025,0.73,TAREA,0,2.8,3,7
+8,ligia@correo.com,1-A,2.5,Inglés,1,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.3,Inglés,1,0,2025,0.73,EXAMEN,2.3,0,3,7
+8,ligia@correo.com,1-A,1.0,Inglés,1,1,2025,0.73,EXAMEN,1.0,0,3,7
+8,ligia@correo.com,1-A,3.9,Inglés,2,0,2025,0.73,PROYECTO,0,3.9,3,7
+8,ligia@correo.com,1-A,2.2,Inglés,2,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.9,Inglés,2,0,2025,0.73,TAREA,0,2.9,3,7
+8,ligia@correo.com,1-A,2.5,Inglés,2,0,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,3.1,Inglés,2,0,2025,0.73,EXAMEN,3.1,0,3,7
+8,ligia@correo.com,1-A,1.1,Inglés,3,0,2025,0.73,EXAMEN,1.1,0,3,7
+8,ligia@correo.com,1-A,1.6,Inglés,3,0,2025,0.73,EXAMEN,1.6,0,3,7
+8,ligia@correo.com,1-A,1.0,Inglés,3,1,2025,0.73,TAREA,0,1.0,3,7
+8,ligia@correo.com,1-A,2.0,Inglés,4,0,2025,0.73,PROYECTO,0,2.0,3,7
+8,ligia@correo.com,1-A,2.3,Inglés,4,0,2025,0.73,PROYECTO,0,2.3,3,7
+8,ligia@correo.com,1-A,1.0,Inglés,4,1,2025,0.73,EXAMEN,1.0,0,3,7
+8,ligia@correo.com,1-A,2.6,Inglés,4,0,2025,0.73,EXAMEN,2.6,0,3,7
+8,ligia@correo.com,1-A,1.9,Religión,1,1,2025,0.73,TAREA,0,1.9,3,7
+8,ligia@correo.com,1-A,1.0,Religión,1,1,2025,0.73,TAREA,0,1.0,3,7
+8,ligia@correo.com,1-A,3.5,Religión,1,0,2025,0.73,PROYECTO,0,3.5,3,7
+8,ligia@correo.com,1-A,2.4,Religión,2,0,2025,0.73,EXAMEN,2.4,0,3,7
+8,ligia@correo.com,1-A,1.9,Religión,2,0,2025,0.73,TAREA,0,1.9,3,7
+8,ligia@correo.com,1-A,2.0,Religión,2,0,2025,0.73,PROYECTO,0,2.0,3,7
+8,ligia@correo.com,1-A,2.6,Religión,3,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.1,Religión,3,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.8,Religión,3,1,2025,0.73,TAREA,0,1.8,3,7
+8,ligia@correo.com,1-A,1.5,Religión,3,1,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.1,Religión,4,0,2025,0.73,EXAMEN,1.1,0,3,7
+8,ligia@correo.com,1-A,1.5,Religión,4,0,2025,0.73,EXAMEN,1.5,0,3,7
+8,ligia@correo.com,1-A,1.9,Religión,4,1,2025,0.73,EXAMEN,1.9,0,3,7
+8,ligia@correo.com,1-A,1.9,Religión,4,1,2025,0.73,PROYECTO,0,1.9,3,7
+8,ligia@correo.com,1-A,1.8,Informática,1,0,2025,0.73,PROYECTO,0,1.8,3,7
+8,ligia@correo.com,1-A,2.1,Informática,1,0,2025,0.73,EXAMEN,2.1,0,3,7
+8,ligia@correo.com,1-A,1.9,Informática,1,0,2025,0.73,EXAMEN,1.9,0,3,7
+8,ligia@correo.com,1-A,1.6,Informática,1,0,2025,0.73,PROYECTO,0,1.6,3,7
+8,ligia@correo.com,1-A,2.0,Informática,1,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,1.2,Informática,2,1,2025,0.73,TAREA,0,1.2,3,7
+8,ligia@correo.com,1-A,1.3,Informática,2,0,2025,0.73,TAREA,0,1.3,3,7
+8,ligia@correo.com,1-A,1.2,Informática,2,0,2025,0.73,TAREA,0,1.2,3,7
+8,ligia@correo.com,1-A,1.9,Informática,2,1,2025,0.73,TAREA,0,1.9,3,7
+8,ligia@correo.com,1-A,1.0,Informática,2,1,2025,0.73,PARTICIPACION,0,0,3,7
+8,ligia@correo.com,1-A,2.0,Informática,3,0,2025,0.73,EXAMEN,2.0,0,3,7
+8,ligia@correo.com,1-A,2.0,Informática,3,0,2025,0.73,TAREA,0,2.0,3,7
+8,ligia@correo.com,1-A,1.7,Informática,3,0,2025,0.73,EXAMEN,1.7,0,3,7
+8,ligia@correo.com,1-A,2.4,Informática,4,0,2025,0.73,TAREA,0,2.4,3,7
+8,ligia@correo.com,1-A,2.8,Informática,4,0,2025,0.73,PROYECTO,0,2.8,3,7
+8,ligia@correo.com,1-A,1.6,Informática,4,0,2025,0.73,QUIZ,0,0,3,7
+8,ligia@correo.com,1-A,2.0,Informática,4,0,2025,0.73,PROYECTO,0,2.0,3,7
+8,ligia@correo.com,1-A,1.9,Informática,4,1,2025,0.73,EXAMEN,1.9,0,3,7

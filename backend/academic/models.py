@@ -316,5 +316,35 @@ class GradeEntry(models.Model):
         """Determina si la calificación es aprobatoria"""
         return self.get_percentage() >= passing_threshold
     
+#Modelo para el periodo academico
+class AcademicPeriod(models.Model):
+    """
+    Modelo que define un periodo académico (por ejemplo: Periodo 1, Periodo 2, etc.)
+    con fechas de inicio, fin y fecha límite de edición de notas.
+    """
+    number = models.PositiveSmallIntegerField(
+        help_text="Número interno del periodo (1, 2, 3…)"
+    )
+    name = models.CharField(
+        max_length=50,
+        help_text="Nombre descriptivo (p. ej. 'Primer Periodo', 'Segundo Periodo')"
+    )
+    start_date = models.DateField(help_text="Fecha de inicio del periodo")
+    end_date = models.DateField(help_text="Fecha de fin del periodo")
+    edit_deadline = models.DateField(
+        help_text="Fecha límite en la que el docente puede editar notas para este periodo"
+    )
+    academic_year = models.CharField(
+        max_length=9,
+        help_text="Año académico al que pertenece (p. ej. '2024-2025')"
+    )
 
+    class Meta:
+        unique_together = ('number', 'academic_year')
+        ordering = ['academic_year', 'number']
+        verbose_name = "Periodo Académico"
+        verbose_name_plural = "Periodos Académicos"
+
+    def __str__(self):
+        return f"{self.name} ({self.academic_year})"
     

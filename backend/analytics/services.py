@@ -29,9 +29,9 @@ class MLModelHandler:
     def _cargar_modelo(self):
         """Carga el modelo y encoder una sola vez"""
         try:
-            modelo_path = Path(settings.BASE_DIR) / "ml_model" / "modelo_riesgo.h5"
-            encoder_path = Path(settings.BASE_DIR) / "ml_model" / "encoder.pkl"
-            dataset_path = Path(settings.BASE_DIR) / "ml_model" / "dataset.csv"
+            modelo_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "modelo_riesgo.h5"
+            encoder_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "encoder.pkl"
+            dataset_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "dataset.csv"
             
             # Cargar modelo
             if modelo_path.exists():
@@ -130,7 +130,7 @@ def predecir_riesgo_estudiante(student: Student) -> Dict[str, Union[float, str, 
                 continue
                 
             # Calcular nota normalizada (0-5)
-            nota_normalizada = round((entry.score / entry.assignment.max_score) * 5.0, 2)
+            nota_normalizada = round((float(entry.score) / float(entry.assignment.max_score)) * 5.0, 2)
             
             data.append({
                 "subject": entry.assignment.course_subject.subject.name,

@@ -1,14 +1,16 @@
+#C:\Users\germa\Desktop\academic_system\backend\analytics\ml_model\entrenar_modelo.py
 import pandas as pd
 import numpy as np
 import os
+import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.models import save_model
 
-# Leer dataset
-df = pd.read_csv("backend/analytics/ml_model/dataset.csv")
+# Leer dataset (relativo a este script)
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), "dataset.csv"))
 
 # Validar columnas necesarias
 required_cols = ["subject", "course", "grade", "late", "period", "attendance", "assignment_type", "exam_score", "task_score", "estrato", "edad"]
@@ -48,7 +50,18 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy']
 # Entrenar
 model.fit(X_train, y_train, epochs=50, batch_size=32, validation_split=0.2)
 
+# Crear carpeta de salida si no existe (aunque ya debería existir)
+os.makedirs(os.path.dirname(__file__), exist_ok=True)
+
 # Guardar modelo
-os.makedirs("backend/analytics/ml_model", exist_ok=True)
-model.save("backend/analytics/ml_model/modelo_riesgo.keras")
+model.save(os.path.join(os.path.dirname(__file__), "modelo_riesgo.keras"))
+
+# Guardar encoder y scaler
+with open(os.path.join(os.path.dirname(__file__), "encoder.pkl"), "wb") as f_enc:
+    pickle.dump(encoder, f_enc)
+
+with open(os.path.join(os.path.dirname(__file__), "scaler.pkl"), "wb") as f_scl:
+    pickle.dump(scaler, f_scl)
+
 print("✅ Modelo mejorado entrenado y guardado")
+print("✅ Encoder y Scaler guardados")
