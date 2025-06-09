@@ -1,4 +1,3 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 
@@ -7,6 +6,7 @@ import ConfirmarCorreo from './components/auth/ConfirmarCorreo.jsx';
 
 import PrivateRoute from './components/shared/PrivateRoute.jsx';
 
+// Componentes de admin/directivo
 import DirectivoDashboard from './components/admin/DirectivoDashboard.jsx';
 import EstudiantesGestion from "./components/admin/EstudiantesGestion.jsx";
 import DocentesGestion from "./components/admin/DocentesGestion.jsx";
@@ -17,11 +17,21 @@ import CursosPorGrado from "./components/admin/CursosPorGrado.jsx";
 import CursoDetalle from "./components/admin/CursoDetalle.jsx";
 import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
 
+// Componentes de estudiantes
 import StudentLayout from './components/layout/StudentLayout.jsx';
 import StudentMateria from './components/students/StudentMateria.jsx';
 import StudentProfile from './components/students/StudentProfile';
 import StudentAnalisis from './components/students/StudentAnalysis.jsx';
 import MyGrades from './components/students/MyGrades.jsx';
+
+// Componentes de profesores
+import TeachersLayout from './components/layout/TeachersLayout.jsx';
+import TeacherDashboard from './components/teachers/TeacherDashboard.jsx';
+import TeacherCourses from './components/teachers/TeacherCourses.jsx';
+import CourseStudents from './components/teachers/CourseStudents.jsx';
+import CourseSubjectGrades from './components/teachers/CourseSubjectGrades.jsx';
+import StudentSubjectAnalysis from './components/teachers/StudentSubjectAnalysis.jsx';
+import CourseGrades from './components/teachers/CourseGrades.jsx';
 
 
 function App() {
@@ -84,6 +94,25 @@ function App() {
               <StudentsPerGrade />
             </PrivateRoute>
           } />
+
+          {/* Layout y rutas de profesores - CORREGIDO */}
+          <Route path="/teachers" element={
+            <PrivateRoute allowedRoles={["teacher"]}>
+              <TeachersLayout />
+            </PrivateRoute>
+          }>
+            {/* Ruta por defecto */}
+            <Route index element={<TeacherDashboard />} />
+            <Route path="dashboard" element={<TeacherDashboard />} />
+            
+            {/* Rutas de cursos */}
+            <Route path="courses/:courseId" element={<TeacherCourses />} />
+            <Route path="courses/:courseId/students" element={<CourseStudents />} />
+            <Route path="courses/:courseId/subject/:subjectId/grades" element={<CourseGrades />} />
+
+            {/* Rutas de análisis */}
+            <Route path="students/:studentId/analysis" element={<StudentSubjectAnalysis />} />
+          </Route>
 
           {/* Layout y rutas del estudiante */}
           <Route path="/student" element={

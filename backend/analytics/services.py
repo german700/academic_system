@@ -1,6 +1,7 @@
 #C:\Users\germa\Desktop\academic_system\backend\analytics\services.py
 import pandas as pd
 import numpy as np
+import math
 import pickle
 import logging
 from pathlib import Path
@@ -378,7 +379,18 @@ def generar_informe_narrativo_mejorado(data: Dict) -> str:
     
     return "\n\n".join(texto)
 
-
+def limpiar_json(obj):
+    if isinstance(obj, dict):
+        return {k: limpiar_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [limpiar_json(elem) for elem in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return 0.0  # Alternativamente puedes usar None si prefieres
+        return obj
+    else:
+        return obj
+    
 def analizar_rendimiento_estudiante_completo(student: Student) -> Dict:
     """
     Análisis completo y mejorado del rendimiento académico de un estudiante.
@@ -549,5 +561,6 @@ def analizar_rendimiento_estudiante_completo(student: Student) -> Dict:
     }
     
     # Cachear resultado por 30 minutos
+    resultado = limpiar_json(resultado)
     cache.set(cache_key, resultado, 1800)
     return resultado

@@ -1,14 +1,60 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\shared\ui\card.jsx
 import React from "react";
+import { cn } from "../../../utils/utils";
 
-export const Card = ({ children, className = "" }) => (
-  <div className={`bg-white rounded-2xl shadow p-4 ${className}`}>
-    {children}
-  </div>
-);
+export function Card({ className, ...props }) {
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-gray-200 bg-white text-gray-950 shadow-sm",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
-export const CardContent = ({ children, className = "" }) => (
-  <div className={`text-base text-gray-800 ${className}`}>
-    {children}
-  </div>
-);
+export function CardHeader({ className, ...props }) {
+  return (
+    <div
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  );
+}
+
+export function CardTitle({ className, ...props }) {
+  return (
+    <h3
+      className={cn(
+        "text-2xl font-semibold leading-none tracking-tight",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export function CardDescription({ className, ...props }) {
+  return (
+    <p
+      className={cn("text-sm text-gray-500", className)}
+      {...props}
+    />
+  );
+}
+
+export function CardContent({ className, ...props }) {
+  return (
+    <div className={cn("p-6 pt-0", className)} {...props} />
+  );
+}
+
+export function CardFooter({ className, ...props }) {
+  return (
+    <div
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
+  );
+}

@@ -1,8 +1,12 @@
 #C:\Users\germa\Desktop\academic_system\backend\academic\serializers.py
 from rest_framework import serializers
-from .models import Student, Teacher, Course, Grade, Administrator, Subject, CourseSubject, Grado, GradeEntry, Attendance, Assignment
+from .models import Student, Teacher, Course, Grade, Administrator, Subject, CourseSubject, Grado, GradeEntry, Attendance, Assignment, AcademicPeriod
 
-# Serializadores básicos (sin dependencias circulares)
+class AcademicPeriodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicPeriod
+        fields = ['id', 'number', 'name', 'start_date', 'end_date', 'edit_deadline', 'academic_year']
+
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
@@ -203,3 +207,17 @@ class StudentProfileSerializer(serializers.ModelSerializer):
                 for asig in asignaciones
             ]
         return []
+
+class CourseSerializerMinimal(serializers.ModelSerializer):
+    grado = serializers.SerializerMethodField()
+    students_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'grado', 'students_count']
+
+    def get_grado(self, obj):
+        return {"numero": obj.grado.numero} if obj.grado else None
+
+    def get_students_count(self, obj):
+        return obj.students.count()

@@ -100,6 +100,13 @@ class GradeAdmin(admin.ModelAdmin):
         return obj.course.name if obj.course else 'Sin curso'
     get_course_name.short_description = 'Curso'
 
+from .models import AcademicPeriod
+
+@admin.register(AcademicPeriod)
+class AcademicPeriodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'academic_year', 'start_date', 'end_date', 'edit_deadline')
+    list_filter = ('academic_year',)
+    search_fields = ('name',)
 
 admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Student, StudentAdmin)

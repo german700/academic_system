@@ -8,7 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Agregamos el estado de loading
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const Login = () => {
       // Obtenemos el perfil del usuario
       const userData = await authService.getUserProfile();
 
-      console.log('User Data:', userData); // Agrega esta línea para depuración
+      console.log('User Data:', userData);
 
       // Guardamos el tipo de usuario
       localStorage.setItem('user_type', userData.user_type);
@@ -37,7 +37,7 @@ const Login = () => {
         token: authData.access,
         refresh: authData.refresh,
         user_type: userData.user_type,
-        is_superuser: userData.is_superuser, // Agregar esta línea
+        is_superuser: userData.is_superuser,
       });
 
       // Redirigimos según el tipo de usuario
@@ -51,9 +51,10 @@ const Login = () => {
           console.error('No se pudo obtener el ID del estudiante.');
         }
       } else if (userData.user_type === 'teacher') {
-        navigate('/Docente-dashboard');
+        // CORRECCIÓN: Cambiar a la ruta correcta según tu App.jsx
+        navigate('/teachers/dashboard');
       } else if (userData.user_type === 'director') {
-        navigate('/Directivo-dashboard');
+        navigate('/directivo-dashboard');
       } else {
         console.error('Tipo de usuario no reconocido:', userData.user_type);
         navigate('/login');
@@ -65,8 +66,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
