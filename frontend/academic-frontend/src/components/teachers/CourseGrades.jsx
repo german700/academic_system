@@ -6,9 +6,7 @@ import {
     fetchCreateGradeEntry,
     fetchUpdateGradeEntry,
     fetchDeleteGradeEntry,
-    fetchStudentSubjectAnalysis,
     fetchCourseStudents,
-    fetchCourseComparison,
     fetchCourseSubjectAssignments
 } from "../services/docentesService";
 import { Card, CardContent, CardHeader, CardTitle } from "../shared/ui/card";
@@ -34,6 +32,7 @@ import { Input } from "../shared/ui/input";
 import { Label } from "../shared/ui/label";
 import StudentChart from "./StudentChart";
 import CourseComparisonChart from './CourseComparisonChart';
+import CourseAttendance from "./CourseAttendance";
 
 // Nuevo servicio para crear asignaciones
 export const createAssignment = async (courseId, subjectId, payload) => {
@@ -75,7 +74,7 @@ export default function CourseGrades() {
     const [analyses, setAnalyses] = useState({});
     const [students, setStudents] = useState([]);
     const [assignments, setAssignments] = useState([]);
-    
+
     // Estados para crear nueva asignación
     const [newAssignment, setNewAssignment] = useState({
         name: '',
@@ -303,9 +302,9 @@ export default function CourseGrades() {
                         // Actualizar el estado con el nuevo ID
                         setEntriesByStudent(prev => {
                             const arr = [...(prev[studentId] || [])];
-                            const idx = arr.findIndex(entry => 
-                                entry.assignmentId === e.assignmentId && 
-                                entry.score === e.score && 
+                            const idx = arr.findIndex(entry =>
+                                entry.assignmentId === e.assignmentId &&
+                                entry.score === e.score &&
                                 !entry.entryId
                             );
                             if (idx !== -1) {
@@ -339,9 +338,9 @@ export default function CourseGrades() {
         }
     };
 
-    const renderGradesCell = (studentId, entries) => {
-        if (editing) {
-            // Modo edición: mostrar inputs y controles
+    const renderGradesCell = (studentId, entries, isEditMode = false) => {
+        if (isEditMode) {
+            // Modo edición: mostrar inputs y controles (solo dentro del modal)
             return (
                 <div className="flex flex-col items-center gap-2">
                     {entries?.map((ent, idx) => (
@@ -403,14 +402,14 @@ export default function CourseGrades() {
                 </div>
             );
         } else {
-            // Modo solo lectura: mostrar badges
+            // Modo solo lectura: mostrar badges (vista principal)
             return (
                 <div className="flex flex-wrap gap-1 justify-center">
                     {entries?.map((ent, idx) => {
                         const assignment = assignments.find(a => a.id === ent.assignmentId);
                         return (
-                            <Badge 
-                                key={idx} 
+                            <Badge
+                                key={idx}
                                 variant={ent.score >= 3 ? "default" : "destructive"}
                                 className="text-xs"
                                 title={`${assignment?.name || 'Sin asignar'} - Peso: ${ent.weight}`}
@@ -449,7 +448,7 @@ export default function CourseGrades() {
                     >
                         🔍 Análisis de Curso
                     </Button>
-                    
+
                     {/* Modal para gestionar actividades */}
                     <Dialog open={editingAssignments} onOpenChange={setEditingAssignments}>
                         <DialogTrigger>
@@ -459,7 +458,7 @@ export default function CourseGrades() {
                             <DialogHeader>
                                 <DialogTitle>Gestionar Actividades</DialogTitle>
                             </DialogHeader>
-                            
+
                             <div className="space-y-4">
                                 {/* Lista de actividades existentes */}
                                 <div>
@@ -530,7 +529,7 @@ export default function CourseGrades() {
                                 <Button variant="outline" onClick={() => setEditingAssignments(false)}>
                                     Cancelar
                                 </Button>
-                                <Button 
+                                <Button
                                     onClick={handleCreateAssignment}
                                     disabled={!newAssignment.name.trim()}
                                 >
@@ -549,7 +548,7 @@ export default function CourseGrades() {
                             <DialogHeader>
                                 <DialogTitle>Editar Notas - {periods.find(p => p.value === selectedPeriod)?.label}</DialogTitle>
                             </DialogHeader>
-                            
+
                             <div className="space-y-4">
                                 <Table>
                                     <TableHeader>
@@ -570,7 +569,7 @@ export default function CourseGrades() {
                                                         {stu.first_name} {stu.last_name}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {renderGradesCell(stu.id, entries)}
+                                                        {renderGradesCell(stu.id, entries, true)}
                                                     </TableCell>
                                                     <TableCell className="text-center font-semibold">
                                                         {finalGrade || "—"}
@@ -611,7 +610,7 @@ export default function CourseGrades() {
                         </SelectContent>
                     </Select>
                 </CardContent>
-            </Card>
+            </Card   >
 
             {/* Sección de Comparativo IA */}
             <Card>
@@ -633,8 +632,7 @@ export default function CourseGrades() {
             <Card>
                 <CardHeader>
                     <CardTitle>
-                        Notas del Período 
-                        {editing && <Badge className="ml-2" variant="secondary">Modo Edición</Badge>}
+                        Notas del Período
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -672,7 +670,7 @@ export default function CourseGrades() {
                                         </TableCell>
 
                                         <TableCell className="text-center">
-                                            {renderGradesCell(stu.id, entries)}
+                                            {renderGradesCell(stu.id, entries, false)}
                                         </TableCell>
 
                                         <TableCell className="text-center">
@@ -693,6 +691,7 @@ export default function CourseGrades() {
                     </Table>
                 </CardContent>
             </Card>
+            <CourseAttendance courseId={courseId} subjectId={subjectId} />
         </div>
     );
 }

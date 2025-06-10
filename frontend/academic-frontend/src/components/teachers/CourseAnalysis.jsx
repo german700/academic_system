@@ -1,7 +1,6 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\CourseAnalysis.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchCourseComparison } from "../services/docentesService";
 import { Card, CardHeader, CardTitle, CardContent } from "../shared/ui/card";
 import { Button } from "../shared/ui/button";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";

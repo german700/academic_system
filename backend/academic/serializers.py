@@ -88,8 +88,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
         fields = [
-            'id', 'title', 'description', 'due_date', 
-            'course_subject', 'course_subject_id', 'created_at'
+            'id', 'name', 'description', 'due_date', 
+            'course_subject', 'course_subject_id'
         ]
 
 # Serializador para Cursos completos

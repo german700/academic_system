@@ -1,7 +1,6 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\StudentSubjectAnalysis.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { fetchStudentSubjectAnalysis } from "../services/docentesService";
 import { Card, CardContent, CardHeader, CardTitle } from "../shared/ui/card";
 import { Button } from "../shared/ui/button";
 import { Badge } from "../shared/ui/badge";

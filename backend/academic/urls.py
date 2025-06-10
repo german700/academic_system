@@ -45,7 +45,7 @@ router = DefaultRouter()
 router.register(r'students', StudentViewSet)
 
 # Teacher ViewSets
-router.register(r'teachers', TeacherViewSet)
+router.register(r'teachers', TeacherViewSet, basename='teacher')
 
 # Genéricos / Comunes
 router.register(r'subjects', SubjectViewSet)
@@ -57,6 +57,7 @@ router.register(r'course-subjects', CourseSubjectViewSet)
 router.register(r'attendances', AttendanceViewSet)
 router.register(r'assignments', AssignmentViewSet)
 router.register(r'grade-entries', GradeEntryViewSet, basename='gradeentry')
+
 urlpatterns = [
     path('', include(router.urls)),
     

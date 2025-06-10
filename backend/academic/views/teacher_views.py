@@ -70,6 +70,15 @@ def get_course_if_teacher(request, course_id):
     except Course.DoesNotExist:
         return Response({"error": "No tiene permiso para este curso"}, status=status.HTTP_403_FORBIDDEN)
 
+from academic.models import CourseSubject
+
+def get_course_subject_if_teacher(request, course_id, subject_id):
+    teacher = request.user.teacher_profile
+    try:
+        cs = CourseSubject.objects.get(course__id=course_id, subject__id=subject_id, teacher=teacher)
+        return cs
+    except CourseSubject.DoesNotExist:
+        return Response({"error": "No tienes acceso a esta materia o no estás asignado"}, status=403)
 
 def is_teacher_assigned_to_subject(course_id, subject_id, teacher):
     """
@@ -317,6 +326,207 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
             return Response(self.get_serializer(teacher).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=['get'], 
+            url_path='course/(?P<course_id>[^/.]+)/subject/(?P<subject_id>[^/.]+)/assignments')
+    def course_subject_assignments(self, request, course_id=None, subject_id=None):
+        """
+        GET /api/academic/teachers/course/{course_id}/subject/{subject_id}/assignments/
+        Obtiene las tareas de una materia específica en un curso (solo si el docente está asignado)
+        """
+        # Verificar que el teacher está asignado a esta materia en este curso
+        course_subject = get_course_subject_if_teacher(request, course_id, subject_id)
+        if isinstance(course_subject, Response):
+            return course_subject
+        
+        # Obtener las assignments ordenadas por fecha
+        assignments = Assignment.objects.filter(
+            course_subject=course_subject
+        ).order_by('-date_assigned')  # Más recientes primero
+        
+        # Serializar y retornar
+        serializer = AssignmentSerializer(assignments, many=True)
+        return Response({
+            'course': {
+                'id': course_subject.course.id,
+                'name': course_subject.course.name
+            },
+            'subject': {
+                'id': course_subject.subject.id,
+                'name': course_subject.subject.name
+            },
+            'assignments': serializer.data,
+            'total_assignments': assignments.count()
+        })
+
+    @action(detail=False, methods=['get'], url_path='attendance/by_date')
+    def attendance_by_date(self, request):
+        """
+        GET /api/academic/teachers/attendance/by_date/?course_id=X&subject_id=Y&date=YYYY-MM-DD
+        Obtiene la asistencia de estudiantes en una fecha específica
+        """
+        course_id = request.query_params.get("course_id")
+        subject_id = request.query_params.get("subject_id")
+        date_str = request.query_params.get("date")
+        
+        if not (course_id and subject_id and date_str):
+            return Response({
+                "error": "Parámetros requeridos: course_id, subject_id, date"
+            }, status=400)
+        
+        try:
+            course_subject = CourseSubject.objects.get(course__id=course_id, subject__id=subject_id)
+        except CourseSubject.DoesNotExist:
+            return Response({
+                "error": "Asignación curso-materia no encontrada"
+            }, status=404)
+        
+        try:
+            date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({
+                "error": "Formato de fecha inválido. Use YYYY-MM-DD"
+            }, status=400)
+        
+        students = course_subject.course.students.all()
+        data = []
+        
+        for stu in students:
+            from academic.models import Attendance  # Importar el modelo
+            record = Attendance.objects.filter(
+                student=stu, 
+                subject=course_subject.subject, 
+                date=date
+            ).first()
+            
+            data.append({
+                "studentId": stu.id,
+                "studentName": f"{stu.first_name} {stu.last_name}",
+                "present": record.present if record else False,
+                "id": record.id if record else None
+            })
+        
+        return Response(data)
+
+    # ============================================
+    # RUTAS "ME/" PARA EL DOCENTE AUTENTICADO
+    # ============================================
+
+    # GET /api/academic/teachers/me/dashboard/
+    @action(detail=False, url_path='me/dashboard', methods=['get'])
+    def me_dashboard(self, request):
+        try:
+            teacher = request.user.teacher
+        except Teacher.DoesNotExist:
+            return Response({"error": "Este usuario no es un docente"}, status=404)
+
+    # Armá aquí tu lógica de dashboard
+        data = {
+            "teacher_id": teacher.id,
+            "teacher_name": f"{teacher.first_name} {teacher.last_name}",
+            "courses": [
+                {
+                    "id": cs.course.id,
+                    "name": cs.course.name,
+                    "subject": cs.subject.name
+                }
+                for cs in teacher.course_subjects.all()
+            ]
+        }
+
+        return Response(data)
+
+
+    # GET /api/academic/teachers/me/courses/
+    @action(detail=False, url_path='me/courses', methods=['get'])
+    def me_courses(self, request):
+        """
+        Cursos del docente autenticado
+        """
+        return TeacherCoursesView.as_view()(request)
+
+    # GET /api/academic/teachers/me/course/{course_id}/students/
+    @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/students', methods=['get'])
+    def me_course_students(self, request, course_id=None):
+        """
+        Estudiantes de un curso específico del docente autenticado
+        """
+        return CourseStudentsView.as_view()(request, course_id=course_id)
+
+    # GET /api/academic/teachers/me/course/{course_id}/subject/{subject_id}/grades/
+    @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/subject/(?P<subject_id>[^/.]+)/grades', methods=['get'])
+    def me_course_subject_grades(self, request, course_id=None, subject_id=None):
+        """
+        Calificaciones de una materia específica en un curso del docente autenticado
+        """
+        return TeacherCourseSubjectGradesView.as_view()(request, course_id=course_id, subject_id=subject_id)
+
+    # GET /api/academic/teachers/me/course/{course_id}/subject/{subject_id}/assignments/
+    @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/subject/(?P<subject_id>[^/.]+)/assignments', methods=['get'])
+    def me_course_subject_assignments(self, request, course_id=None, subject_id=None):
+        """
+        Tareas de una materia específica en un curso del docente autenticado
+        """
+        return TeacherCourseSubjectAssignmentsView.as_view()(request, course_id=course_id, subject_id=subject_id)
+
+    # GET /api/academic/teachers/me/attendance/by_date/
+    @action(detail=False, url_path='me/attendance/by_date', methods=['get'])
+    def me_attendance_by_date(self, request):
+        """
+        Asistencia por fecha del docente autenticado
+        GET /api/academic/teachers/me/attendance/by_date/?course_id=X&subject_id=Y&date=YYYY-MM-DD
+        """
+        # Reutilizar la misma lógica de attendance_by_date pero con validación de docente
+        course_id = request.query_params.get("course_id")
+        subject_id = request.query_params.get("subject_id")
+        date_str = request.query_params.get("date")
+        
+        if not (course_id and subject_id and date_str):
+            return Response({
+                "error": "Parámetros requeridos: course_id, subject_id, date"
+            }, status=400)
+        
+        # Verificar que el docente está asignado a esta materia en este curso
+        course_subject = get_course_subject_if_teacher(request, course_id, subject_id)
+        if isinstance(course_subject, Response):
+            return course_subject
+        
+        try:
+            date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({
+                "error": "Formato de fecha inválido. Use YYYY-MM-DD"
+            }, status=400)
+        
+        students = course_subject.course.students.all()
+        data = []
+        
+        for stu in students:
+            from academic.models import Attendance
+            record = Attendance.objects.filter(
+                student=stu, 
+                subject=course_subject.subject, 
+                date=date
+            ).first()
+            
+            data.append({
+                "studentId": stu.id,
+                "studentName": f"{stu.first_name} {stu.last_name}",
+                "present": record.present if record else False,
+                "id": record.id if record else None
+            })
+        
+        return Response({
+            'course': {
+                'id': course_subject.course.id,
+                'name': course_subject.course.name
+            },
+            'subject': {
+                'id': course_subject.subject.id,
+                'name': course_subject.subject.name
+            },
+            'date': date_str,
+            'attendance': data
+        })
 
 class TeacherDashboardView(APIView):
     permission_classes = [IsAuthenticated]
