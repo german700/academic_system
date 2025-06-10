@@ -1,5 +1,8 @@
 # C:\Users\germa\Desktop\academic_system\backend\academic\permissions.py
 from rest_framework import permissions
+from rest_framework.permissions import BasePermission
+from django.utils import timezone
+from academic.models import AcademicPeriod
 
 class IsTeacher(permissions.BasePermission):
     """
@@ -133,3 +136,26 @@ class CanViewGrades(permissions.BasePermission):
             return course.teacher == user.teacher
             
         return False
+    
+class IsWithinPeriod(BasePermission):
+    """
+    Permite crear/editar GradeEntry solo si la fecha actual está antes del
+    edit_deadline del AcademicPeriod correspondiente a la asignación.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # obj es una instancia de GradeEntry
+        assignment = obj.assignment
+        period_number = assignment.period
+        year = assignment.year
+
+        try:
+            period = AcademicPeriod.objects.get(
+                number=period_number,
+                academic_year=year
+            )
+        except AcademicPeriod.DoesNotExist:
+            return False
+
+        # Solo permitir si estamos antes del deadline
+        return timezone.now().date() <= period.edit_deadline

@@ -31,9 +31,10 @@ from academic.serializers import (
     AssignmentSerializer,
     CourseSubjectSerializer,
     StudentSerializer,
-    AdministratorSerializer
+    AdministratorSerializer,
+    
 )
-from academic.permissions import IsTeacher
+from academic.permissions import IsTeacher, IsWithinPeriod
 
 # ————————————————
 # TeacherSearchStudentsView
@@ -192,7 +193,7 @@ class GradeViewSet(viewsets.ModelViewSet):
 class GradeEntryViewSet(viewsets.ModelViewSet):
     queryset = GradeEntry.objects.all()
     serializer_class = GradeEntrySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeacher, IsWithinPeriod]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

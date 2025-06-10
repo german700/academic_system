@@ -6,14 +6,7 @@ import uuid
 import random
 import string
 
-def generate_unique_username(first_name, last_name):
-    base_username = f"{first_name.lower()}{last_name.lower()}"
-    username = base_username
-    counter = 1
-    while User.objects.filter(username=username).exists():
-        username = f"{base_username}{counter}"
-        counter += 1
-    return username
+
 
 class Teacher(models.Model):
     user = models.OneToOneField(
@@ -64,24 +57,6 @@ class Administrator(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
-    def save(self, *args, **kwargs):
-        # Para Administrator mantenemos la creación automática del usuario
-        # ya que no se crea desde las vistas (solo desde Django admin)
-        if not self.user:
-            username = generate_unique_username(self.first_name, self.last_name)
-            self.user = User.objects.create(
-                username=username,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                email=self.email,
-                user_type="director"
-            )
-        super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "Administrativo"
-        verbose_name_plural = "Administrativos"
 
 class Grado(models.Model):
     numero = models.PositiveSmallIntegerField(unique=True)

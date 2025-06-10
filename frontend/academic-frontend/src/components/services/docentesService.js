@@ -109,6 +109,25 @@ export const fetchCourseSubjectGrades = async (courseId, subjectId, period) => {
   if (!res.ok) throw new Error("Error al cargar notas del curso");
   return res.json();
 };
+// Edición de asignaciones
+export const fetchCourseSubjectAssignments = async (courseId, subjectId) => {
+  const res = await fetch(
+    `${TEACHER_API}/course/${courseId}/subject/${subjectId}/assignments/`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error al cargar actividades de la materia");
+  return res.json(); // espera un array de { id, name, weight, ... }
+};
+
+// Eliminación de entrys de calificaciones
+export const fetchDeleteGradeEntry = async (id) => {
+  const res = await fetch(`${TEACHER_API}/grade-entries/${id}/`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) throw new Error("Error al eliminar calificación");
+  return res;
+};
 
 // Análisis IA por estudiante y materia (solo periodo actual)
 export const fetchStudentSubjectAnalysis = async (studentId, subjectId) => {
@@ -129,6 +148,15 @@ export const searchStudents = async (query) => {
   });
   if (!res.ok) throw new Error("Error al buscar estudiantes");
   return res.json();
+};
+
+export const fetchCourseComparison = async (courseId, subjectId) => {
+  const res = await fetch(
+    `${TEACHER_API}/course/${courseId}/subject/${subjectId}/comparison/`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error al cargar comparativo IA");
+  return res.json(); // ahora incluye ia_course_analysis + ia_course_chart
 };
 
 // ================================

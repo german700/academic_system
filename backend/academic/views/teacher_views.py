@@ -1,20 +1,29 @@
 # C:\Users\germa\Desktop\academic_system\backend\academic\views\teacher_views.py
-
+# Importaciones de Django
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.db import transaction
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+
+# Importaciones de Django REST Framework
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from django.utils import timezone
-from django.db import transaction
 
+# Importaciones para generación de PDF
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 
+# Importaciones del proyecto - Modelos
 from academic.models import (
     Teacher,
     Course,
@@ -25,16 +34,29 @@ from academic.models import (
     Subject,
     AcademicPeriod
 )
+
+# Importaciones del proyecto - Serializers
 from academic.serializers import (
     TeacherSerializer,
     CourseSerializer,
     StudentSerializer,
     AssignmentSerializer,
     GradeEntrySerializer,
-    AcademicPeriodSerializer  # Nuevo import necesario
+    AcademicPeriodSerializer,
+    CourseSerializerMinimal
 )
+
+# Importaciones del proyecto - Permisos
 from academic.permissions import IsTeacher, IsTeacherOrAdmin
 
+# Importaciones para análisis (si se usa)
+from analytics.services import analizar_rendimiento_estudiante_completo
+
+# Importaciones para autenticación (si se usa en create method)
+from authentication.models import User
+
+# ✅ Importación del helper ML
+from analytics.services import MLModelHandler, predecir_riesgo_estudiante
 
 # ✅ Funciones de utilidad para verificaciones comunes
 def get_course_if_teacher(request, course_id):
@@ -71,7 +93,161 @@ def get_course_subject_if_teacher(request, course_id, subject_id):
     
     return get_object_or_404(CourseSubject, course_id=course_id, subject_id=subject_id)
 
-
+class TeacherCourseSubjectComparisonAPIView(APIView):
+    """
+    GET /api/academic/teacher/course/{course_id}/subject/{subject_id}/comparison/
+    Compara el rendimiento promedio de una materia en un curso con otros cursos del mismo grado
+    """
+    permission_classes = [IsAuthenticated, IsTeacher]
+    
+    def get(self, request, course_id, subject_id):
+        # 1) Validar que el docente enseña esa materia en ese curso
+        cs = get_course_subject_if_teacher(request, course_id, subject_id)
+        if isinstance(cs, Response):
+            return cs
+        
+        # 2) Obtener periodo académico actual
+        today = timezone.now().date()
+        current_period = AcademicPeriod.objects.filter(
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+        
+        if not current_period:
+            return Response({
+                "error": "No hay periodo académico activo"
+            }, status=400)
+        
+        # 3) Obtener todos los cursos del mismo grado
+        grado = cs.course.grado
+        sibling_courses = Course.objects.filter(grado=grado).order_by('name')
+        
+        # 4) Para cada curso, calcular promedio de la materia
+        data = []
+        for course in sibling_courses:
+            # Solo materias con el mismo subject_id
+            try:
+                cs_sib = CourseSubject.objects.get(course=course, subject_id=subject_id)
+            except CourseSubject.DoesNotExist:
+                # Si el curso no tiene esta materia, lo omitimos
+                continue
+            
+            # Calcular promedio general del periodo activo
+            entries = GradeEntry.objects.filter(
+                assignment__course_subject=cs_sib,
+                assignment__period=current_period.number
+            )
+            
+            if not entries.exists():
+                # Si no hay calificaciones, agregar con promedio None
+                data.append({
+                    'course_id': course.id,
+                    'course': course.name,
+                    'average': None,
+                    'student_count': course.students.count()
+                })
+                continue
+            
+            # Convertir a escala 1–5 y promediar
+            notas = []
+            for entry in entries:
+                if entry.assignment.max_score > 0:  # Evitar división por cero
+                    nota_normalizada = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
+                    notas.append(nota_normalizada)
+            
+            avg = round(sum(notas) / len(notas), 2) if notas else None
+            
+            data.append({
+                'course_id': course.id,
+                'course': course.name,
+                'average': avg,
+                'student_count': course.students.count(),
+                'total_grades': len(notas)
+            })
+        
+        # 5) Generar texto de análisis
+        target_course = next((d for d in data if d['course'] == cs.course.name), None)
+        other_courses = [d for d in data if d['course'] != cs.course.name]
+        
+        if target_course:
+            target_avg = target_course['average']
+            target_avg_text = f"{target_avg:.2f}" if target_avg is not None else "N/A"
+            
+            comparisons = []
+            for d in other_courses:
+                avg_text = f"{d['average']:.2f}" if d['average'] is not None else "N/A"
+                comparisons.append(f"{d['course']}: {avg_text}")
+            
+            comparison_text = (
+                f"En {cs.course.name} la nota promedio en {cs.subject.name} es "
+                f"{target_avg_text}. "
+            )
+            
+            if comparisons:
+                comparison_text += "Cursos hermanos → " + "; ".join(comparisons)
+            else:
+                comparison_text += "No hay otros cursos del mismo grado con esta materia para comparar."
+        else:
+            comparison_text = "No se pudo generar la comparación."
+        
+        # 6) Invocar tu modelo ML para el curso entero:
+        # promedia el riesgo de todos los estudiantes de cs.course en este subject y periodo
+        entradas = GradeEntry.objects.filter(
+            assignment__course_subject=cs,
+            assignment__period=current_period.number
+        ).select_related('student')
+        
+        riesgos = []
+        for ge in entradas:
+            result = predecir_riesgo_estudiante(ge.student)
+            if result["riesgo"] is not None:
+                riesgos.append(result["riesgo"])
+        
+        riesgo_curso = round(sum(riesgos)/len(riesgos), 3) if riesgos else None
+        
+        # 7) Construye tu chart_data_ia
+        ia_chart = []
+        for d in data:
+            # para cada curso hermano
+            siblings_entries = GradeEntry.objects.filter(
+                assignment__course_subject__course_id=d['course_id'],
+                assignment__period=current_period.number
+            ).select_related('student')
+            
+            sib_riesgos = [
+                predecir_riesgo_estudiante(ge.student)["riesgo"] or 0
+                for ge in siblings_entries
+            ]
+            
+            ia_chart.append({
+                "label": d['course'],
+                "avg": d['average'] or 0,
+                "risk": round(sum(sib_riesgos)/len(sib_riesgos), 3) if sib_riesgos else 0
+            })
+        
+        return Response({
+            'course_info': {
+                'id': cs.course.id,
+                'name': cs.course.name,
+                'grado': cs.course.grado.numero
+            },
+            'subject_info': {
+                'id': cs.subject.id,
+                'name': cs.subject.name
+            },
+            'period_info': {
+                'number': current_period.number,
+                'name': current_period.name
+            },
+            'comparison_text': comparison_text,
+            'chart_data': data,
+            'ia_course_analysis': (
+                f"El riesgo promedio IA estimado para {cs.course.name} en {cs.subject.name} es "
+                f"{riesgo_curso:.3f} " if riesgo_curso is not None else "No se pudo calcular el riesgo IA. "
+            ),
+            'ia_course_chart': ia_chart
+        })
+    
 class TeacherViewSet(viewsets.ModelViewSet):
     """
     /api/academic/teachers/
@@ -270,7 +446,6 @@ class TeacherCourseSubjectGradesView(APIView):
     permission_classes = [IsAuthenticated, IsTeacher]
 
     def get(self, request, course_id, subject_id):
-        # ✅ Usar función helper unificada
         course_subject = get_course_subject_if_teacher(request, course_id, subject_id)
         if isinstance(course_subject, Response):
             return course_subject
@@ -290,25 +465,28 @@ class TeacherCourseSubjectGradesView(APIView):
             entries_est = grade_entries.filter(student=est)
             notas = []
             detalles = []
-        for ge in entries_est:
-            notas.append(float(ge.score))
-            detalles.append({
-                'entryId': ge.id,
-                'assignmentId': ge.assignment.id,
-                'weight': ge.assignment.weight,
-                'score': float(ge.score)
-        })
-        avg = round(sum(notas)/len(notas), 2) if notas else None
-        result.append({
-            'student': {
-                'id': est.id,
-                'name': f"{est.first_name} {est.last_name}",
-                'student_id': est.student_id,
-        },
-        'notas': notas,
-        'entries': detalles,           # aquí le metes los detalles
-        'promedio': avg
-    })
+
+            for ge in entries_est:
+                notas.append(float(ge.score))
+                detalles.append({
+                    'entryId': ge.id,
+                    'assignmentId': ge.assignment.id,
+                    'weight': ge.assignment.weight,
+                    'score': float(ge.score)
+                })
+
+            avg = round(sum(notas) / len(notas), 2) if notas else None
+            result.append({
+                'student': {
+                    'id': est.id,
+                    'name': f"{est.first_name} {est.last_name}",
+                    'student_id': est.student_id,
+                },
+                'notas': notas,
+                'entries': detalles,
+                'promedio': avg
+            })
+
         return Response(result, status=status.HTTP_200_OK)
 
 

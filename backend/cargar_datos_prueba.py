@@ -1,5 +1,4 @@
-#C:\Users\germa\Desktop\academic_system\backend\cargar_datos_prueba.py
-# cargar_datos_prueba.py
+# crear_estudiantes_prueba.py
 import os
 import django
 from django.conf import settings
@@ -8,316 +7,511 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'academic_project.settings')
 django.setup()
 
-# Ahora puedes importar tus modelos
-from academic.models import Student, CourseSubject, Assignment, Grade, GradeEntry, Attendance
+# Importar modelos necesarios
+from authentication.models import User
+from academic.models import Student, Course, Grado
 from django.utils import timezone
 import random
-from datetime import timedelta, date
+from datetime import date
 
-def cargar_datos_demo():
-    print("🚀 Iniciando carga de datos demo con perfiles realistas (sistema colombiano 1-5)...")
+def crear_estudiantes_demo():
+    print("👥 Creando 32 estudiantes demo para los cursos 1-A, 1-B, 1-C, 1-D...")
     
-    estudiantes = list(Student.objects.filter(user__is_active=True))
-    anio = timezone.now().year
-    periodos = [1, 2, 3, 4]
-    tipos = ['TAREA', 'EXAMEN', 'PROYECTO', 'QUIZ', 'PARTICIPACION']
+    # Obtener o crear el grado 1
+    grado_1, created = Grado.objects.get_or_create(numero=1)
+    if created:
+        print(f"✅ Grado 1 creado: {grado_1}")
     
-    if len(estudiantes) == 0:
-        print("❌ No se encontraron estudiantes activos y confirmados.")
-        return
+    # Obtener o crear los cursos
+    cursos_data = ['1-A', '1-B', '1-C', '1-D']
+    cursos = {}
     
-    print(f"📊 Encontrados {len(estudiantes)} estudiantes para procesar")
+    for curso_nombre in cursos_data:
+        curso, created = Course.objects.get_or_create(
+            name=curso_nombre,
+            defaults={
+                'description': f'Curso {curso_nombre} - Primer grado',
+                'academic_year': f'{timezone.now().year}-{timezone.now().year + 1}',
+                'grado': grado_1
+            }
+        )
+        cursos[curso_nombre] = curso
+        if created:
+            print(f"✅ Curso {curso_nombre} creado")
     
-    # Definir perfiles de estudiantes para hacer los datos más realistas
-    perfiles_estudiantes = [
+    # Lista completa de estudiantes (8 por curso = 32 total)
+    estudiantes_data = [
+        # CURSO 1-A (8 estudiantes)
         {
-            'tipo': 'Excelente',
-            'rango_notas': (4.2, 5.0),    # Notas entre 4.2 y 5.0
-            'prob_tarde': 0.05,           # 5% probabilidad entrega tardía
-            'prob_asistencia': 0.96,      # 96% asistencia
-            'variabilidad': 0.3,          # Poca variación en notas
-            'prob_bajo_rendimiento': 0.02 # 2% probabilidad nota baja ocasional
+            'first_name': 'María Alejandra',
+            'middle_name': 'Isabel',
+            'last_name': 'García',
+            'second_last_name': 'López',
+            'email': 'maria.garcia@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 3, 15),
+            'gender': 'F',
+            'neighborhood': 'Centro',
+            'socioeconomic_status': 'MEDIO'
         },
         {
-            'tipo': 'Bueno',
-            'rango_notas': (3.5, 4.5),    # Notas entre 3.5 y 4.5
-            'prob_tarde': 0.10,
-            'prob_asistencia': 0.92,
-            'variabilidad': 0.4,
-            'prob_bajo_rendimiento': 0.08
+            'first_name': 'Carlos Andrés',
+            'middle_name': 'José',
+            'last_name': 'Martínez',
+            'second_last_name': 'Ruiz',
+            'email': 'carlos.martinez@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 7, 22),
+            'gender': 'M',
+            'neighborhood': 'La Granja',
+            'socioeconomic_status': 'MEDIO_BAJO'
         },
         {
-            'tipo': 'Promedio',
-            'rango_notas': (3.0, 4.0),    # Notas entre 3.0 y 4.0
-            'prob_tarde': 0.18,
-            'prob_asistencia': 0.85,
-            'variabilidad': 0.5,
-            'prob_bajo_rendimiento': 0.15
+            'first_name': 'Ana Sofía',
+            'middle_name': 'Mercedes',
+            'last_name': 'Rodríguez',
+            'second_last_name': 'Hernández',
+            'email': 'ana.rodriguez@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 11, 8),
+            'gender': 'F',
+            'neighborhood': 'Pastrana',
+            'socioeconomic_status': 'ALTO'
         },
         {
-            'tipo': 'Irregular',
-            'rango_notas': (2.5, 3.8),    # Notas entre 2.5 y 3.8
-            'prob_tarde': 0.25,
-            'prob_asistencia': 0.78,
-            'variabilidad': 0.8,          # Alta variación
-            'prob_bajo_rendimiento': 0.25
+            'first_name': 'Diego Fernando',
+            'middle_name': 'Luis',
+            'last_name': 'Morales',
+            'second_last_name': 'Castro',
+            'email': 'diego.morales@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 5, 30),
+            'gender': 'M',
+            'neighborhood': 'El Prado',
+            'socioeconomic_status': 'MEDIO'
         },
         {
-            'tipo': 'Con Dificultades',
-            'rango_notas': (1.8, 3.2),    # Notas entre 1.8 y 3.2
-            'prob_tarde': 0.35,
-            'prob_asistencia': 0.70,
-            'variabilidad': 0.6,
-            'prob_bajo_rendimiento': 0.35
+            'first_name': 'Valentina',
+            'middle_name': 'Esperanza',
+            'last_name': 'Jiménez',
+            'second_last_name': 'Peña',
+            'email': 'valentina.jimenez@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 9, 17),
+            'gender': 'F',
+            'neighborhood': 'Boston',
+            'socioeconomic_status': 'MEDIO_ALTO'
+        },
+        {
+            'first_name': 'Santiago',
+            'middle_name': 'Alejandro',
+            'last_name': 'Vargas',
+            'second_last_name': 'Mendoza',
+            'email': 'santiago.vargas@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 1, 25),
+            'gender': 'M',
+            'neighborhood': 'Mogambo',
+            'socioeconomic_status': 'BAJO'
+        },
+        {
+            'first_name': 'Isabella',
+            'middle_name': 'Victoria',
+            'last_name': 'Torres',
+            'second_last_name': 'Ramos',
+            'email': 'isabella.torres@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 12, 3),
+            'gender': 'F',
+            'neighborhood': 'Villa Jiménez',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Mateo Alejandro',
+            'middle_name': 'Daniel',
+            'last_name': 'Córdoba',
+            'second_last_name': 'Suárez',
+            'email': 'mateo.cordoba@estudiantescol.edu.co',
+            'course': '1-A',
+            'date_of_birth': date(2018, 6, 12),
+            'gender': 'M',
+            'neighborhood': 'Villa Cielo',
+            'socioeconomic_status': 'MEDIO_BAJO'
+        },
+        
+        # CURSO 1-B (8 estudiantes)
+        {
+            'first_name': 'Camila Andrea',
+            'middle_name': 'Beatriz',
+            'last_name': 'Sánchez',
+            'second_last_name': 'Moreno',
+            'email': 'camila.sanchez@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 4, 18),
+            'gender': 'F',
+            'neighborhood': 'La Castellana',
+            'socioeconomic_status': 'ALTO'
+        },
+        {
+            'first_name': 'Sebastián',
+            'middle_name': 'Eduardo',
+            'last_name': 'Ramírez',
+            'second_last_name': 'Villareal',
+            'email': 'sebastian.ramirez@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 8, 9),
+            'gender': 'M',
+            'neighborhood': 'El Recreo',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Lucía Fernanda',
+            'middle_name': 'Gabriela',
+            'last_name': 'Ospina',
+            'second_last_name': 'Guerrero',
+            'email': 'lucia.ospina@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 2, 14),
+            'gender': 'F',
+            'neighborhood': 'Furatena',
+            'socioeconomic_status': 'MEDIO_ALTO'
+        },
+        {
+            'first_name': 'Alejandro',
+            'middle_name': 'Nicolás',
+            'last_name': 'Herrera',
+            'second_last_name': 'Castaño',
+            'email': 'alejandro.herrera@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 10, 27),
+            'gender': 'M',
+            'neighborhood': 'Robinson Pitalúa',
+            'socioeconomic_status': 'BAJO'
+        },
+        {
+            'first_name': 'Sofía Valentina',
+            'middle_name': 'Cristina',
+            'last_name': 'Castillo',
+            'second_last_name': 'Romero',
+            'email': 'sofia.castillo@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 6, 5),
+            'gender': 'F',
+            'neighborhood': 'Villa Margarita',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Daniel Esteban',
+            'middle_name': 'Mauricio',
+            'last_name': 'Aguilar',
+            'second_last_name': 'Quintero',
+            'email': 'daniel.aguilar@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 12, 19),
+            'gender': 'M',
+            'neighborhood': 'El Dorado',
+            'socioeconomic_status': 'MEDIO_BAJO'
+        },
+        {
+            'first_name': 'Mariana',
+            'middle_name': 'Alejandra',
+            'last_name': 'Vásquez',
+            'second_last_name': 'Salazar',
+            'email': 'mariana.vasquez@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 3, 28),
+            'gender': 'F',
+            'neighborhood': 'Santa Fe',
+            'socioeconomic_status': 'ALTO'
+        },
+        {
+            'first_name': 'Andrés Felipe',
+            'middle_name': 'Camilo',
+            'last_name': 'Navarro',
+            'second_last_name': 'Parra',
+            'email': 'andres.navarro@estudiantescol.edu.co',
+            'course': '1-B',
+            'date_of_birth': date(2018, 9, 11),
+            'gender': 'M',
+            'neighborhood': 'Villa Nazaret',
+            'socioeconomic_status': 'MEDIO'
+        },
+        
+        # CURSO 1-C (8 estudiantes)
+        {
+            'first_name': 'Gabriela',
+            'middle_name': 'Antonia',
+            'last_name': 'Delgado',
+            'second_last_name': 'Mejía',
+            'email': 'gabriela.delgado@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 5, 7),
+            'gender': 'F',
+            'neighborhood': 'Cantaclaro',
+            'socioeconomic_status': 'MEDIO_ALTO'
+        },
+        {
+            'first_name': 'Juan Pablo',
+            'middle_name': 'Esteban',
+            'last_name': 'Medina',
+            'second_last_name': 'Cardona',
+            'email': 'juan.medina@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 11, 23),
+            'gender': 'M',
+            'neighborhood': '7 de Mayo',
+            'socioeconomic_status': 'BAJO'
+        },
+        {
+            'first_name': 'Paula Andrea',
+            'middle_name': 'Stefanía',
+            'last_name': 'Ruiz',
+            'second_last_name': 'Montoya',
+            'email': 'paula.ruiz@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 1, 16),
+            'gender': 'F',
+            'neighborhood': 'La Pradera',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Nicolás',
+            'middle_name': 'Alexander',
+            'last_name': 'Silva',
+            'second_last_name': 'Ríos',
+            'email': 'nicolas.silva@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 7, 4),
+            'gender': 'M',
+            'neighborhood': 'Villa Santos',
+            'socioeconomic_status': 'ALTO'
+        },
+        {
+            'first_name': 'Valeria',
+            'middle_name': 'Natalia',
+            'last_name': 'Peña',
+            'second_last_name': 'Galvis',
+            'email': 'valeria.pena@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 4, 21),
+            'gender': 'F',
+            'neighborhood': 'Los Nogales',
+            'socioeconomic_status': 'MEDIO_BAJO'
+        },
+        {
+            'first_name': 'Miguel Ángel',
+            'middle_name': 'Sebastián',
+            'last_name': 'Gómez',
+            'second_last_name': 'Restrepo',
+            'email': 'miguel.gomez@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 10, 13),
+            'gender': 'M',
+            'neighborhood': 'El Paraíso',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Emma Lucía',
+            'middle_name': 'Esperanza',
+            'last_name': 'Ortega',
+            'second_last_name': 'Muñoz',
+            'email': 'emma.ortega@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 8, 26),
+            'gender': 'F',
+            'neighborhood': 'Nueva Esperanza',
+            'socioeconomic_status': 'MEDIO_ALTO'
+        },
+        {
+            'first_name': 'Samuel',
+            'middle_name': 'David',
+            'last_name': 'Vega',
+            'second_last_name': 'Cortés',
+            'email': 'samuel.vega@estudiantescol.edu.co',
+            'course': '1-C',
+            'date_of_birth': date(2018, 12, 1),
+            'gender': 'M',
+            'neighborhood': 'Villa Real',
+            'socioeconomic_status': 'BAJO'
+        },
+        
+        # CURSO 1-D (8 estudiantes)
+        {
+            'first_name': 'Antonella',
+            'middle_name': 'Fernanda',
+            'last_name': 'Flores',
+            'second_last_name': 'Barrera',
+            'email': 'antonella.flores@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 2, 9),
+            'gender': 'F',
+            'neighborhood': 'Urbanización El Edén',
+            'socioeconomic_status': 'ALTO'
+        },
+        {
+            'first_name': 'Leonardo',
+            'middle_name': 'Andrés',
+            'last_name': 'Carvajal',
+            'second_last_name': 'Escobar',
+            'email': 'leonardo.carvajal@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 6, 15),
+            'gender': 'M',
+            'neighborhood': 'Villa Campestre',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Renata',
+            'middle_name': 'Isabel',
+            'last_name': 'Acosta',
+            'second_last_name': 'Varela',
+            'email': 'renata.acosta@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 9, 3),
+            'gender': 'F',
+            'neighborhood': 'El Laguito',
+            'socioeconomic_status': 'MEDIO_BAJO'
+        },
+        {
+            'first_name': 'Emilio',
+            'middle_name': 'José',
+            'last_name': 'Palacios',
+            'second_last_name': 'Franco',
+            'email': 'emilio.palacios@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 3, 20),
+            'gender': 'M',
+            'neighborhood': 'San Martín',
+            'socioeconomic_status': 'ALTO'
+        },
+        {
+            'first_name': 'Zoe',
+            'middle_name': 'Alejandra',
+            'last_name': 'Montaño',
+            'second_last_name': 'Rivera',
+            'email': 'zoe.montano@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 11, 12),
+            'gender': 'F',
+            'neighborhood': 'Los Laureles',
+            'socioeconomic_status': 'MEDIO'
+        },
+        {
+            'first_name': 'Joaquín',
+            'middle_name': 'Rafael',
+            'last_name': 'Bermúdez',
+            'second_last_name': 'Calderón',
+            'email': 'joaquin.bermudez@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 5, 29),
+            'gender': 'M',
+            'neighborhood': 'Villa Fátima',
+            'socioeconomic_status': 'BAJO'
+        },
+        {
+            'first_name': 'Abril',
+            'middle_name': 'Daniela',
+            'last_name': 'Paredes',
+            'second_last_name': 'Hernández',
+            'email': 'abril.paredes@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 8, 8),
+            'gender': 'F',
+            'neighborhood': 'Ciudad Verde',
+            'socioeconomic_status': 'MEDIO_ALTO'
+        },
+        {
+            'first_name': 'Maximiliano',
+            'middle_name': 'Santiago',
+            'last_name': 'Lozano',
+            'second_last_name': 'Mendez',
+            'email': 'maximiliano.lozano@estudiantescol.edu.co',
+            'course': '1-D',
+            'date_of_birth': date(2018, 12, 24),
+            'gender': 'M',
+            'neighborhood': 'El Progreso',
+            'socioeconomic_status': 'MEDIO'
         }
     ]
     
-    # Nombres de actividades más realistas por tipo
-    nombres_actividades = {
-        'TAREA': [
-            'Ejercicios del Capítulo', 'Investigación Bibliográfica', 'Resolución de Problemas',
-            'Taller de Comprensión', 'Consulta Temática', 'Trabajo en Casa'
-        ],
-        'EXAMEN': [
-            'Examen Parcial', 'Evaluación Escrita', 'Prueba de Período',
-            'Examen Oral', 'Test de Conocimientos', 'Evaluación Integral'
-        ],
-        'PROYECTO': [
-            'Proyecto de Aula', 'Investigación Grupal', 'Presentación Oral',
-            'Trabajo de Campo', 'Propuesta de Solución', 'Proyecto Final'
-        ],
-        'QUIZ': [
-            'Quiz Rápido', 'Evaluación Sorpresa', 'Repaso de Conceptos',
-            'Pregunta del Día', 'Mini Evaluación', 'Control de Lectura'
-        ],
-        'PARTICIPACION': [
-            'Participación en Clase', 'Intervenciones Orales', 'Debates',
-            'Exposiciones', 'Discusiones Grupales', 'Aportes Significativos'
-        ]
-    }
+    print(f"📊 Creando {len(estudiantes_data)} estudiantes...")
     
-    def obtener_nota_realista(perfil, tipo_actividad, periodo):
-        """Genera una nota realista basada en el perfil del estudiante"""
-        base_min, base_max = perfil['rango_notas']
-        
-        # Ajustar según el tipo de actividad
-        if tipo_actividad == 'EXAMEN':
-            # Los exámenes tienden a ser más difíciles
-            base_min -= 0.3
-            base_max -= 0.2
-        elif tipo_actividad == 'PARTICIPACION':
-            # La participación suele tener notas más altas
-            base_min += 0.2
-            base_max = min(5.0, base_max + 0.1)
-        elif tipo_actividad == 'PROYECTO':
-            # Los proyectos pueden tener más variación
-            base_min -= 0.1
-            base_max += 0.1
-        
-        # Simular progreso/declive durante el año
-        if periodo == 1:
-            factor = 1.0  # Primer período normal
-        elif periodo == 2:
-            factor = 1.05  # Segundo período ligeramente mejor
-        elif periodo == 3:
-            factor = 0.98  # Tercer período puede bajar un poco
-        else:  # periodo == 4
-            factor = 0.95  # Cuarto período más difícil
-        
-        base_min *= factor
-        base_max *= factor
-        
-        # Asegurar límites del sistema colombiano
-        base_min = max(1.0, base_min)
-        base_max = min(5.0, base_max)
-        
-        # Generar nota con variabilidad
-        nota_base = random.uniform(base_min, base_max)
-        variacion = random.uniform(-perfil['variabilidad'], perfil['variabilidad'])
-        nota_final = nota_base + variacion
-        
-        # Posibilidad de nota muy baja ocasional
-        if random.random() < perfil['prob_bajo_rendimiento']:
-            nota_final = random.uniform(1.0, 2.5)
-        
-        # Redondear y asegurar límites
-        nota_final = round(max(1.0, min(5.0, nota_final)), 1)
-        return nota_final
+    estudiantes_creados = 0
+    estudiantes_existentes = 0
     
-    # Asignar perfiles a estudiantes
-    for idx, estudiante in enumerate(estudiantes):
-        perfil = perfiles_estudiantes[idx % len(perfiles_estudiantes)]
-        course = estudiante.course
-        
-        if not course:
-            print(f"⚠️  {estudiante.first_name} {estudiante.last_name} no tiene curso asignado. Saltando...")
-            continue
-        
-        print(f"📝 Procesando: {estudiante.first_name} {estudiante.last_name} (Perfil: {perfil['tipo']})")
-        
-        # Procesar cada materia del curso
-        for cs in course.course_subjects.all():
-            print(f"   📚 Materia: {cs.subject.name}")
+    for data in estudiantes_data:
+        try:
+            # Verificar si el usuario ya existe
+            if User.objects.filter(email=data['email']).exists():
+                print(f"⚠️  Usuario {data['email']} ya existe. Saltando...")
+                estudiantes_existentes += 1
+                continue
             
-            for periodo in periodos:
-                # Crear actividades por período (3-5 actividades por período)
-                num_actividades = random.randint(3, 5)
-                
-                for i in range(num_actividades):
-                    tipo_actividad = random.choice(tipos)
-                    nombre_base = random.choice(nombres_actividades[tipo_actividad])
-                    
-                    # Crear la actividad/assignment
-                    assignment = Assignment.objects.create(
-                        course_subject=cs,
-                        name=f"{nombre_base} - P{periodo}",
-                        assignment_type=tipo_actividad,
-                        weight=1.0 if tipo_actividad != 'EXAMEN' else 2.0,  # Exámenes pesan más
-                        period=periodo,
-                        year=str(anio),
-                        max_score=5.0,  # Sistema colombiano
-                        date_assigned=timezone.now().date() - timedelta(days=random.randint(5, 45)),
-                        due_date=timezone.now().date() - timedelta(days=random.randint(1, 30))
-                    )
-                    
-                    # Generar nota realista
-                    nota = obtener_nota_realista(perfil, tipo_actividad, periodo)
-                    
-                    # Determinar si fue entrega tardía
-                    late = random.random() < perfil['prob_tarde']
-                    if late:
-                        nota = max(1.0, nota - 0.5)  # Penalizar entregas tardías
-                    
-                    # Crear la entrada de calificación
-                    grade_entry = GradeEntry.objects.create(
-                        assignment=assignment,
-                        student=estudiante,
-                        score=nota,
-                        submitted_date=timezone.now() - timedelta(days=random.randint(1, 30)),
-                        late_submission=late,
-                        comments="Entrega tardía" if late else ""
-                    )
-                
-                # Calcular nota final del período
-                assignments_periodo = Assignment.objects.filter(
-                    course_subject=cs, 
-                    period=periodo, 
-                    year=str(anio)
-                )
-                
-                entries_estudiante = GradeEntry.objects.filter(
-                    student=estudiante,
-                    assignment__in=assignments_periodo
-                )
-                
-                if entries_estudiante.exists():
-                    # Calcular promedio ponderado
-                    suma_ponderada = 0
-                    suma_pesos = 0
-                    
-                    for entry in entries_estudiante:
-                        peso = entry.assignment.weight
-                        suma_ponderada += float(entry.score) * peso
-                        suma_pesos += peso
-                    
-                    nota_final_periodo = suma_ponderada / suma_pesos if suma_pesos > 0 else 3.0
-                    nota_final_periodo = round(nota_final_periodo, 1)
-                    
-                    # Crear la calificación del período
-                    grade, created = Grade.objects.get_or_create(
-                        student=estudiante,
-                        course=course,
-                        period=periodo,
-                        year=str(anio),
-                        defaults={
-                            'value': nota_final_periodo,
-                            'comments': f"Promedio del período {periodo}"
-                        }
-                    )
-                    
-                    if not created:
-                        grade.value = nota_final_periodo
-                        grade.save()
-                    
-                    # Asociar las entradas con la calificación del período
-                    entries_estudiante.update(grade=grade)
-                    
-                    print(f"      📊 Período {periodo}: {nota_final_periodo}")
+            if User.objects.filter(email=data['email']).exists():
+                print(f"⚠️  Email {data['email']} ya existe. Saltando...")
+                estudiantes_existentes += 1
+                continue
             
-            # Generar asistencias realistas (30 registros por materia distribuidos en el año)
-            fecha_inicio = date(anio, 2, 1)  # Inicio clases febrero
-            fecha_fin = date(anio, 11, 30)   # Fin clases noviembre
-            dias_totales = (fecha_fin - fecha_inicio).days
+            # Crear el usuario
+            user = User.objects.create_user(
+                email=data['email'],
+                password='Tesis123',  # Contraseña fija como solicitaste
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                user_type='student',
+                is_active=True  # Email confirmado automáticamente
+            )
             
-            # Generar 30 fechas aleatorias de clase
-            fechas_clase = []
-            for _ in range(30):
-                dias_random = random.randint(0, dias_totales)
-                fecha_clase = fecha_inicio + timedelta(days=dias_random)
-                # Evitar fines de semana (aproximadamente)
-                if fecha_clase.weekday() < 5:  # Lunes a Viernes
-                    fechas_clase.append(fecha_clase)
+            # Crear el estudiante
+            student = Student.objects.create(
+                user=user,
+                first_name=data['first_name'],
+                middle_name=data.get('middle_name', ''),
+                last_name=data['last_name'],
+                second_last_name=data.get('second_last_name', ''),
+                date_of_birth=data['date_of_birth'],
+                email=data['email'],
+                gender=data['gender'],
+                neighborhood=data['neighborhood'],
+                socioeconomic_status=data['socioeconomic_status'],
+                course=cursos[data['course']],
+                grado=grado_1
+            )
             
-            # Ordenar fechas
-            fechas_clase.sort()
+            estudiantes_creados += 1
+            print(f"✅ Creado: {student.first_name} {student.last_name} ({data['course']}) - {data['neighborhood']}")
             
-            # Crear registros de asistencia
-            for fecha in fechas_clase:
-                presente = random.random() < perfil['prob_asistencia']
-                comentario = ""
-                
-                if not presente:
-                    comentarios_ausencia = [
-                        "Enfermedad", "Cita médica", "Calamidad familiar",
-                        "Transporte", "Sin justificación", "Permiso especial"
-                    ]
-                    comentario = random.choice(comentarios_ausencia)
-                
-                Attendance.objects.get_or_create(
-                    student=estudiante,
-                    date=fecha,
-                    subject=cs.subject,
-                    defaults={
-                        'present': presente,
-                        'comments': comentario
-                    }
-                )
-        
-        # Mostrar resumen del estudiante
-        asistencia_total = Attendance.objects.filter(student=estudiante).count()
-        presente_total = Attendance.objects.filter(student=estudiante, present=True).count()
-        porcentaje_asistencia = (presente_total / asistencia_total * 100) if asistencia_total > 0 else 0
-        
-        promedio_general = Grade.objects.filter(
-            student=estudiante, 
-            year=str(anio)
-        ).aggregate(avg_grade=models.Avg('value'))['avg_grade'] or 0
-        
-        print(f"   ✅ {estudiante.first_name}: Promedio {promedio_general:.1f}, Asistencia {porcentaje_asistencia:.1f}%")
-        print()
+        except Exception as e:
+            print(f"❌ Error creando estudiante {data['first_name']} {data['last_name']}: {str(e)}")
     
-    print("🎉 ¡Datos de prueba cargados exitosamente!")
-    print(f"📈 Resumen general:")
+    print(f"\n🎉 Proceso completado!")
+    print(f"✅ Estudiantes creados: {estudiantes_creados}")
+    print(f"⚠️  Estudiantes ya existentes: {estudiantes_existentes}")
     
-    # Estadísticas generales
-    total_grades = Grade.objects.filter(year=str(anio)).count()
-    total_entries = GradeEntry.objects.count()
-    total_attendance = Attendance.objects.count()
+    # Mostrar resumen por curso
+    print(f"\n📊 Resumen por curso:")
+    for curso_nombre in cursos_data:
+        count = Student.objects.filter(course__name=curso_nombre).count()
+        print(f"   {curso_nombre}: {count} estudiantes")
     
-    print(f"   • {total_grades} calificaciones de período generadas")
-    print(f"   • {total_entries} entradas de calificación creadas")
-    print(f"   • {total_attendance} registros de asistencia creados")
+    # Mostrar resumen por género
+    print(f"\n👫 Resumen por género:")
+    masculino = Student.objects.filter(gender='M', grado=grado_1).count()
+    femenino = Student.objects.filter(gender='F', grado=grado_1).count()
+    print(f"   Masculino: {masculino}")
+    print(f"   Femenino: {femenino}")
     
-    # Promedio general del sistema
-    avg_system = Grade.objects.filter(year=str(anio)).aggregate(
-        avg_grade=models.Avg('value')
-    )['avg_grade']
+    # Mostrar resumen por nivel socioeconómico
+    print(f"\n💰 Resumen por nivel socioeconómico:")
+    for choice in Student.SOCIOECONOMIC_CHOICES:
+        count = Student.objects.filter(socioeconomic_status=choice[0], grado=grado_1).count()
+        print(f"   {choice[1]}: {count}")
     
-    if avg_system:
-        print(f"   • Promedio general del sistema: {avg_system:.2f}")
+    print(f"\n🔑 Credenciales de acceso:")
+    print(f"   Username: [como se muestran arriba]")
+    print(f"   Password: Tesis123 (para todos)")
+    print(f"   Email confirmado: Sí (is_active=True)")
 
 # Ejecutar la función
 if __name__ == "__main__":
-    # Importar models para las consultas estadísticas
-    from django.db import models
-    cargar_datos_demo()
+    crear_estudiantes_demo()
