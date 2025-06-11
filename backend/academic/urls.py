@@ -12,18 +12,10 @@ from .views.student_views import (
 # Teacher
 from .views.teacher_views import (
     TeacherViewSet,
-    TeacherCoursesView,
-    TeacherCourseStudentsView,
-    TeacherCoursePDFView,
-    TeacherCourseSubjectGradesView,
-    TeacherStudentSubjectAnalysisView,
-    TeacherDashboardView,
-    TeacherCourseSubjectComparisonAPIView
 )
 
 # Common (ViewSets genéricos + búsqueda)
 from .views.common_views import (
-    TeacherSearchStudentsView,
     SubjectViewSet,
     GradoViewSet,
     CourseViewSet,
@@ -68,15 +60,8 @@ urlpatterns = [
     # Periodo académico
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),
     
-    # Docente
-    path('teacher/courses/', TeacherCoursesView.as_view(), name='teacher-courses'),
-    path('teacher/course/<int:course_id>/students/', TeacherCourseStudentsView.as_view(), name='teacher-course-students'),
-    path('teacher/search-students/', TeacherSearchStudentsView.as_view(), name='teacher-search-students'),
-    path('teacher/course/<int:course_id>/planilla-pdf/', TeacherCoursePDFView.as_view(), name='teacher-course-planilla-pdf'),
-    path('teacher/course/<int:course_id>/subject/<int:subject_id>/grades/', TeacherCourseSubjectGradesView.as_view(), name='teacher-course-subject-grades'),
-    path('teacher/student/<int:student_id>/analysis/', TeacherStudentSubjectAnalysisView.as_view(), name='teacher-student-subject-analysis'),
-    path('teacher/dashboard/', TeacherDashboardView.as_view(), name='teacher-dashboard'),
-    path('teacher/course/<int:course_id>/subject/<int:subject_id>/comparison/', TeacherCourseSubjectComparisonAPIView.as_view(), name='teacher-course-subject-comparison'),
+    # Docente - Solo rutas que NO están manejadas por el ViewSet
+    #path('teachers/search-students/', TeacherSearchStudentsView.as_view(), name='teacher-search-students'),
         
     # Grado–Materia
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),

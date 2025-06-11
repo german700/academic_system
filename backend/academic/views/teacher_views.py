@@ -411,30 +411,61 @@ class TeacherViewSet(viewsets.ModelViewSet):
     # RUTAS "ME/" PARA EL DOCENTE AUTENTICADO
     # ============================================
 
-    # GET /api/academic/teachers/me/dashboard/
     @action(detail=False, url_path='me/dashboard', methods=['get'])
     def me_dashboard(self, request):
-        try:
-            teacher = request.user.teacher
-        except Teacher.DoesNotExist:
-            return Response({"error": "Este usuario no es un docente"}, status=404)
+        from academic.models import AcademicPeriod
 
-    # Armá aquí tu lógica de dashboard
-        data = {
-            "teacher_id": teacher.id,
-            "teacher_name": f"{teacher.first_name} {teacher.last_name}",
-            "courses": [
-                {
-                    "id": cs.course.id,
-                    "name": cs.course.name,
-                    "subject": cs.subject.name
-                }
-                for cs in teacher.course_subjects.all()
-            ]
-        }
+        teacher = getattr(request.user, 'teacher_profile', None)
+        if not teacher:
+            return Response({"error": "No eres un docente"}, status=404)
 
-        return Response(data)
+        # 1) periodo activo
+        today = timezone.now().date()
+        period = AcademicPeriod.objects.filter(
+            start_date__lte=today, end_date__gte=today
+        ).first()
+        current_period = {
+            "name": period.name,
+            "number": period.number
+        } if period else None
 
+        # 2) tus cursos+materias (ya los tienes)
+        course_subjects = CourseSubject.objects.filter(teacher=teacher).select_related('course', 'subject')
+
+        # 3) agrupa por curso y cuenta estudiantes
+        from collections import defaultdict
+        courses_map = defaultdict(lambda: {
+            "subjects": [], "student_count": 0, "grado": None
+        })
+        for cs in course_subjects:
+            c = cs.course
+            entry = courses_map[c.id]
+            entry.update({
+                "id": c.id,
+                "name": c.name,
+                "grado": c.grado.numero if c.grado else None,
+                "student_count": c.students.count()
+            })
+            entry["subjects"].append({
+                "id": cs.subject.id,
+                "name": cs.subject.name,
+                "course_subject_id": cs.id
+            })
+
+        courses = list(courses_map.values())
+
+        # 4) estadísticas generales
+        total_courses = len(courses)
+        total_students = sum(c["student_count"] for c in courses)
+        total_grades = len({c['grado'] for c in courses if c['grado'] is not None})
+
+        return Response({
+            "current_period": current_period,
+            "total_courses": total_courses,
+            "total_students": total_students,
+            "total_grades": total_grades,
+            "courses": courses
+        })
 
     # GET /api/academic/teachers/me/courses/
     @action(detail=False, url_path='me/courses', methods=['get'])
@@ -442,15 +473,89 @@ class TeacherViewSet(viewsets.ModelViewSet):
         """
         Cursos del docente autenticado
         """
-        return TeacherCoursesView.as_view()(request)
+        teacher = getattr(request.user, 'teacher_profile', None)
+        if teacher is None:
+            return Response({"error": "Este usuario no es un docente"}, status=404)
+
+        # Obtener todos los CourseSubject del docente
+        course_subjects = CourseSubject.objects.filter(teacher=teacher).select_related('course', 'subject')
+        
+        # Agrupar por curso
+        from collections import defaultdict
+        courses_dict = defaultdict(lambda: {'subjects': []})
+        
+        for cs in course_subjects:
+            course = cs.course
+            if course.id not in courses_dict:
+                courses_dict[course.id].update({
+                    'id': course.id,
+                    'name': course.name,
+                    'grado': course.grado.numero if hasattr(course, 'grado') else None,
+                    'student_count': course.students.count(),
+                    'subjects': []
+                })
+            
+            courses_dict[course.id]['subjects'].append({
+                'id': cs.subject.id,
+                'name': cs.subject.name,
+                'course_subject_id': cs.id
+            })
+        
+        # Convertir a lista
+        courses_list = list(courses_dict.values())
+        
+        return Response({
+            'teacher': {
+                'id': teacher.id,
+                'name': f"{teacher.first_name} {teacher.last_name}"
+            },
+            'courses': courses_list,
+            'total_courses': len(courses_list)
+        })
 
     # GET /api/academic/teachers/me/course/{course_id}/students/
-    @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/students', methods=['get'])
+    @action(detail=False, methods=['get'], url_path='me/course/(?P<course_id>[^/.]+)/students')
     def me_course_students(self, request, course_id=None):
         """
-        Estudiantes de un curso específico del docente autenticado
+        GET /api/academic/teachers/me/course/{course_id}/students/
+        Devuelve los estudiantes del curso y las materias que enseña el docente en ese curso
         """
-        return CourseStudentsView.as_view()(request, course_id=course_id)
+        teacher = request.user.teacher_profile
+    
+        # 1. Validar que el docente enseña en ese curso
+        if not CourseSubject.objects.filter(course__id=course_id, teacher=teacher).exists():
+            return Response(
+                {"error": "No estás asignado a ese curso."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    
+        # 2. Obtener estudiantes del curso
+        students = Student.objects.filter(course__id=course_id).order_by('last_name', 'first_name')
+    
+        # 3. Obtener las materias (CourseSubject) que enseña este docente en ese curso
+        course_subjects = CourseSubject.objects.filter(
+            course__id=course_id, 
+            teacher=teacher
+        ).select_related('subject')
+    
+        # 4. Formatear las materias
+        subjects = []
+        for cs in course_subjects:
+            subjects.append({
+                "id": cs.subject.id,
+                "name": cs.subject.name,
+                "course_subject_id": cs.id,
+                "subject_code": cs.subject.code if hasattr(cs.subject, 'code') else None
+            })
+    
+        # 5. Serializar y responder
+        return Response({
+            "course_id": int(course_id),
+            "students": StudentSerializer(students, many=True).data,
+            "subjects": subjects,
+            "total_students": students.count(),
+            "total_subjects": len(subjects)
+        }, status=status.HTTP_200_OK)
 
     # GET /api/academic/teachers/me/course/{course_id}/subject/{subject_id}/grades/
     @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/subject/(?P<subject_id>[^/.]+)/grades', methods=['get'])
@@ -458,7 +563,74 @@ class TeacherViewSet(viewsets.ModelViewSet):
         """
         Calificaciones de una materia específica en un curso del docente autenticado
         """
-        return TeacherCourseSubjectGradesView.as_view()(request, course_id=course_id, subject_id=subject_id)
+        # Verificar que el teacher está asignado a esta materia en este curso
+        course_subject = get_course_subject_if_teacher(request, course_id, subject_id)
+        if isinstance(course_subject, Response):
+            return course_subject
+        
+        # Obtener el periodo académico actual
+        today = timezone.now().date()
+        current_period = AcademicPeriod.objects.filter(
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+        
+        if not current_period:
+            return Response({
+                "error": "No hay periodo académico activo"
+            }, status=400)
+        
+        # Obtener todas las calificaciones del periodo actual
+        grade_entries = GradeEntry.objects.filter(
+            assignment__course_subject=course_subject,
+            assignment__period=current_period.number
+        ).select_related('student', 'assignment').order_by('student__last_name', 'student__first_name', 'assignment__date_assigned')
+        
+        # Agrupar por estudiante
+        from collections import defaultdict
+        student_grades = defaultdict(list)
+        
+        for entry in grade_entries:
+            student_grades[entry.student].append({
+                'assignment_id': entry.assignment.id,
+                'assignment_title': entry.assignment.name,
+                'assignment_date': entry.assignment.date_assigned,
+                'score': entry.score,
+                'max_score': entry.assignment.max_score,
+                'percentage': round((float(entry.score) / float(entry.assignment.max_score)) * 100, 2) if entry.assignment.max_score > 0 else 0
+            })
+        
+        # Estructurar respuesta
+        students_data = []
+        for student, grades in student_grades.items():
+            # Calcular promedio del estudiante
+            total_percentage = sum(grade['percentage'] for grade in grades)
+            average = round(total_percentage / len(grades), 2) if grades else 0
+            
+            students_data.append({
+                'student_id': student.id,
+                'student_name': f"{student.first_name} {student.last_name}",
+                'grades': grades,
+                'average': average,
+                'total_assignments': len(grades)
+            })
+        
+        return Response({
+            'course': {
+                'id': course_subject.course.id,
+                'name': course_subject.course.name
+            },
+            'subject': {
+                'id': course_subject.subject.id,
+                'name': course_subject.subject.name
+            },
+            'period': {
+                'number': current_period.number,
+                'name': current_period.name
+            },
+            'students': students_data,
+            'total_students': len(students_data)
+        })
 
     # GET /api/academic/teachers/me/course/{course_id}/subject/{subject_id}/assignments/
     @action(detail=False, url_path='me/course/(?P<course_id>[^/.]+)/subject/(?P<subject_id>[^/.]+)/assignments', methods=['get'])
@@ -466,7 +638,30 @@ class TeacherViewSet(viewsets.ModelViewSet):
         """
         Tareas de una materia específica en un curso del docente autenticado
         """
-        return TeacherCourseSubjectAssignmentsView.as_view()(request, course_id=course_id, subject_id=subject_id)
+        # Verificar que el teacher está asignado a esta materia en este curso
+        course_subject = get_course_subject_if_teacher(request, course_id, subject_id)
+        if isinstance(course_subject, Response):
+            return course_subject
+        
+        # Obtener las assignments ordenadas por fecha
+        assignments = Assignment.objects.filter(
+            course_subject=course_subject
+        ).order_by('-date_assigned')  # Más recientes primero
+        
+        # Serializar y retornar
+        serializer = AssignmentSerializer(assignments, many=True)
+        return Response({
+            'course': {
+                'id': course_subject.course.id,
+                'name': course_subject.course.name
+            },
+            'subject': {
+                'id': course_subject.subject.id,
+                'name': course_subject.subject.name
+            },
+            'assignments': serializer.data,
+            'total_assignments': assignments.count()
+        })
 
     # GET /api/academic/teachers/me/attendance/by_date/
     @action(detail=False, url_path='me/attendance/by_date', methods=['get'])
