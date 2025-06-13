@@ -1,21 +1,25 @@
-// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\shared\PrivateRoute.jsx
+// src/components/shared/PrivateRoute.jsx
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useEffect } from 'react';
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
 
-  console.log("Usuario autenticado:", user);
+  useEffect(() => {
+    console.log("🔒 Evaluando acceso. Usuario:", user);
+  }, [user]);
 
   if (!user) {
-    return <Navigate to="/login" />;
+    console.warn("⛔ Usuario no autenticado. Redirigiendo al login.");
+    return <Navigate to="/login" replace />;
   }
 
-  // Permitir acceso si el usuario es superusuario o tiene un rol permitido
   if (user.isSuperUser || allowedRoles.includes(user.userType)) {
     return children;
   }
 
+  console.warn("🚫 Usuario autenticado pero sin permisos:", user);
   return <div className="text-red-500 text-center p-6">Acceso restringido.</div>;
 };
 

@@ -8,6 +8,9 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.dateparse import parse_date
+from django.db import transaction
+
 from academic.models import (
     Subject,
     Grado,
@@ -32,13 +35,9 @@ from academic.serializers import (
     CourseSubjectSerializer,
     StudentSerializer,
     AdministratorSerializer,
-    
 )
 from academic.permissions import IsTeacher, IsWithinPeriod
 
-# ————————————————
-# TeacherSearchStudentsView
-# ————————————————
 
 class TeacherSearchStudentsView(APIView):
     """
@@ -66,10 +65,6 @@ class TeacherSearchStudentsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# ————————————————
-# SubjectViewSet
-# ————————————————
-
 class SubjectViewSet(viewsets.ModelViewSet):
     """
     /api/academic/subjects/
@@ -87,10 +82,6 @@ class SubjectViewSet(viewsets.ModelViewSet):
         return Response(AssignmentSerializer(assignments, many=True).data)
 
 
-# ————————————————
-# GradoViewSet
-# ————————————————
-
 class GradoViewSet(viewsets.ModelViewSet):
     """
     /api/academic/grados/
@@ -100,10 +91,6 @@ class GradoViewSet(viewsets.ModelViewSet):
     serializer_class = GradoSerializer
     permission_classes = [IsAuthenticated]
 
-
-# ————————————————
-# CourseViewSet
-# ————————————————
 
 class CourseViewSet(viewsets.ModelViewSet):
     """
@@ -172,10 +159,6 @@ class CourseViewSet(viewsets.ModelViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ————————————————
-# GradeViewSet
-# ————————————————
-
 class GradeViewSet(viewsets.ModelViewSet):
     """
     /api/academic/grades/
@@ -186,11 +169,11 @@ class GradeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-# ————————————————
-# GradeEntryViewSet
-# ————————————————
-
 class GradeEntryViewSet(viewsets.ModelViewSet):
+    """
+    /api/academic/grade-entries/
+    CRUD de entradas de calificaciones
+    """
     queryset = GradeEntry.objects.all()
     serializer_class = GradeEntrySerializer
     permission_classes = [IsAuthenticated, IsTeacher, IsWithinPeriod]
@@ -221,11 +204,116 @@ class GradeEntryViewSet(viewsets.ModelViewSet):
             )
 
         return super().update(request, *args, **kwargs)
+    
+class AttendanceViewSet(viewsets.ModelViewSet):
+    """
+    /api/academic/attendances/
+    CRUD de asistencias + GET /?student_id= y /?start_date=&end_date=
+    """
+    queryset = Attendance.objects.all().select_related('student', 'subject').order_by('-date')
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=["get"], url_path="by_course_subject_date")
+    def attendance_by_date(self, request):
+        course_id = request.query_params.get("course_id")
+        subject_id = request.query_params.get("subject_id")
+        date_str = request.query_params.get("date")
+        
+        if not course_id or not subject_id or not date_str:
+            return Response({"error": "Faltan parámetros requeridos"}, status=status.HTTP_400_BAD_REQUEST)
 
-# ————————————————
-# GradoMateriaViewSet
-# ————————————————
+        date = parse_date(date_str)
+        if not date:
+            return Response({"error": "Fecha inválida"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            course_subject = CourseSubject.objects.get(course_id=course_id, subject_id=subject_id)
+        except CourseSubject.DoesNotExist:
+            return Response({"error": "No se encontró la relación curso-materia"}, status=status.HTTP_404_NOT_FOUND)
+
+        students = Student.objects.filter(course=course_subject.course).order_by("last_name")
+
+        response = []
+        for student in students:
+            att = Attendance.objects.filter(student=student, subject_id=subject_id, date=date).first()
+            response.append({
+                "id": att.id if att else None,
+                "studentId": student.id,
+                "studentName": f"{student.first_name} {student.last_name}",
+                "present": att.present if att else False,
+                "subjectId": subject_id,  # útil para el POST de vuelta
+                "date": date_str          # útil para el POST de vuelta
+            })
+
+        return Response(response)
+
+    @action(detail=False, methods=["post"], url_path="bulk_save")
+    def bulk_save_attendance(self, request):
+        data = request.data
+        if not isinstance(data, list):
+            return Response({"error": "Se esperaba una lista de asistencias"}, status=status.HTTP_400_BAD_REQUEST)
+
+        result = []
+        for item in data:
+            student_id = item.get("studentId")
+            subject_id = item.get("subjectId")
+            date = item.get("date")
+            present = item.get("present")
+            att_id = item.get("id")
+
+            if not student_id or not subject_id or not date:
+                continue
+
+            if att_id:
+                att = Attendance.objects.filter(id=att_id).first()
+                if att:
+                    att.present = present
+                    att.save()
+            else:
+                att = Attendance.objects.create(
+                    student_id=student_id,
+                    subject_id=subject_id,
+                    date=date,
+                    present=present
+                )
+            result.append({"id": att.id})
+
+        return Response({"saved": len(result), "records": result}, status=status.HTTP_200_OK)
+    
+class AssignmentViewSet(viewsets.ModelViewSet):
+    """
+    /api/academic/assignments/
+    CRUD de actividades + GET /{pk}/grade_entries/ + /by_subject/ + /by_type/
+    """
+    queryset = Assignment.objects.select_related('course_subject__subject', 'course_subject__course').order_by('-date_assigned')
+    serializer_class = AssignmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def grade_entries(self, request, pk=None):
+        assignment = self.get_object()
+        grade_entries = GradeEntry.objects.filter(assignment=assignment)
+        return Response(GradeEntrySerializer(grade_entries, many=True).data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def by_subject(self, request):
+        subject_id = request.query_params.get('subject_id')
+        if not subject_id:
+            return Response({"error": "Se requiere subject_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+        assignments = Assignment.objects.filter(course_subject__subject_id=subject_id).order_by('-date_assigned')
+        return Response(AssignmentSerializer(assignments, many=True).data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def by_type(self, request):
+        assignment_type = request.query_params.get('assignment_type')
+        if not assignment_type:
+            return Response({"error": "Se requiere assignment_type"}, status=status.HTTP_400_BAD_REQUEST)
+
+        assignments = Assignment.objects.filter(assignment_type=assignment_type).order_by('-date_assigned')
+        return Response(AssignmentSerializer(assignments, many=True).data)
+
 
 class GradoMateriaViewSet(viewsets.ViewSet):
     """
@@ -264,10 +352,6 @@ class GradoMateriaViewSet(viewsets.ViewSet):
             return Response({"error": "Materia no encontrada en este grado"}, status=status.HTTP_404_NOT_FOUND)
 
 
-# ————————————————
-# CourseSubjectViewSet
-# ————————————————
-
 class CourseSubjectViewSet(viewsets.ModelViewSet):
     """
     /api/academic/course-subjects/
@@ -277,10 +361,6 @@ class CourseSubjectViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSubjectSerializer
     permission_classes = [IsAuthenticated]
 
-
-# ————————————————
-# AdministratorViewSet
-# ————————————————
 
 class AdministratorViewSet(viewsets.ModelViewSet):
     """
@@ -294,80 +374,9 @@ class AdministratorViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.user_type == "director":
-            return Course.objects.all()
+            return Administrator.objects.all()
         elif user.user_type == "teacher":
-            return Course.objects.filter(teachers__user=user)
+            return Administrator.objects.filter(user=user)
         elif user.user_type == "student":
-            return Course.objects.filter(students__user=user)
-        return Course.objects.none()
-
-
-# ————————————————
-# AttendanceViewSet
-# ————————————————
-
-class AttendanceViewSet(viewsets.ModelViewSet):
-    """
-    /api/academic/attendances/
-    CRUD de asistencias + GET /?student_id= y /?start_date=&end_date=
-    """
-    queryset = Attendance.objects.all().select_related('student', 'subject').order_by('-date')
-    serializer_class = AttendanceSerializer
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def by_student(self, request):
-        student_id = request.query_params.get('student_id')
-        if not student_id:
-            return Response({"error": "Se requiere el parámetro student_id"}, status=status.HTTP_400_BAD_REQUEST)
-
-        attendances = Attendance.objects.filter(student_id=student_id).order_by('-date')
-        return Response(AttendanceSerializer(attendances, many=True).data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def by_date_range(self, request):
-        start_date = request.query_params.get('start_date')
-        end_date = request.query_params.get('end_date')
-        if not start_date or not end_date:
-            return Response({"error": "Se requieren start_date y end_date"}, status=status.HTTP_400_BAD_REQUEST)
-
-        attendances = Attendance.objects.filter(date__range=[start_date, end_date]).order_by('-date')
-        return Response(AttendanceSerializer(attendances, many=True).data)
-
-
-# ————————————————
-# AssignmentViewSet
-# ————————————————
-
-class AssignmentViewSet(viewsets.ModelViewSet):
-    """
-    /api/academic/assignments/
-    CRUD de actividades + GET /{pk}/grade_entries/ + /by_subject/ + /by_type/
-    """
-    queryset = Assignment.objects.select_related('course_subject__subject', 'course_subject__course').order_by('-date_assigned')
-    serializer_class = AssignmentSerializer
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
-    def grade_entries(self, request, pk=None):
-        assignment = self.get_object()
-        grade_entries = GradeEntry.objects.filter(assignment=assignment)
-        return Response(GradeEntrySerializer(grade_entries, many=True).data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def by_subject(self, request):
-        subject_id = request.query_params.get('subject_id')
-        if not subject_id:
-            return Response({"error": "Se requiere subject_id"}, status=status.HTTP_400_BAD_REQUEST)
-
-        assignments = Assignment.objects.filter(course_subject__subject_id=subject_id).order_by('-date_assigned')
-        return Response(AssignmentSerializer(assignments, many=True).data)
-
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
-    def by_type(self, request):
-        assignment_type = request.query_params.get('assignment_type')
-        if not assignment_type:
-            return Response({"error": "Se requiere assignment_type"}, status=status.HTTP_400_BAD_REQUEST)
-
-        assignments = Assignment.objects.filter(assignment_type=assignment_type).order_by('-date_assigned')
-        return Response(AssignmentSerializer(assignments, many=True).data)
+            return Administrator.objects.none()
+        return Administrator.objects.none()

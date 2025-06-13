@@ -83,11 +83,11 @@ export const fetchCourseStudents = async (courseId) => {
   return res.json();
 };
 
-export const fetchCourseSubjectGrades = async (courseId, subjectId, period) => {
-  const res = await fetch(
-    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/?period=${period}`,
-    { headers: getAuthHeaders() }
-  );
+export const fetchCourseSubjectGrades = async (courseId, subjectId, period = null) => {
+  const url = period
+    ? `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/?period=${period}`
+    : `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`;
+  const res = await fetch(url, { headers: getAuthHeaders() });
   if (!res.ok) throw new Error("Error al cargar calificaciones");
   return res.json();
 };
@@ -98,16 +98,6 @@ export const fetchCourseSubjectAssignments = async (courseId, subjectId) => {
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw new Error("Error al cargar actividades de la materia");
-  return res.json();
-};
-
-export const fetchAttendanceByDate = async (courseId, subjectId, date) => {
-  const dateStr = date instanceof Date ? date.toISOString().slice(0, 10) : date;
-  const res = await fetch(
-    `${TEACHERS_API}/me/attendance/by_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`,
-    { headers: getAuthHeaders() }
-  );
-  if (!res.ok) throw new Error("Error cargando asistencia");
   return res.json();
 };
 
@@ -125,12 +115,15 @@ export const fetchCreateGradeEntry = async (data) => {
   return res.json();
 };
 
-export const fetchUpdateGradeEntry = async (id, data) => {
-  const res = await fetch(`${BASE_URL}/api/academic/grade-entries/${id}/`, {
-    method: "PATCH",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
+export const fetchUpdateGradeEntry = async (courseId, subjectId, data) => {
+  const res = await fetch(
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`,
+    {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }
+  );
   if (!res.ok) throw new Error("Error actualizando entry");
   return res.json();
 };
@@ -148,22 +141,118 @@ export const fetchDeleteGradeEntry = async (id) => {
 // FUNCIONES PARA ATTENDANCE
 // ================================
 
-export const fetchCreateAttendance = async (data) => {
-  const res = await fetch(`${BASE_URL}/api/academic/attendance/`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Error creando asistencia");
+export const fetchAttendanceByDate = async (courseId, subjectId, date) => {
+  const dateStr = date instanceof Date
+    ? date.toLocaleDateString("en-CA") // 'YYYY-MM-DD'
+    : date;
+  const res = await fetch(
+    `${BASE_URL}/api/academic/attendances/by_course_subject_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error cargando asistencia");
   return res.json();
 };
 
-export const fetchUpdateAttendance = async (id, data) => {
-  const res = await fetch(`${BASE_URL}/api/academic/attendance/${id}/`, {
-    method: "PATCH",
+export const fetchBulkSaveAttendance = async (records) => {
+  const res = await fetch(`${BASE_URL}/api/academic/attendances/bulk_save/`, {
+    method: "POST",
     headers: getAuthHeaders(),
-    body: JSON.stringify(data),
+    body: JSON.stringify(records),
   });
-  if (!res.ok) throw new Error("Error actualizando asistencia");
+  if (!res.ok) throw new Error("Error guardando asistencia en lote");
+  return res.json();
+};
+
+
+
+
+export const fetchCourseSubjectAssignmentsByPeriod = async (courseId, subjectId, period) => {
+  const res = await fetch(
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error al cargar actividades de la materia");
+  const json = await res.json();
+  // Asegúrate de que el backend filtre por period
+  return json.assignments || json;
+};
+
+export const updateGrades = async (courseId, subjectId, gradesData, period) => {
+  const res = await fetch(
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`,
+    {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ grades: gradesData, period })
+    }
+  );
+
+  if (res.status === 401) {
+    console.warn("⚠️ Token inválido o expirado al guardar notas.");
+  }
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Error actualizando notas");
+  }
+
+  return res.json();
+};
+
+export const createAssignment = async (courseId, subjectId, period, payload) => {
+  const url = `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Error creando actividad");
+  }
+  return res.json();  // ya viene la nueva actividad
+};
+
+export const deleteAssignment = async (assignmentId) => {
+  const res = await fetch(`${BASE_URL}/api/academic/assignments/${assignmentId}/`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Error eliminando actividad");
+  }
+};
+
+// ================================
+// OPERACIONES BATCH PARA ASSIGNMENTS
+// ================================
+
+/**
+ * Actualiza en lote los pesos de varias actividades para un curso/materia/período específico.
+ * @param {number} courseId - ID del curso
+ * @param {number} subjectId - ID de la materia
+ * @param {string} period - Período académico
+ * @param {Array<{ assignment_id: number, weight: number }>} weights - Array de pesos a actualizar
+ * @returns {Promise<Object>} Respuesta JSON del servidor
+ */
+export const updateAssignmentWeights = async (courseId, subjectId, period, weights) => {
+  const res = await fetch(
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({ weights, period })
+    }
+  );
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(`Error ${res.status}: ${errorData.detail || errorData.error || "Error actualizando pesos"}`);
+  }
+
   return res.json();
 };

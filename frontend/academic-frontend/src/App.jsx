@@ -1,6 +1,7 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { Toaster } from 'react-hot-toast';
 
 import Login from './components/auth/Login.jsx';
 import ConfirmarCorreo from './components/auth/ConfirmarCorreo.jsx';
@@ -31,9 +32,11 @@ import TeacherDashboard from './components/teachers/TeacherDashboard.jsx';
 import TeacherCourses from './components/teachers/TeacherCourses.jsx';
 import CourseStudents from './components/teachers/CourseStudents.jsx';
 import StudentSubjectAnalysis from './components/teachers/StudentSubjectAnalysis.jsx';
-import CourseGrades from './components/teachers/CourseGrades.jsx';
+import CourseGradesView from './components/teachers/CourseGradesView.jsx';
 import CourseComparison from './components/teachers/CourseComparison.jsx';
 import CourseAnalysis from './components/teachers/CourseAnalysis.jsx';
+import CourseGradesEdit from './components/teachers/CourseGradesEdit.jsx';
+import CourseAttendance from './components/teachers/CourseAttendance.jsx';
 
 function App() {
   return (
@@ -109,8 +112,10 @@ function App() {
             {/* Rutas de cursos */}
             <Route path="courses/:courseId" element={<TeacherCourses />} />
             <Route path="courses/:courseId/students" element={<CourseStudents />} />
-            <Route path="courses/:courseId/subject/:subjectId/grades" element={<CourseGrades />} />
-
+            <Route path="courses/:courseId/subject/:subjectId/grades" element={<CourseGradesView />} />
+            <Route path="courses/:courseId/subject/:subjectId/edit" element={<CourseGradesEdit />} />
+            <Route path="/teachers/courses/:courseId/subject/:subjectId/attendance" element={<CourseAttendance />} />
+            
             {/* Nueva ruta de comparación */}
             <Route path="courses/:courseId/subject/:subjectId/comparison" element={<CourseAnalysis />} />
             <Route path="courses/:courseId/subject/:subjectId/comparison" element={<CourseComparison />} />
