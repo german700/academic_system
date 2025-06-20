@@ -33,7 +33,6 @@ import TeacherCourses from './components/teachers/TeacherCourses.jsx';
 import CourseStudents from './components/teachers/CourseStudents.jsx';
 import StudentSubjectAnalysis from './components/teachers/StudentSubjectAnalysis.jsx';
 import CourseGradesView from './components/teachers/CourseGradesView.jsx';
-import CourseComparison from './components/teachers/CourseComparison.jsx';
 import CourseAnalysis from './components/teachers/CourseAnalysis.jsx';
 import CourseGradesEdit from './components/teachers/CourseGradesEdit.jsx';
 import CourseAttendance from './components/teachers/CourseAttendance.jsx';
@@ -114,13 +113,21 @@ function App() {
             <Route path="courses/:courseId/students" element={<CourseStudents />} />
             <Route path="courses/:courseId/subject/:subjectId/grades" element={<CourseGradesView />} />
             <Route path="courses/:courseId/subject/:subjectId/edit" element={<CourseGradesEdit />} />
-            <Route path="/teachers/courses/:courseId/subject/:subjectId/attendance" element={<CourseAttendance />} />
+            <Route path="courses/:courseId/subject/:subjectId/attendance" element={<CourseAttendance />} />
             
-            {/* Nueva ruta de comparación */}
-            <Route path="courses/:courseId/subject/:subjectId/comparison" element={<CourseAnalysis />} />
-            <Route path="courses/:courseId/subject/:subjectId/comparison" element={<CourseComparison />} />
+            {/* Análisis de IA */}
+            <Route 
+              path="courses/:courseId/subject/:subjectId/analysis" 
+              element={<CourseAnalysis />} 
+            />
 
-            {/* Rutas de análisis */}
+            {/* Análisis por estudiante - RUTA CORREGIDA */}
+            <Route 
+              path="courses/:courseId/subject/:subjectId/students/:studentId/analysis" 
+              element={<StudentSubjectAnalysis />} 
+            />
+            
+            {/* Mantener la ruta original como fallback */}
             <Route path="students/:studentId/analysis" element={<StudentSubjectAnalysis />} />
           </Route>
 
@@ -141,6 +148,7 @@ function App() {
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
+        <Toaster />
       </Router>
     </AuthProvider>
   );

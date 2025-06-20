@@ -27,6 +27,7 @@ import {
     fetchTeacherDashboard,
     updateAssignmentWeights
 } from "../services/docentesService";
+import GradeInputCell from "./GradeInputCell"; // Import the new component
 
 // Constante para los tipos de actividades
 const ASSIGNMENT_TYPES = [
@@ -48,7 +49,7 @@ export default function CourseGradesEdit() {
     const [students, setStudents] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [newAssignmentName, setNewAssignmentName] = useState("");
-    const [newAssignmentType, setNewAssignmentType] = useState("TAREA"); // Estado para el tipo
+    const [newAssignmentType, setNewAssignmentType] = useState("TAREA");
     const [newAssignmentWeight, setNewAssignmentWeight] = useState(1);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -64,7 +65,7 @@ export default function CourseGradesEdit() {
     // Función para convertir decimal a porcentaje entero
     const decimalToPercentage = (decimal) => {
         const percentage = (parseFloat(decimal) || 0) * 100;
-        return Math.round(percentage); // Redondear para evitar decimales
+        return Math.round(percentage);
     };
 
     // Función para convertir porcentaje a decimal
@@ -107,7 +108,11 @@ export default function CourseGradesEdit() {
                 const initialGrades = {};
                 res.students.forEach((student) => {
                     student.grades.forEach((g) => {
-                        initialGrades[`${student.student_id}-${g.assignment_id}`] = g.score;
+                        // Update to store both score and late_submission
+                        initialGrades[`${student.student_id}-${g.assignment_id}`] = {
+                            score: g.score,
+                            late_submission: g.late_submission || false
+                        };
                     });
                 });
                 setGrades(initialGrades);
@@ -116,7 +121,7 @@ export default function CourseGradesEdit() {
             .then(tasks => {
                 const withWeights = tasks.map(a => ({
                     ...a,
-                    newWeight: decimalToPercentage(a.weight) // Convertir a porcentaje entero
+                    newWeight: decimalToPercentage(a.weight)
                 }));
                 setAssignments(withWeights);
             })
@@ -125,14 +130,6 @@ export default function CourseGradesEdit() {
             })
             .finally(() => setLoading(false));
     }, [courseId, subjectId, user]);
-
-    const handleGradeChange = (studentId, assignmentId, value) => {
-        const key = `${studentId}-${assignmentId}`;
-        const num = parseFloat(value);
-        if (value === "" || (num >= 1 && num <= 5)) {
-            setGrades((prev) => ({ ...prev, [key]: value === "" ? "" : num }));
-        }
-    };
 
     const handleWeightChange = (assignmentId, value) => {
         const updated = assignments.map(item =>
@@ -147,7 +144,8 @@ export default function CourseGradesEdit() {
         let total = 0;
         let weightSum = 0;
         for (const a of assignments) {
-            const grade = grades[`${studentId}-${a.id}`];
+            const gradeData = grades[`${studentId}-${a.id}`];
+            const grade = gradeData?.score;
             const weight = parseInt(a.newWeight) || 0;
             if (!isNaN(grade) && weight > 0) {
                 total += grade * weight;
@@ -172,18 +170,20 @@ export default function CourseGradesEdit() {
                 await updateAssignmentWeights(courseId, subjectId, currentPeriod, weightsPayload);
             }
 
+            // Updated to handle the new grade structure
             const gradesData = [];
             Object.entries(grades).forEach(([key, value]) => {
                 const [studentId, assignmentId] = key.split("-");
-                if (value !== "" && !isNaN(value)) {
+                if (value && value.score !== "" && !isNaN(parseFloat(value.score))) {
                     gradesData.push({
                         student_id: parseInt(studentId),
                         assignment_id: parseInt(assignmentId),
-                        score: parseFloat(value)
+                        score: parseFloat(value.score),
+                        late_submission: !!value.late_submission
                     });
                 }
             });
-
+            console.log("Grades a enviar:", gradesData);
             if (gradesData.length > 0) {
                 await updateGrades(courseId, subjectId, gradesData, currentPeriod);
             }
@@ -210,7 +210,7 @@ export default function CourseGradesEdit() {
         try {
             const resp = await createAssignment(courseId, subjectId, currentPeriod, {
                 name: newAssignmentName,
-                assignment_type: newAssignmentType, // Usar el tipo seleccionado
+                assignment_type: newAssignmentType,
                 weight: percentageToDecimal(newAssignmentWeight)
             });
 
@@ -231,13 +231,21 @@ export default function CourseGradesEdit() {
                 }));
 
                 setAssignments(adjusted);
+                const newGrades = { ...grades };
+                students.forEach(student => {
+                    const key = `${student.student_id}-${newAssignment.id}`;
+                    if (!newGrades[key]) {
+                        newGrades[key] = { score: "", late_submission: false };
+                    }
+                });
+                setGrades(newGrades);
                 setShowWeightWarning(true);
             } else {
                 setAssignments(updatedAssignments);
             }
 
             setNewAssignmentName("");
-            setNewAssignmentType("TAREA"); // Resetear el tipo
+            setNewAssignmentType("TAREA");
             setNewAssignmentWeight(1);
             setSuccessMessage("Actividad creada y pesos ajustados");
         } catch (err) {
@@ -301,19 +309,17 @@ export default function CourseGradesEdit() {
         setAssignments(adjusted);
     };
 
-    // SOLUCIÓN PROBLEMA 1: Función corregida para guardar pesos específicos
     const handleSaveWeights = async () => {
         try {
             const weightsPayload = assignments.map(a => ({
                 assignment_id: a.id,
-                weight: percentageToDecimal(a.newWeight) // Usar newWeight directamente
+                weight: percentageToDecimal(a.newWeight)
             }));
 
             await updateAssignmentWeights(courseId, subjectId, currentPeriod, weightsPayload);
 
             setSuccessMessage("Pesos actualizados correctamente");
 
-            // Recargar la página para reflejar los cambios
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -516,14 +522,13 @@ export default function CourseGradesEdit() {
                                         <TableCell>{s.student_name}</TableCell>
                                         {assignments.map((a) => (
                                             <TableCell key={a.id} className="text-center">
-                                                <Input
-                                                    type="number"
-                                                    min="1"
-                                                    max="5"
-                                                    step="0.1"
-                                                    value={grades[`${s.student_id}-${a.id}`] || ""}
-                                                    onChange={(e) => handleGradeChange(s.student_id, a.id, e.target.value)}
-                                                    className="w-16 text-center"
+                                                <GradeInputCell
+                                                    value={grades[`${s.student_id}-${a.id}`]?.score}
+                                                    late={grades[`${s.student_id}-${a.id}`]?.late_submission}
+                                                    onChange={(val) => setGrades((prev) => ({
+                                                        ...prev,
+                                                        [`${s.student_id}-${a.id}`]: val
+                                                    }))}
                                                 />
                                             </TableCell>
                                         ))}

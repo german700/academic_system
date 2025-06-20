@@ -1,3 +1,4 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\CourseAttendance.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -19,6 +20,9 @@ export default function CourseAttendance({ courseId: propCourseId, subjectId: pr
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Verificar si la fecha es del mes actual
+  const isEditable = date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear();
 
   const load = async () => {
     try {
@@ -82,7 +86,10 @@ export default function CourseAttendance({ courseId: propCourseId, subjectId: pr
             id="date"
             type="date"
             value={date.toLocaleDateString("en-CA")}
-            onChange={e => setDate(new Date(e.target.value))}
+            onChange={e => {
+              const [year, month, day] = e.target.value.split("-");
+              setDate(new Date(year, month - 1, day)); // evita el desfase por zona horaria
+            }}
             className="border rounded px-2 py-1"
           />
         </div>
@@ -106,6 +113,7 @@ export default function CourseAttendance({ courseId: propCourseId, subjectId: pr
                       <button
                         className="text-xl"
                         onClick={() => toggle(i)}
+                        disabled={!isEditable}
                       >
                         {r.present ? (
                           <Check className="text-green-600 inline" />
@@ -120,10 +128,17 @@ export default function CourseAttendance({ courseId: propCourseId, subjectId: pr
               </tbody>
             </table>
 
-            <div className="mt-4 text-right">
-              <Button onClick={save} disabled={saving}>
-                {saving ? "Guardando..." : "Guardar asistencia"}
-              </Button>
+            <div className="mt-4">
+              {!isEditable && (
+                <p className="text-amber-600 text-sm mb-2">
+                  ⚠️ Solo se puede registrar asistencia del mes actual
+                </p>
+              )}
+              <div className="text-right">
+                <Button onClick={save} disabled={saving || !isEditable}>
+                  {saving ? "Guardando..." : "Guardar asistencia"}
+                </Button>
+              </div>
             </div>
           </>
         )}

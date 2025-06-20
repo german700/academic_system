@@ -115,18 +115,28 @@ export const fetchCreateGradeEntry = async (data) => {
   return res.json();
 };
 
-export const fetchUpdateGradeEntry = async (courseId, subjectId, data) => {
+export const updateGrades = async (courseId, subjectId, grades, period) => {
   const res = await fetch(
-    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`,
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/?period=${period}`,
     {
       method: "PATCH",
       headers: getAuthHeaders(),
-      body: JSON.stringify(data),
+      body: JSON.stringify(grades),
     }
   );
-  if (!res.ok) throw new Error("Error actualizando entry");
+
+  if (res.status === 401) {
+    console.warn("⚠️ Token inválido o expirado al guardar notas.");
+  }
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Error actualizando notas");
+  }
+
   return res.json();
 };
+
 
 export const fetchDeleteGradeEntry = async (id) => {
   const res = await fetch(`${BASE_URL}/api/academic/grade-entries/${id}/`, {
@@ -140,10 +150,9 @@ export const fetchDeleteGradeEntry = async (id) => {
 // ================================
 // FUNCIONES PARA ATTENDANCE
 // ================================
-
 export const fetchAttendanceByDate = async (courseId, subjectId, date) => {
   const dateStr = date instanceof Date
-    ? date.toLocaleDateString("en-CA") // 'YYYY-MM-DD'
+    ? date.toISOString().slice(0,10)  // 'YYYY-MM-DD'
     : date;
   const res = await fetch(
     `${BASE_URL}/api/academic/attendances/by_course_subject_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`,
@@ -165,7 +174,6 @@ export const fetchBulkSaveAttendance = async (records) => {
 
 
 
-
 export const fetchCourseSubjectAssignmentsByPeriod = async (courseId, subjectId, period) => {
   const res = await fetch(
     `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`,
@@ -175,28 +183,6 @@ export const fetchCourseSubjectAssignmentsByPeriod = async (courseId, subjectId,
   const json = await res.json();
   // Asegúrate de que el backend filtre por period
   return json.assignments || json;
-};
-
-export const updateGrades = async (courseId, subjectId, gradesData, period) => {
-  const res = await fetch(
-    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`,
-    {
-      method: "PATCH",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ grades: gradesData, period })
-    }
-  );
-
-  if (res.status === 401) {
-    console.warn("⚠️ Token inválido o expirado al guardar notas.");
-  }
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Error actualizando notas");
-  }
-
-  return res.json();
 };
 
 export const createAssignment = async (courseId, subjectId, period, payload) => {
@@ -255,4 +241,59 @@ export const updateAssignmentWeights = async (courseId, subjectId, period, weigh
   }
 
   return res.json();
+};
+
+
+
+export const fetchCourseAnalysis = async (courseId, subjectId, period) => {
+  const res = await fetch(
+    `${TEACHERS_API}/ia/course-analysis/?course_id=${courseId}&subject_id=${subjectId}&period=${period}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error al cargar análisis de curso");
+  
+  const data = await res.json();
+
+  return {
+    ...data,
+    metadata: {
+      courseName: data.course_name || `Curso ${courseId}`,   
+      subjectName: data.subject_name || `Materia ${subjectId}`, 
+      teacherName: data.teacher_name || "Desconocido",
+      period: period
+    }
+  };
+};
+
+
+export const fetchStudentAnalysis = async (courseId, subjectId, studentId, period) => {
+  const res = await fetch(
+    `${TEACHERS_API}/ia/student-analysis/?course_id=${courseId}&subject_id=${subjectId}&student_id=${studentId}&period=${period}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("Error al cargar análisis de estudiante");
+  return res.json();
+};
+
+export const fetchCourseMetadata = async (courseId, subjectId, period) => {
+  try {
+    const res = await fetch(
+      `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/basic-info/`,
+      { headers: getAuthHeaders() }
+    );
+    if (!res.ok) throw new Error("Error al obtener información básica");
+    
+    const data = await res.json();
+    
+    // Paso 3: transformar a camelCase para el frontend
+    return {
+      courseName: data.course_name,
+      subjectName: data.subject_name,
+      teacherName: data.teacher_name
+    };
+    
+  } catch (error) {
+    console.warn("Fallo en fetchCourseMetadata:", error);
+    return {}; // fallback seguro
+  }
 };

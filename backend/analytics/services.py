@@ -82,16 +82,20 @@ class MLModelHandler:
         return self._encoder
 
 
-def predecir_riesgo_estudiante(student: Student) -> Dict[str, Union[float, str, List[str], None]]:
+def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str, List[str], None]]:
     """
     Predice el riesgo académico de un estudiante usando el modelo ML.
     
     Args:
-        student: Instancia del modelo Student
+        entries_or_student: Puede ser:
+            - Instancia del modelo Student (comportamiento original)
+            - QuerySet de GradeEntry (nuevo comportamiento para análisis específico)
         
     Returns:
         dict: Diccionario con la predicción de riesgo y información adicional
     """
+    from academic.models import Student, GradeEntry
+    
     # Obtener instancia del manejador de ML
     ml_handler = MLModelHandler()
     
@@ -103,18 +107,39 @@ def predecir_riesgo_estudiante(student: Student) -> Dict[str, Union[float, str, 
             "confianza": None
         }
     
-    # Cache key para esta predicción
-    cache_key = f"analisis_completo_{student.id}"
-    cached_result = cache.get(cache_key)
-    if cached_result:
-        return cached_result
+    # Determinar si se recibió un Student o un QuerySet de GradeEntry
+    if isinstance(entries_or_student, Student):
+        # Comportamiento original - tomar todas las entries del estudiante
+        student = entries_or_student
+        entries = GradeEntry.objects.filter(student=student).select_related(
+            "assignment__course_subject__subject",
+            "assignment__course_subject", 
+            "assignment"
+        )
+        cache_key = f"analisis_completo_{student.id}"
+    else:
+        # Nuevo comportamiento - usar las entries filtradas que se pasaron
+        entries = entries_or_student.select_related(
+            "assignment__course_subject__subject",
+            "assignment__course_subject", 
+            "assignment"
+        )
+        student = entries.first().student if entries.exists() else None
+        
+        # Cache key específico para análisis filtrado
+        if student and entries.exists():
+            # Crear cache key basado en el student y los IDs de las entries
+            entry_ids = list(entries.values_list('id', flat=True))
+            cache_key = f"analisis_filtrado_{student.id}_{hash(tuple(entry_ids))}"
+        else:
+            cache_key = None
     
-    # Obtener datos del estudiante
-    entries = GradeEntry.objects.filter(student=student).select_related(
-        "assignment__course_subject__subject",
-        "assignment__course_subject", 
-        "assignment"
-    )
+    # Verificar cache si hay una key válida
+    cached_result = None
+    if cache_key:
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
     
     if not entries.exists():
         return {
@@ -135,7 +160,7 @@ def predecir_riesgo_estudiante(student: Student) -> Dict[str, Union[float, str, 
             
             data.append({
                 "subject": entry.assignment.course_subject.subject.name,
-                "course": student.course.name if student.course else "Sin curso",
+                "course": student.course.name if student and student.course else "Sin curso",
                 "grade": nota_normalizada,
                 "late": int(entry.late_submission),
                 "period": entry.assignment.period,
@@ -184,11 +209,15 @@ def predecir_riesgo_estudiante(student: Student) -> Dict[str, Union[float, str, 
                 "materias_con_riesgo": materias_riesgo,
                 "mensaje": "Predicción realizada exitosamente",
                 "total_evaluaciones": len(data),
-                "promedio_notas": round(df["grade"].mean(), 2)
+                "promedio_notas": round(df["grade"].mean(), 2),
+                "student_id": student.id if student else None,
+                "tipo_analisis": "completo" if isinstance(entries_or_student, Student) else "filtrado"
             }
             
-            # Cachear resultado por 1 hora
-            cache.set(cache_key, resultado, 3600)
+            # Cachear resultado por 1 hora (solo si hay cache_key)
+            if cache_key:
+                cache.set(cache_key, resultado, 3600)
+            
             return resultado
             
         except Exception as encoding_error:

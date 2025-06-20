@@ -255,15 +255,27 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             return Response({"error": "Se esperaba una lista de asistencias"}, status=status.HTTP_400_BAD_REQUEST)
 
         result = []
+        today = timezone.now().date()
+        rejected_count = 0
+        
         for item in data:
             student_id = item.get("studentId")
             subject_id = item.get("subjectId")
-            date = item.get("date")
+            date_str = item.get("date")
             present = item.get("present")
             att_id = item.get("id")
 
-            if not student_id or not subject_id or not date:
+            if not student_id or not subject_id or not date_str:
                 continue
+
+            att_date = parse_date(date_str)
+            if not att_date:
+                continue
+
+            # ⛔️ Verifica si la fecha es del mes actual
+            if att_date.year != today.year or att_date.month != today.month:
+                rejected_count += 1
+                continue  # Ignora si no es del mes actual
 
             if att_id:
                 att = Attendance.objects.filter(id=att_id).first()
@@ -274,12 +286,22 @@ class AttendanceViewSet(viewsets.ModelViewSet):
                 att = Attendance.objects.create(
                     student_id=student_id,
                     subject_id=subject_id,
-                    date=date,
+                    date=att_date,
                     present=present
                 )
             result.append({"id": att.id})
 
-        return Response({"saved": len(result), "records": result}, status=status.HTTP_200_OK)
+        response_data = {
+            "saved": len(result), 
+            "records": result
+        }
+        
+        # Agregar información sobre registros rechazados si los hay
+        if rejected_count > 0:
+            response_data["rejected"] = rejected_count
+            response_data["message"] = f"Se guardaron {len(result)} registros. {rejected_count} registros fueron rechazados por no ser del mes actual."
+
+        return Response(response_data, status=status.HTTP_200_OK)
     
 class AssignmentViewSet(viewsets.ModelViewSet):
     """

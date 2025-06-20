@@ -11,8 +11,9 @@ from .views.student_views import (
 
 # Teacher
 from .views.teacher_views import (
-    TeacherViewSet,
+    TeacherViewSet
 )
+from academic.views.teacherIA_view import TeacherIAViewSet
 
 # Common (ViewSets genéricos + búsqueda)
 from .views.common_views import (
@@ -46,9 +47,13 @@ router.register(r'courses', CourseViewSet)
 router.register(r'grades', GradeViewSet)
 router.register(r'administrators', AdministratorViewSet, basename="administrator")
 router.register(r'course-subjects', CourseSubjectViewSet)
-router.register(r'attendances', AttendanceViewSet)
 router.register(r'assignments', AssignmentViewSet)
 router.register(r'grade-entries', GradeEntryViewSet, basename='gradeentry')
+
+# CORREGIDO: Cambiar 'attendance' por 'attendances' para que coincida con la URL
+router.register(r'attendances', AttendanceViewSet, basename='attendance')
+
+router.register(r'teachers/ia', TeacherIAViewSet, basename='teacher-ia')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -60,9 +65,6 @@ urlpatterns = [
     # Periodo académico
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),
     
-    # Docente - Solo rutas que NO están manejadas por el ViewSet
-    #path('teachers/search-students/', TeacherSearchStudentsView.as_view(), name='teacher-search-students'),
-        
     # Grado–Materia
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),
     path('grados/<int:grado_id>/materias/<int:materia_id>/', GradoMateriaViewSet.as_view({'delete': 'destroy'}), name='eliminar_materia_grado'),

@@ -1,3 +1,4 @@
+#C:\Users\germa\Desktop\academic_system\backend\academic\views\teacher_views.py
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db import transaction
@@ -9,12 +10,12 @@ from rest_framework.views import APIView
 
 from academic.models import (
     Teacher, Course, Student, CourseSubject, Assignment,
-    GradeEntry, Subject, AcademicPeriod, Attendance
+    GradeEntry, Subject, AcademicPeriod
 )
 from academic.serializers import (
     TeacherSerializer, CourseSerializer, StudentSerializer,
     AssignmentSerializer, GradeEntrySerializer, AcademicPeriodSerializer,
-    CourseSerializerMinimal, AttendanceSerializer
+    CourseSerializerMinimal
 )
 from academic.permissions import IsTeacher, IsTeacherOrAdmin
 from analytics.services import predecir_riesgo_estudiante
@@ -230,7 +231,8 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     "entry_id": entry.id,
                     "assignment_id": entry.assignment.id,
                     "assignment_name": entry.assignment.name,
-                    "score": float(entry.score)
+                    "score": float(entry.score),
+                    "late_submission": entry.late_submission 
                 })
 
             return Response({
@@ -241,8 +243,12 @@ class TeacherViewSet(viewsets.ModelViewSet):
             })
 
         elif request.method == 'PATCH':
-            grades = request.data.get("grades")
-            period_number = request.data.get("period")
+            grades = request.data if isinstance(request.data, list) else request.data.get("grades")
+            if not isinstance(grades, list):
+                return Response({"error": "Formato inválido de notas"}, status=400)
+            period_number = request.query_params.get("period")
+
+            period_number = request.query_params.get("period")
 
             if not isinstance(grades, list) or not period_number:
                 return Response({"error": "Faltan datos requeridos"}, status=400)
@@ -273,21 +279,31 @@ class TeacherViewSet(viewsets.ModelViewSet):
                         assignment_id=assignment_id
                     )
                     entry.score = score
+                    entry.late_submission = entry_data.get("late_submission", False)
                     entry.save()
                     updated += 1
                 except GradeEntry.DoesNotExist:
                     GradeEntry.objects.create(
-                        student_id=student_id,
-                        assignment_id=assignment_id,
-                        score=score
-                    )
+                    student_id=student_id,
+                    assignment_id=assignment_id,
+                    score=score,
+                    late_submission=entry_data.get("late_submission", False)
+                )
                     created += 1
 
+            course = cs.course
+            subject = cs.subject
+            docente = cs.teacher  # ya viene por `cs`
+
             return Response({
-                "updated": updated,
-                "created": created,
-                "message": "Notas actualizadas correctamente."
-            }, status=200)
+                "course_id": course.id,
+                "subject_id": subject.id,
+                "period": int(period_number),
+                "students": list(data.values()),
+                "course_name": course.name,
+                "subject_name": subject.name,
+                "teacher_name": f"{docente.first_name} {docente.last_name}"
+            })
 
     @action(
     detail=False,
@@ -429,3 +445,28 @@ class TeacherViewSet(viewsets.ModelViewSet):
         return Response(status=204)
     
    
+    @action(
+    detail=False,
+    methods=['get'],
+    url_path=r'me/course/(?P<course_id>\d+)/subject/(?P<subject_id>\d+)/basic-info'
+    )
+    def course_subject_basic_info(self, request, course_id=None, subject_id=None):
+        teacher = request.user.teacher_profile
+
+        if not is_teacher_assigned_to_subject(course_id, subject_id, teacher):
+            return Response({"error": "No autorizado"}, status=403)
+
+        cs = get_object_or_404(
+            CourseSubject,
+            course_id=course_id,
+            subject_id=subject_id,
+            teacher=teacher
+        )
+
+        return Response({
+            "course_id": cs.course.id,
+            "subject_id": cs.subject.id,
+            "course_name": cs.course.name,
+            "subject_name": cs.subject.name,
+            "teacher_name": f"{cs.teacher.first_name} {cs.teacher.last_name}"
+        })

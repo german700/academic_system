@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchCourseSubjectGrades, fetchCourseSubjectAssignmentsByPeriod } from "../services/docentesService";
+import { fetchCourseSubjectGrades, fetchCourseSubjectAssignmentsByPeriod, fetchCourseMetadata} from "../services/docentesService";
 import { Card, CardHeader, CardContent, CardTitle } from "../shared/ui/card";
 import { Button } from "../shared/ui/button";
 
@@ -12,7 +12,9 @@ import {
     Select, SelectTrigger, SelectValue, SelectContent, SelectItem
 } from "../shared/ui/select";
 import { Input } from "../shared/ui/input";
-import { Search, BarChart3 } from "lucide-react";
+import { Search, BarChart3, Printer } from "lucide-react";
+import PrintGrades from "./PrintGrades";
+
 
 export default function CourseGradesView() {
     const { courseId, subjectId } = useParams();
@@ -29,6 +31,11 @@ export default function CourseGradesView() {
     const [filterLast, setFilterLast] = useState("");
     const [filterCode, setFilterCode] = useState("");
 
+    // Print modal control
+    const [showPrintModal, setShowPrintModal] = useState(false);
+    // ✅ Estado para metadatos
+    const [metadata, setMetadata] = useState({});
+
     const periods = [
         { value: "1", label: "Primer Periodo" },
         { value: "2", label: "Segundo Periodo" },
@@ -42,14 +49,34 @@ export default function CourseGradesView() {
         return Math.round(percentage); // Redondear para evitar decimales
     };
 
+    // ✅ Función para cargar metadatos
+    const loadMetadata = async () => {
+        try {
+            const meta = await fetchCourseMetadata(courseId, subjectId, period);
+            setMetadata(meta);
+        } catch (error) {
+            console.warn("Error cargando metadatos:", error);
+            setMetadata({});
+        }
+    };
+
+    // ✅ SOLUCIÓN: useEffect refactorizado con async/await
     useEffect(() => {
-        setLoading(true);
-        Promise.all([
-            fetchCourseSubjectGrades(courseId, subjectId, period),
-            fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, period)
-        ])
-            .then(([gradesRes, assigns]) => {
+        const loadAll = async () => {
+            try {
+                setLoading(true);
+                
+                // Cargar datos principales en paralelo
+                const [gradesRes, assigns] = await Promise.all([
+                    fetchCourseSubjectGrades(courseId, subjectId, period),
+                    fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, period),
+                ]);
+                
+                // Cargar metadatos por separado
+                await loadMetadata();
+                
                 setStudents(gradesRes.students);
+                
                 // Agregar los porcentajes a las actividades
                 const assignmentsWithPercentages = assigns.map(a => ({
                     ...a,
@@ -57,10 +84,30 @@ export default function CourseGradesView() {
                 }));
                 setAssignments(assignmentsWithPercentages);
                 setError(null);
-            })
-            .catch(() => setError("Error al cargar las notas"))
-            .finally(() => setLoading(false));
+                
+            } catch (err) {
+                console.error("Error real en CourseGradesView:", err); // 👈 Para debug
+                setError("Error al cargar las notas");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAll();
     }, [courseId, subjectId, period]);
+
+    // ✅ Función para abrir el modal con metadatos actualizados
+    const handleOpenPrintModal = async () => {
+        try {
+            const meta = await fetchCourseMetadata(courseId, subjectId, period);
+            setMetadata(meta);
+            console.log("Abriendo impresión con metadatos:", meta); // 👈 Movido aquí para ver datos reales
+            setShowPrintModal(true);
+        } catch (error) {
+            console.warn("Error cargando metadatos para impresión:", error);
+            setShowPrintModal(true);
+        }
+    };
 
     if (loading) return <p>Cargando notas…</p>;
     if (error) return <p className="text-red-500">{error}</p>;
@@ -132,15 +179,33 @@ export default function CourseGradesView() {
                     </Button>
                     <Button
                         variant="outline"
+                        onClick={handleOpenPrintModal} // ✅ Usar la nueva función
+                        className="flex items-center gap-1"
+                    >
+                        <Printer size={16} /> Imprimir
+                    </Button>
+                    <Button
+                        variant="outline"
                         onClick={() => setShowSearch(prev => !prev)}
                         className="flex items-center gap-1"
                     >
                         <Search size={16} /> Buscar alumno
                     </Button>
                 </div>
-
-
             </div>
+
+            {/* ✅ Print Modal debajo de los botones */}
+            {showPrintModal && (
+                <PrintGrades
+                    students={filteredStudents}
+                    assignments={assignments}
+                    period={selectedPeriodLabel}
+                    courseId={courseId}
+                    subjectId={subjectId}
+                    metadata={metadata} // ✅ Pasar metadatos
+                    onClose={() => setShowPrintModal(false)}
+                />
+            )}
 
             {/* Search fields */}
             {showSearch && (

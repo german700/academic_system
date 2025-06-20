@@ -1,4 +1,4 @@
-# poblar_notas_materia.py
+# poblar_datos_academicos.py
 import os
 import django
 import random
@@ -13,52 +13,54 @@ django.setup()
 
 from academic.models import Student, Assignment, GradeEntry, Grade, Attendance, CourseSubject
 
-print("📌 Limpiando actividades, calificaciones y asistencias anteriores…")
+# Constantes
+PERIODOS = [1, 2, 3, 4]
+TIPOS = ['TAREA', 'EXAMEN', 'PROYECTO', 'QUIZ', 'PARTICIPACION']
+ANIO = 2024
+
+PERFILES = [
+    {'nombre': 'Excelente', 'rango': (4.5, 5.0), 'variabilidad': 0.1, 'asistencia': 0.98},
+    {'nombre': 'Alto',      'rango': (4.0, 4.5), 'variabilidad': 0.2, 'asistencia': 0.95},
+    {'nombre': 'Medio',     'rango': (3.0, 4.0), 'variabilidad': 0.3, 'asistencia': 0.85},
+    {'nombre': 'Bajo',      'rango': (2.0, 3.0), 'variabilidad': 0.4, 'asistencia': 0.75},
+    {'nombre': 'Crítico',  'rango': (1.0, 2.5), 'variabilidad': 0.5, 'asistencia': 0.6},
+]
+
+NOMBRES_ACTIVIDADES = {
+    'TAREA': ['Taller práctico', 'Investigación guiada'],
+    'EXAMEN': ['Parcial', 'Evaluación escrita'],
+    'PROYECTO': ['Proyecto final', 'Presentación grupal'],
+    'QUIZ': ['Quiz sorpresa', 'Evaluación corta'],
+    'PARTICIPACION': ['Aporte en clase', 'Discusión dirigida']
+}
+
+print("\n📌 Limpiando registros anteriores…")
 Assignment.objects.all().delete()
 GradeEntry.objects.all().delete()
 Grade.objects.all().delete()
 Attendance.objects.all().delete()
 
-PERIODOS = [1, 2, 3, 4]
-TIPOS = ['TAREA', 'EXAMEN', 'PROYECTO', 'QUIZ', 'PARTICIPACION']
-ANIO = 2024
-PERFILES = [
-    {'tipo': 'Excelente', 'rango': (4.5, 5.0), 'variabilidad': 0.2, 'asistencia': 0.95},
-    {'tipo': 'Bueno',     'rango': (3.8, 4.4), 'variabilidad': 0.3, 'asistencia': 0.9},
-    {'tipo': 'Promedio',  'rango': (3.0, 3.9), 'variabilidad': 0.4, 'asistencia': 0.85},
-    {'tipo': 'Irregular', 'rango': (2.3, 3.5), 'variabilidad': 0.6, 'asistencia': 0.75},
-    {'tipo': 'Bajo',      'rango': (1.0, 2.9), 'variabilidad': 0.5, 'asistencia': 0.6},
-]
-NOMBRES_ACTIVIDADES = {
-    'TAREA': ['Ejercicio', 'Taller', 'Investigación'],
-    'EXAMEN': ['Parcial', 'Prueba escrita'],
-    'PROYECTO': ['Proyecto grupal', 'Presentación'],
-    'QUIZ': ['Quiz rápido', 'Evaluación'],
-    'PARTICIPACION': ['Debate', 'Discusión', 'Participación activa']
-}
-
-print("📌 Creando actividades por curso→materia→periodo…")
+print("📌 Creando actividades variadas por materia y periodo…")
 with transaction.atomic():
     for cs in CourseSubject.objects.all():
         for per in PERIODOS:
-            num_acts = random.randint(3, 5)
-            for _ in range(num_acts):
-                tipo = random.choice(TIPOS)
-                nombre = random.choice(NOMBRES_ACTIVIDADES[tipo])
-                Assignment.objects.create(
-                    course_subject=cs,
-                    name=f"{nombre} P{per}",
-                    assignment_type=tipo,
-                    weight=1.0 if tipo != 'EXAMEN' else 2.0,
-                    period=per,
-                    year=ANIO,
-                    max_score=5.0,
-                    date_assigned=timezone.now().date() - timedelta(days=random.randint(10, 60)),
-                    due_date=timezone.now().date() - timedelta(days=random.randint(1, 30))
-                )
+            for tipo in TIPOS:
+                for i in range(random.randint(1, 2)):
+                    nombre = random.choice(NOMBRES_ACTIVIDADES[tipo])
+                    Assignment.objects.create(
+                        course_subject=cs,
+                        name=f"{nombre} P{per}",
+                        assignment_type=tipo,
+                        weight=2.0 if tipo == 'EXAMEN' else 1.0,
+                        period=per,
+                        year=ANIO,
+                        max_score=5.0,
+                        date_assigned=timezone.now().date() - timedelta(days=random.randint(30, 90)),
+                        due_date=timezone.now().date() - timedelta(days=random.randint(5, 20))
+                    )
 print("✅ Actividades creadas.")
 
-print("📌 Generando calificaciones por estudiante…")
+print("📌 Generando calificaciones según perfiles…")
 with transaction.atomic():
     estudiantes = list(Student.objects.select_related('course').all())
     for idx, est in enumerate(estudiantes):
@@ -80,8 +82,7 @@ with transaction.atomic():
                 for act in acts:
                     nota = round(
                         random.uniform(*perfil['rango']) +
-                        random.uniform(-perfil['variabilidad'], perfil['variabilidad']),
-                        1
+                        random.uniform(-perfil['variabilidad'], perfil['variabilidad']), 2
                     )
                     nota = max(1.0, min(5.0, nota))
                     GradeEntry.objects.create(
@@ -90,33 +91,28 @@ with transaction.atomic():
                         grade=grade_obj,
                         score=nota,
                         submitted_date=make_aware(datetime.now() - timedelta(days=random.randint(1, 10))),
-                        late_submission=random.random() < 0.2
+                        late_submission=random.random() < 0.25
                     )
-                    total_pesos   += act.weight
+                    total_pesos += act.weight
                     total_ponderado += nota * act.weight
-
                 if total_pesos:
-                    grade_obj.value = round(total_ponderado / total_pesos, 1)
+                    grade_obj.value = round(total_ponderado / total_pesos, 2)
                     grade_obj.save()
 print("✅ Calificaciones generadas.")
 
-print("📌 Generando asistencias simuladas para el año lectivo 2024…")
+print("📌 Generando asistencias simuladas ciclo calendario A (Feb-Nov)…")
 with transaction.atomic():
-    # Una fecha por semana desde el 1-Feb-2024 (200 días)
     fechas = [date(2024, 2, 1) + timedelta(days=i) for i in range(0, 200, 7)]
     for cs in CourseSubject.objects.all():
-        student_ids = list(cs.course.students.values_list('id', flat=True))
-        for fecha in fechas:
-            for idx, sid in enumerate(student_ids):
-                presente = (idx % 2 == 0)
-                estado = "PRESENTE" if presente else "AUSENTE"
-                a = Attendance.objects.create(
-                    student_id=sid,
-                    subject_id=cs.subject_id,
+        for est in cs.course.students.all():
+            perfil = PERFILES[est.id % len(PERFILES)]
+            for fecha in fechas:
+                presente = random.random() < perfil['asistencia']
+                Attendance.objects.create(
+                    student=est,
+                    subject=cs.subject,
                     date=fecha,
                     present=presente,
-                    comments=estado
+                    comments="PRESENTE" if presente else "AUSENTE"
                 )
-                # imprime para verificar ids
-                print(f"ID={a.id} | CursoMateria={cs.id} | Estudiante={sid} | Fecha={fecha} | {estado}")
 print("✅ Asistencias generadas.")
