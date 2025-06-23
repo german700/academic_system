@@ -11,7 +11,8 @@ from .views.student_views import (
 
 # Teacher
 from .views.teacher_views import (
-    TeacherViewSet
+    TeacherViewSet,
+    teacher_student_profile,  # AGREGADO
 )
 from academic.views.teacherIA_view import TeacherIAViewSet
 
@@ -59,6 +60,9 @@ urlpatterns = [
     # Estudiante – PRIORIDAD primero (antes del router)
     path('students/my-grades/', student_grades_view, name='student-grades'),
     path('students/my-profile/', StudentProfileView.as_view(), name='my-student-profile'),
+    
+    # Teacher routes - AGREGADO
+    path('teachers/student-profile/<int:student_id>/', teacher_student_profile, name='teacher-student-profile'),
     
     # Periodo académico
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),

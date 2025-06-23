@@ -7,12 +7,15 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState(1);
   const [error, setError] = useState("");
+  // ✅ 1. Nuevo estado para el modal del docente
+  const [showTeacherModal, setShowTeacherModal] = useState(false);
 
   useEffect(() => {
     const fetchGrades = async () => {
       setLoading(true);
       try {
         const data = await getGradesForStudentSubject(studentId, course.id, subject.id, period);
+        console.log("📦 Respuesta desde getGradesForStudentSubject:", data); // <-- AQUI
         setGradesData(data);
         setError("");
       } catch (err) {
@@ -24,6 +27,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
 
     fetchGrades();
   }, [subject, course, period, studentId]);
+
 
   const getColor = (nota) => {
     if (nota >= 4.5) return "text-green-600";
@@ -42,7 +46,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
   // Calcular la definitiva del periodo
   const calcularDefinitiva = () => {
     if (!gradesData.grades) return null;
-    
+
     const notasConPeso = gradesData.grades.map(item => {
       const nota = item.score;
       const peso = item.weight || 1;
@@ -50,12 +54,12 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
     });
 
     const notasValidas = notasConPeso.filter(item => item.nota !== null);
-    
+
     if (notasValidas.length === 0) return null;
 
     const sumaNotasPonderadas = notasValidas.reduce((sum, item) => sum + (item.nota * item.peso), 0);
     const sumaPesos = notasValidas.reduce((sum, item) => sum + item.peso, 0);
-    
+
     return sumaPesos > 0 ? sumaNotasPonderadas / sumaPesos : null;
   };
 
@@ -65,7 +69,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
     const actividadesCalificadas = gradesData.grades.filter(g => g.score !== null).length;
     const actividadesPendientes = totalActividades - actividadesCalificadas;
     const actividadesTardias = gradesData.grades.filter(g => g.late_submission).length;
-    
+
     return {
       totalActividades,
       actividadesCalificadas,
@@ -80,24 +84,109 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
+      {/* ✅ MODAL DEL PERFIL DEL DOCENTE - Movido al inicio para evitar problemas de z-index */}
+      {showTeacherModal && gradesData.teacher && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative mx-4">
+            <button
+              onClick={() => setShowTeacherModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            >
+              ×
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Perfil del Docente</h3>
+                <p className="text-sm text-gray-500">Información de contacto</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="font-medium text-gray-600 min-w-16">Nombre:</span>
+                <span className="text-gray-800">{gradesData.teacher.nombre}</span>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="font-medium text-gray-600 min-w-16">Código:</span>
+                <span className="text-gray-800 font-mono bg-gray-100 px-2 py-1 rounded text-sm">
+                  {gradesData.teacher.codigo}
+                </span>
+              </div>
+
+              {gradesData.teacher.email && (
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-600 min-w-16">Email:</span>
+                  <a
+                    href={`mailto:${gradesData.teacher.email}`}
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {gradesData.teacher.email}
+                  </a>
+                </div>
+              )}
+
+              {gradesData.teacher.phone && (
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-600 min-w-16">Teléfono:</span>
+                  <a
+                    href={`tel:${gradesData.teacher.phone}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {gradesData.teacher.phone}
+                  </a>
+                </div>
+              )}
+
+              {gradesData.teacher.department && (
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-600 min-w-16">Área:</span>
+                  <span className="text-gray-800">{gradesData.teacher.department}</span>
+                </div>
+              )}
+
+              {gradesData.teacher.bio && (
+                <div className="flex items-start gap-3">
+                  <span className="font-medium text-gray-600 min-w-16">Bio:</span>
+                  <span className="text-gray-800 text-sm leading-relaxed">{gradesData.teacher.bio}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 pt-4 border-t">
+              <button
+                onClick={() => setShowTeacherModal(false)}
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800">{subject.nombre}</h2>
           <p className="text-sm text-gray-500 flex items-center gap-2">
             <BookOpen className="w-4 h-4" /> Curso: {course.nombre} ({course.grado}° grado)
           </p>
-          {/* ✅ INFORMACIÓN DEL DOCENTE CON HIPERVÍNCULO */}
+          {/* ✅ INFORMACIÓN DEL DOCENTE CON BOTÓN PARA MODAL */}
           {gradesData.teacher && (
             <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
-              <User className="w-4 h-4" /> 
+              <User className="w-4 h-4" />
               Docente:&nbsp;
-              <a 
-                href={`/admin/docentes/${gradesData.teacher.id}`} 
-                className="text-blue-600 hover:underline hover:text-blue-800 transition-colors"
+              <button
+                onClick={() => setShowTeacherModal(true)}
+                className="text-blue-600 hover:underline hover:text-blue-800 transition-colors cursor-pointer"
                 title={`Ver perfil de ${gradesData.teacher.nombre}`}
               >
                 {gradesData.teacher.nombre} ({gradesData.teacher.codigo})
-              </a>
+              </button>
             </p>
           )}
         </div>
@@ -135,9 +224,9 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
                     {definitiva.toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    {definitiva >= 4.5 ? 'Excelente' : 
-                     definitiva >= 3.5 ? 'Bueno' : 
-                     definitiva >= 3.0 ? 'Aceptable' : 'Necesita Mejora'}
+                    {definitiva >= 4.5 ? 'Excelente' :
+                      definitiva >= 3.5 ? 'Bueno' :
+                        definitiva >= 3.0 ? 'Aceptable' : 'Necesita Mejora'}
                   </div>
                 </>
               ) : (

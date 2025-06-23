@@ -24,11 +24,12 @@ const StudentLayout = () => {
             Mi perfil
           </Link>
           <Link
-            to="/student/calificaciones"
-            className={location.pathname.includes("calificaciones") ? "font-semibold text-blue-600" : ""}
+            to="/student/estudiante-materias"
+            className={location.pathname.includes("estudiante-materias") ? "font-semibold text-blue-600" : ""}
           >
-            Calificaciones
+            Mis materias
           </Link>
+
           <Link
             to="/student/analisis"
             className={location.pathname.includes("analisis") ? "font-semibold text-blue-600" : ""}

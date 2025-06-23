@@ -113,6 +113,33 @@ export default function TeacherCourses() {
           <p className="text-gray-500">Este curso no tiene materias asignadas.</p>
         )}
       </div>
+
+      {/* Nueva sección de estudiantes */}
+      <div className="mt-8">
+        <h3 className="font-semibold mb-2">Estudiantes del curso</h3>
+        {courseData.students?.length > 0 ? (
+          <ul className="space-y-1 text-sm">
+            {courseData.students
+              .slice() // para no mutar el array original
+              .sort((a, b) => 
+                a.last_name.localeCompare(b.last_name) || 
+                a.first_name.localeCompare(b.first_name)
+              )
+              .map((student) => (
+                <li key={student.id}>
+                  <button
+                    className="text-blue-600 hover:underline"
+                    onClick={() => navigate(`/perfil-estudiante/${student.id}`)}
+                  >
+                    {student.codigo} {student.first_name} {student.last_name}
+                  </button>
+                </li>
+              ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">No hay estudiantes asignados a este curso.</p>
+        )}
+      </div>
     </div>
   );
 }

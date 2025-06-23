@@ -234,7 +234,7 @@ export default function TeacherDashboard() {
         );
     }
 
-    const totalStudents = data.courses?.reduce((total, course) => total + (course.students_count || 0), 0) || 0;
+    const totalStudents = data.courses?.reduce((total, course) => total + (course.student_count || 0), 0) || 0;
     const totalGrades = data.courses ? new Set(data.courses.map(course => course.grado?.numero)).size : 0;
 
     return (
@@ -317,10 +317,10 @@ export default function TeacherDashboard() {
 
                                 <div style={styles.courseInfo}>
                                     <div style={styles.courseDetail}>
-                                        🎓 Grado: {course.grado?.numero || 'N/A'}
+                                        🎓 Grado: {course.grado || 'N/A'}
                                     </div>
                                     <div style={styles.courseDetail}>
-                                        👥 {course.students_count || 0} estudiantes
+                                        👥 {course.student_count || 0} estudiantes
                                     </div>
                                 </div>
 

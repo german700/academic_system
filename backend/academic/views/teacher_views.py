@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-
+from rest_framework.decorators import api_view, permission_classes
 from academic.models import (
     Teacher, Course, Student, CourseSubject, Assignment,
     GradeEntry, Subject, AcademicPeriod
@@ -488,3 +488,34 @@ class TeacherViewSet(viewsets.ModelViewSet):
             "subject_name": cs.subject.name,
             "teacher_name": f"{cs.teacher.first_name} {cs.teacher.last_name}"
         })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def teacher_student_profile(request, student_id):
+    user = request.user
+
+    # Verifica que sea docente o director
+    if not hasattr(user, 'teacher_profile') and not hasattr(user, 'administrator_profile'):
+        return Response({"error": "No autorizado"}, status=403)
+
+    student = get_object_or_404(Student, id=student_id)
+    print("✅ Entró al endpoint docente para perfil estudiante")
+    print("Usuario:", request.user)
+    print("Tipo:", "Docente" if hasattr(request.user, 'teacher_profile') else "Otro")
+    print("Estudiante:", student.first_name, student.last_name)
+
+    # Si es docente, verifica que esté asignado al curso del estudiante
+    if hasattr(user, 'teacher_profile'):
+        teacher = user.teacher_profile
+        # Verificar si enseña al curso del estudiante
+        teaches_student = CourseSubject.objects.filter(
+            course=student.course,
+            teacher=teacher
+        ).exists()
+
+        if not teaches_student:
+            return Response({"error": "No estás autorizado para ver este estudiante"}, status=403)
+
+    from academic.serializers import StudentProfileSerializer
+    serializer = StudentProfileSerializer(student)
+    return Response(serializer.data)

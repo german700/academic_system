@@ -22,7 +22,7 @@ import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
 // Componentes de estudiantes
 import StudentLayout from './components/layout/StudentLayout.jsx';
 import StudentMateria from './components/students/StudentMateria.jsx';
-import StudentProfile from './components/students/StudentProfile';
+import StudentProfile from './components/teachers/StudentProfile';
 import StudentAnalisis from './components/students/StudentAnalysis.jsx';
 import MyGrades from './components/students/MyGrades.jsx';
 import StudentSubjectView from './components/students/StudentSubjectView.jsx';
@@ -38,6 +38,7 @@ import CourseAnalysis from './components/teachers/CourseAnalysis.jsx';
 import CourseGradesEdit from './components/teachers/CourseGradesEdit.jsx';
 import CourseAttendance from './components/teachers/CourseAttendance.jsx';
 import TeacherProfile from './components/teachers/TeacherProfile.jsx';
+import PublicTeacherProfile from "./components/shared/ui/PublicTeacherProfile.jsx";
 
 
 function App() {
@@ -150,8 +151,16 @@ function App() {
             <Route path="estudiante-materias" element={<StudentSubjectView />} />
           </Route>
 
-          {/* Ruta pública para perfil del docente */}
+          {/* ✅ RUTA UNIVERSAL PARA PERFIL DE ESTUDIANTE */}
+          <Route path="/perfil-estudiante/:studentId" element={
+            <PrivateRoute allowedRoles={["director", "teacher", "student"]}>
+              <StudentProfile />
+            </PrivateRoute>
+          } />
+
+          {/* Rutas públicas para perfiles de docentes */}
           <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
+          <Route path="/perfil-docente/:teacherId" element={<PublicTeacherProfile />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" />} />

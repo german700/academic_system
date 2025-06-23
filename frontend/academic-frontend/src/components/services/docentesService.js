@@ -264,3 +264,18 @@ export const fetchCourseMetadata = async (courseId, subjectId, period) => {
     return {}; // fallback seguro
   }
 };
+
+// ================================
+// PERFIL DE ESTUDIANTE (VISTA DOCENTE)
+// ================================
+
+/**
+ * Obtiene el perfil completo de un estudiante, incluyendo curso y materias,
+ * si el docente tiene permiso sobre el curso.
+ * @param {number} studentId - ID del estudiante
+ * @returns {Promise<Object>} Perfil del estudiante
+ */
+export const fetchStudentProfileByTeacher = async (studentId) => {
+  return handleFetch(`${TEACHERS_API}/student-profile/${studentId}/`);
+};
+

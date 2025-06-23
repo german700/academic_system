@@ -111,11 +111,13 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
     if isinstance(entries_or_student, Student):
         # Comportamiento original - tomar todas las entries del estudiante
         student = entries_or_student
-        entries = GradeEntry.objects.filter(student=student).select_related(
-            "assignment__course_subject__subject",
-            "assignment__course_subject", 
-            "assignment"
+        entries = GradeEntry.objects.filter(
+            student=student,
+            assignment__course_subject__course=student.course
+        ).select_related(
+            'assignment', 'assignment__course_subject', 'assignment__course_subject__subject'
         )
+
         cache_key = f"analisis_completo_{student.id}"
     else:
         # Nuevo comportamiento - usar las entries filtradas que se pasaron
@@ -440,10 +442,12 @@ def analizar_rendimiento_estudiante_completo(student: Student) -> Dict:
         return cached_result
     
     entries = GradeEntry.objects.filter(
-        student=student
+    student=student,
+    assignment__course_subject__course=student.course  # solo su curso activo
     ).select_related(
         'assignment', 'assignment__course_subject', 'assignment__course_subject__subject'
     ).order_by('assignment__period', 'assignment__course_subject__subject__name')
+
 
     if not entries.exists():
         return {
@@ -546,6 +550,9 @@ def analizar_rendimiento_estudiante_completo(student: Student) -> Dict:
         recomendaciones.append("Mantener excelencia y considerar roles de liderazgo académico")
 
     # Obtener predicción de riesgo ML
+    print("\n📊 Notas normalizadas enviadas al modelo:")
+    print(df[["materia", "periodo", "nota", "peso", "tarde"]].to_string(index=False))
+
     prediccion_riesgo = predecir_riesgo_estudiante(student)
     
     # Preparar datos para el informe narrativo
