@@ -1,6 +1,7 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\CourseGradesView.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchCourseSubjectGrades, fetchCourseSubjectAssignmentsByPeriod, fetchCourseMetadata} from "../services/docentesService";
+import { fetchCourseSubjectGrades, fetchCourseSubjectAssignmentsByPeriod, fetchCourseMetadata, fetchTeacherDashboard } from "../services/docentesService";
 import { Card, CardHeader, CardContent, CardTitle } from "../shared/ui/card";
 import { Button } from "../shared/ui/button";
 
@@ -21,7 +22,7 @@ export default function CourseGradesView() {
     const navigate = useNavigate();
     const [students, setStudents] = useState([]);
     const [assignments, setAssignments] = useState([]);
-    const [period, setPeriod] = useState("1");
+    const [period, setPeriod] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
 
@@ -33,7 +34,6 @@ export default function CourseGradesView() {
 
     // Print modal control
     const [showPrintModal, setShowPrintModal] = useState(false);
-    // ✅ Estado para metadatos
     const [metadata, setMetadata] = useState({});
 
     const periods = [
@@ -46,54 +46,52 @@ export default function CourseGradesView() {
     // Función para convertir decimal a porcentaje entero
     const decimalToPercentage = (decimal) => {
         const percentage = (parseFloat(decimal) || 0) * 100;
-        return Math.round(percentage); // Redondear para evitar decimales
+        return Math.round(percentage);
     };
 
-    // ✅ Función para cargar metadatos
-    const loadMetadata = async () => {
-        try {
-            const meta = await fetchCourseMetadata(courseId, subjectId, period);
-            setMetadata(meta);
-        } catch (error) {
-            console.warn("Error cargando metadatos:", error);
-            setMetadata({});
-        }
+    // Función para mapear assignments con porcentajes
+    const mapAssignmentsWithPercentages = (assigns) => {
+        return assigns.map(a => ({
+            ...a,
+            weightPercentage: decimalToPercentage(a.weight)
+        }));
     };
 
-    // ✅ SOLUCIÓN: useEffect refactorizado con async/await
+    // ✅ useEffect unificado para manejar la carga de datos
     useEffect(() => {
-        const loadAll = async () => {
+        const loadData = async () => {
             try {
                 setLoading(true);
+                let effectivePeriod = period;
                 
-                // Cargar datos principales en paralelo
-                const [gradesRes, assigns] = await Promise.all([
-                    fetchCourseSubjectGrades(courseId, subjectId, period),
-                    fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, period),
+                // Si no hay periodo seleccionado, obtener el periodo actual
+                if (!effectivePeriod) {
+                    const dashboard = await fetchTeacherDashboard();
+                    effectivePeriod = dashboard.current_period.number.toString();
+                    setPeriod(effectivePeriod);
+                }
+                
+                // Cargar datos del periodo
+                const [gradesRes, assigns, meta] = await Promise.all([
+                    fetchCourseSubjectGrades(courseId, subjectId, effectivePeriod),
+                    fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, effectivePeriod),
+                    fetchCourseMetadata(courseId, subjectId, effectivePeriod)
                 ]);
                 
-                // Cargar metadatos por separado
-                await loadMetadata();
-                
                 setStudents(gradesRes.students);
-                
-                // Agregar los porcentajes a las actividades
-                const assignmentsWithPercentages = assigns.map(a => ({
-                    ...a,
-                    weightPercentage: decimalToPercentage(a.weight)
-                }));
-                setAssignments(assignmentsWithPercentages);
+                setMetadata(meta);
+                setAssignments(mapAssignmentsWithPercentages(assigns));
                 setError(null);
                 
             } catch (err) {
-                console.error("Error real en CourseGradesView:", err); // 👈 Para debug
-                setError("Error al cargar las notas");
+                console.error("Error al cargar datos:", err);
+                setError("Error al cargar los datos del curso");
             } finally {
                 setLoading(false);
             }
         };
 
-        loadAll();
+        loadData();
     }, [courseId, subjectId, period]);
 
     // ✅ Función para abrir el modal con metadatos actualizados
@@ -101,7 +99,7 @@ export default function CourseGradesView() {
         try {
             const meta = await fetchCourseMetadata(courseId, subjectId, period);
             setMetadata(meta);
-            console.log("Abriendo impresión con metadatos:", meta); // 👈 Movido aquí para ver datos reales
+            console.log("Abriendo impresión con metadatos:", meta);
             setShowPrintModal(true);
         } catch (error) {
             console.warn("Error cargando metadatos para impresión:", error);
@@ -125,18 +123,18 @@ export default function CourseGradesView() {
         0
     );
 
-    // Filtered students
+    // ✅ Filtered students - BUG CORREGIDO
     const filteredStudents = students.filter(s => {
         const [first, ...rest] = s.student_name.split(' ');
         const last = rest.join(' ');
         return (
             (!filterName || first.toLowerCase().includes(filterName.toLowerCase())) &&
-            (!filterLast || last.toLowerCase().includes(filterLast.toLowerCase())) &&
+            (!filterLast || last.toLowerCase().includes(filterLast.toLowerCase())) && 
             (!filterCode || s.student_id.toString().includes(filterCode))
         );
     });
 
-    // Calcular definitiva con pesos (igual que en el componente de editar)
+    // Calcular definitiva con pesos
     const calculateFinal = (studentGrades) => {
         let total = 0;
         let weightSum = 0;
@@ -179,7 +177,7 @@ export default function CourseGradesView() {
                     </Button>
                     <Button
                         variant="outline"
-                        onClick={handleOpenPrintModal} // ✅ Usar la nueva función
+                        onClick={handleOpenPrintModal}
                         className="flex items-center gap-1"
                     >
                         <Printer size={16} /> Imprimir
@@ -194,7 +192,7 @@ export default function CourseGradesView() {
                 </div>
             </div>
 
-            {/* ✅ Print Modal debajo de los botones */}
+            {/* ✅ Print Modal */}
             {showPrintModal && (
                 <PrintGrades
                     students={filteredStudents}
@@ -202,7 +200,7 @@ export default function CourseGradesView() {
                     period={selectedPeriodLabel}
                     courseId={courseId}
                     subjectId={subjectId}
-                    metadata={metadata} // ✅ Pasar metadatos
+                    metadata={metadata}
                     onClose={() => setShowPrintModal(false)}
                 />
             )}

@@ -244,10 +244,6 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
         elif request.method == 'PATCH':
             grades = request.data if isinstance(request.data, list) else request.data.get("grades")
-            if not isinstance(grades, list):
-                return Response({"error": "Formato inválido de notas"}, status=400)
-            period_number = request.query_params.get("period")
-
             period_number = request.query_params.get("period")
 
             if not isinstance(grades, list) or not period_number:
@@ -284,25 +280,47 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     updated += 1
                 except GradeEntry.DoesNotExist:
                     GradeEntry.objects.create(
-                    student_id=student_id,
-                    assignment_id=assignment_id,
-                    score=score,
-                    late_submission=entry_data.get("late_submission", False)
-                )
+                        student_id=student_id,
+                        assignment_id=assignment_id,
+                        score=score,
+                        late_submission=entry_data.get("late_submission", False)
+                    )
                     created += 1
 
-            course = cs.course
-            subject = cs.subject
-            docente = cs.teacher  # ya viene por `cs`
+            # ✅ Reconstruir data como en GET para devolver lista actualizada de estudiantes
+            grade_entries = GradeEntry.objects.filter(
+                assignment__course_subject=cs,
+                assignment__period=period_number
+            ).select_related('student', 'assignment')
+
+            from collections import defaultdict
+            data = defaultdict(lambda: {
+                "student_id": None,
+                "student_name": "",
+                "grades": []
+            })
+
+            for entry in grade_entries:
+                sid = entry.student.id
+                data[sid]["student_id"] = sid
+                data[sid]["student_name"] = f"{entry.student.first_name} {entry.student.last_name}"
+                data[sid]["grades"].append({
+                    "entry_id": entry.id,
+                    "assignment_id": entry.assignment.id,
+                    "assignment_name": entry.assignment.name,
+                    "score": float(entry.score),
+                    "late_submission": entry.late_submission 
+                })
 
             return Response({
-                "course_id": course.id,
-                "subject_id": subject.id,
+                "message": f"{updated} notas actualizadas, {created} creadas.",
+                "course_id": cs.course.id,
+                "subject_id": cs.subject.id,
                 "period": int(period_number),
                 "students": list(data.values()),
-                "course_name": course.name,
-                "subject_name": subject.name,
-                "teacher_name": f"{docente.first_name} {docente.last_name}"
+                "course_name": cs.course.name,
+                "subject_name": cs.subject.name,
+                "teacher_name": f"{teacher.first_name} {teacher.last_name}"
             })
 
     @action(

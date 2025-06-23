@@ -56,11 +56,9 @@ router.register(r'attendances', AttendanceViewSet, basename='attendance')
 router.register(r'teachers/ia', TeacherIAViewSet, basename='teacher-ia')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    
-    # Estudiante
-    path('students/my-profile/', StudentProfileView.as_view(), name='my-student-profile'),
+    # Estudiante – PRIORIDAD primero (antes del router)
     path('students/my-grades/', student_grades_view, name='student-grades'),
+    path('students/my-profile/', StudentProfileView.as_view(), name='my-student-profile'),
     
     # Periodo académico
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),
@@ -68,4 +66,7 @@ urlpatterns = [
     # Grado–Materia
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),
     path('grados/<int:grado_id>/materias/<int:materia_id>/', GradoMateriaViewSet.as_view({'delete': 'destroy'}), name='eliminar_materia_grado'),
+    
+    # ViewSets (router) - AL FINAL para evitar conflictos
+    path('', include(router.urls)),
 ]

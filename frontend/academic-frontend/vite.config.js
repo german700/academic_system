@@ -1,8 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import string from 'vite-plugin-string'  // ✅ Corrección aquí
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    string({
+      include: '**/*.css'
+    })
+  ],
   server: {
     proxy: {
       '/api': {

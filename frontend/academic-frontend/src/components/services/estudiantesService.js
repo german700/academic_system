@@ -88,3 +88,27 @@ export const obtenerMateriaEstudiante = async (studentId, materiaId) => {
  if (!response.ok) throw new Error("Error al obtener la materia del estudiante");
  return await response.json();
 };
+
+export const fetchMisNotasPorMateria = async (courseId, subjectId, period) => {
+  const response = await fetch(
+    `http://localhost:8000/api/academic/students/my-grades-by-subject/?course_id=${courseId}&subject_id=${subjectId}&period=${period}`,
+    {
+      method: "GET",
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) throw new Error("Error al obtener notas del estudiante");
+  return await response.json();
+};
+
+// Obtener calificaciones y actividades por materia, curso y periodo para un estudiante específico
+export async function getGradesForStudentSubject(studentId, courseId, subjectId, period) {
+  const response = await fetch(
+    `${API_URL}me/grades/?course_id=${courseId}&subject_id=${subjectId}&period=${period}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!response.ok) throw new Error("Error al obtener las calificaciones");
+  return await response.json();
+}

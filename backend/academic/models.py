@@ -6,8 +6,6 @@ import uuid
 import random
 import string
 
-
-
 class Teacher(models.Model):
     user = models.OneToOneField(
         User, 

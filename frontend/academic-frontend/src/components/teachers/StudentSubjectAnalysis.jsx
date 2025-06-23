@@ -1,30 +1,31 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\StudentSubjectAnalysis.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { fetchStudentAnalysis, fetchCourseAnalysis } from "../services/docentesService";
 import { Card, CardHeader, CardTitle, CardContent } from "../shared/ui/card";
 import { Badge } from "../shared/ui/badge";
-import { 
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, 
-  BarChart, Bar, PieChart, Pie, Cell, CartesianGrid, Legend 
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell, CartesianGrid, Legend
 } from "recharts";
-import { 
-  User, BookOpen, Calendar, TrendingUp, TrendingDown, 
-  Clock, AlertCircle, CheckCircle, Target, Award, 
-  FileX, Users, BarChart3 
+import {
+  User, BookOpen, Calendar, TrendingUp, TrendingDown,
+  Clock, AlertCircle, CheckCircle, Target, Award,
+  Users, BarChart3, Printer
 } from "lucide-react";
+import PrintStudentAnalysis from "./PrintStudentAnalysis";
 
 export default function StudentSubjectAnalysis() {
   const { courseId, subjectId, studentId } = useParams();
   const period = new URLSearchParams(useLocation().search).get("period");
   const [data, setData] = useState(null);
   const [group, setGroup] = useState(null);
+  const [shouldPrint, setShouldPrint] = useState(false);
 
   useEffect(() => {
     // 1) Traigo el detalle individual completo
     fetchStudentAnalysis(courseId, subjectId, studentId, period)
       .then(res => setData(res));
-    
+
     // 2) Traigo el análisis de todo el curso para compararlo
     fetchCourseAnalysis(courseId, subjectId, period)
       .then(res => {
@@ -42,11 +43,11 @@ export default function StudentSubjectAnalysis() {
   const fullName = [first_name, last_name, segundo_apellido].filter(Boolean).join(" ") || student_email?.split("@")[0];
 
   // Validar que resumen_por_periodo sea un array
-  const evolutionData = Array.isArray(data.resumen_por_periodo) 
+  const evolutionData = Array.isArray(data.resumen_por_periodo)
     ? data.resumen_por_periodo.map(d => ({
-        periodo: d.periodo,
-        nota: d.nota
-      }))
+      periodo: d.periodo,
+      nota: d.nota
+    }))
     : [];
 
   // Datos para comparación vs grupo
@@ -57,7 +58,7 @@ export default function StudentSubjectAnalysis() {
   ];
 
   // Datos para gráfico de distribución de tipos de evaluación
-  const distributionData = data.distribucion_tipos ? 
+  const distributionData = data.distribucion_tipos ?
     Object.entries(data.distribucion_tipos).map(([tipo, info]) => ({
       name: tipo,
       cantidad: info.cantidad,
@@ -106,6 +107,10 @@ export default function StudentSubjectAnalysis() {
       return fallback;
     }
     return formatter ? formatter(value) : value;
+  };
+
+  const handlePrint = () => {
+    setShouldPrint(true);
   };
 
   return (
@@ -187,19 +192,19 @@ export default function StudentSubjectAnalysis() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Tareas Perdidas</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {formatValue(data.tareas_no_entregadas, "Sin datos")}
+                <p className="text-sm font-medium text-gray-600">Entregas Tardías</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {formatValue(data.entregas_tardias, "Sin datos")}
                 </p>
               </div>
-              <FileX className="w-8 h-8 text-red-500" />
+              <AlertCircle className="w-8 h-8 text-yellow-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Información adicional de entregas */}
-      {(data.total_evaluaciones || data.entregas_tardias || data.tareas_no_entregadas) && (
+      {(data.total_evaluaciones || data.entregas_tardias) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -208,7 +213,7 @@ export default function StudentSubjectAnalysis() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="text-center">
                 <p className="text-2xl font-bold text-blue-600">
                   {formatValue(data.total_evaluaciones, "Sin datos")}
@@ -221,17 +226,11 @@ export default function StudentSubjectAnalysis() {
                 </p>
                 <p className="text-sm text-gray-600">Entregas Tardías</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">
-                  {formatValue(data.tareas_no_entregadas, "Sin datos")}
-                </p>
-                <p className="text-sm text-gray-600">No Entregadas</p>
-              </div>
             </div>
-            {data.tareas_no_entregadas > 0 && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">
-                  ⚠️ El estudiante dejó de entregar {data.tareas_no_entregadas} tarea(s) en este periodo.
+            {data.entregas_tardias > 2 && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-700">
+                  ⚠️ El estudiante tiene {data.entregas_tardias} entregas tardías en este periodo.
                 </p>
               </div>
             )}
@@ -263,7 +262,7 @@ export default function StudentSubjectAnalysis() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name, props) => [
                       `${value} evaluaciones (${props.payload.porcentaje}%)`,
                       props.payload.name
@@ -283,19 +282,19 @@ export default function StudentSubjectAnalysis() {
               <ResponsiveContainer height={250}>
                 <BarChart data={gradesByTypeData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="tipo" 
+                  <XAxis
+                    dataKey="tipo"
                     tick={{ fontSize: 12 }}
                     interval={0}
                     angle={-45}
                     textAnchor="end"
                     height={60}
                   />
-                  <YAxis 
-                    domain={[0, 5]} 
-                    label={{ value: 'Promedio', angle: -90, position: 'insideLeft' }} 
+                  <YAxis
+                    domain={[0, 5]}
+                    label={{ value: 'Promedio', angle: -90, position: 'insideLeft' }}
                   />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name, props) => [
                       `Promedio: ${value.toFixed(2)}`,
                       `${props.payload.tipo} (${props.payload.evaluaciones} evaluaciones)`
@@ -323,21 +322,21 @@ export default function StudentSubjectAnalysis() {
             <ResponsiveContainer height={200}>
               <LineChart data={evolutionData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="periodo" 
-                  label={{ value: 'Periodo', position: 'insideBottom', offset: -5 }} 
+                <XAxis
+                  dataKey="periodo"
+                  label={{ value: 'Periodo', position: 'insideBottom', offset: -5 }}
                 />
-                <YAxis 
-                  domain={[1, 5]} 
-                  label={{ value: 'Nota', angle: -90, position: 'insideLeft' }} 
+                <YAxis
+                  domain={[1, 5]}
+                  label={{ value: 'Nota', angle: -90, position: 'insideLeft' }}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [`Nota: ${value.toFixed(2)}`, 'Calificación']}
                   labelFormatter={(label) => `Periodo ${label}`}
                 />
-                <Line 
-                  dataKey="nota" 
-                  stroke="#4ade80" 
+                <Line
+                  dataKey="nota"
+                  stroke="#4ade80"
                   strokeWidth={3}
                   dot={{ fill: '#4ade80', strokeWidth: 2, r: 6 }}
                 />
@@ -365,11 +364,11 @@ export default function StudentSubjectAnalysis() {
             <BarChart data={comparisonData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis 
-                domain={[0, 5]} 
-                label={{ value: 'Promedio', angle: -90, position: 'insideLeft' }} 
+              <YAxis
+                domain={[0, 5]}
+                label={{ value: 'Promedio', angle: -90, position: 'insideLeft' }}
               />
-              <Tooltip 
+              <Tooltip
                 formatter={(value, name) => [
                   `Promedio: ${value.toFixed(2)}`,
                   name === studentShortName ? 'Estudiante' : 'Promedio del Grupo'
@@ -380,9 +379,8 @@ export default function StudentSubjectAnalysis() {
           </ResponsiveContainer>
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
-              Diferencia: <span className={`font-semibold ${
-                (data.promedio_general || 0) >= (group.promedioGroup || 0) ? 'text-green-600' : 'text-red-600'
-              }`}>
+              Diferencia: <span className={`font-semibold ${(data.promedio_general || 0) >= (group.promedioGroup || 0) ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {((data.promedio_general || 0) - (group.promedioGroup || 0) >= 0 ? '+' : '')}{((data.promedio_general || 0) - (group.promedioGroup || 0)).toFixed(2)} puntos
               </span>
             </p>
@@ -402,7 +400,7 @@ export default function StudentSubjectAnalysis() {
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h4 className="font-semibold text-blue-900 mb-2">📊 Rendimiento Académico</h4>
             <p className="text-blue-800">
-              {fullName} obtuvo un promedio de <strong>{formatValue(data.promedio_general, "sin datos", (v) => v.toFixed(2))}</strong>, 
+              {fullName} obtuvo un promedio de <strong>{formatValue(data.promedio_general, "sin datos", (v) => v.toFixed(2))}</strong>,
               mientras que el promedio del curso fue de <strong>{formatValue(group.promedioGroup, "sin datos", (v) => v.toFixed(2))}</strong>.
               {data.nota_min && data.nota_max && (
                 <> Su rango de notas va desde <strong>{data.nota_min.toFixed(1)}</strong> hasta <strong>{data.nota_max.toFixed(1)}</strong>.</>
@@ -411,17 +409,16 @@ export default function StudentSubjectAnalysis() {
           </div>
 
           {data.prediccion_riesgo?.riesgo !== undefined && (
-            <div className={`p-4 border rounded-lg ${
-              data.prediccion_riesgo.riesgo < 0.3 ? 'bg-green-50 border-green-200' :
+            <div className={`p-4 border rounded-lg ${data.prediccion_riesgo.riesgo < 0.3 ? 'bg-green-50 border-green-200' :
               data.prediccion_riesgo.riesgo < 0.6 ? 'bg-yellow-50 border-yellow-200' :
-              'bg-red-50 border-red-200'
-            }`}>
+                'bg-red-50 border-red-200'
+              }`}>
               <h4 className={`font-semibold mb-2 ${getRiskColor(data.prediccion_riesgo.riesgo)}`}>
                 🤖 Análisis de Riesgo IA
               </h4>
               <p className={getRiskColor(data.prediccion_riesgo.riesgo)}>
-                Su riesgo IA es <strong>{(data.prediccion_riesgo.riesgo * 100).toFixed(0)}%</strong> 
-                (confianza {Math.round((data.prediccion_riesgo.confianza || 0) * 100)}%), 
+                Su riesgo IA es <strong>{(data.prediccion_riesgo.riesgo * 100).toFixed(0)}%</strong>
+                (confianza {Math.round((data.prediccion_riesgo.confianza || 0) * 100)}%),
                 lo que indica <strong>{getRiskInterpretation(data.prediccion_riesgo.riesgo)}</strong>.
               </p>
             </div>
@@ -438,7 +435,7 @@ export default function StudentSubjectAnalysis() {
               </p>
             </div>
           )}
-          
+
           {/* Análisis de tendencia */}
           {evolutionData.length > 1 && (
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -449,7 +446,7 @@ export default function StudentSubjectAnalysis() {
                   const lastNote = evolutionData[evolutionData.length - 1]?.nota;
                   const trend = lastNote - firstNote;
                   const trendPercentage = ((trend / firstNote) * 100).toFixed(1);
-                  
+
                   if (trend > 0.2) return `📈 Muestra una tendencia positiva con una mejora de ${trend.toFixed(2)} puntos (${trendPercentage}% de crecimiento).`;
                   if (trend < -0.2) return `📉 Muestra una tendencia descendente con una caída de ${Math.abs(trend).toFixed(2)} puntos (${Math.abs(trendPercentage)}% de descenso) que requiere atención.`;
                   return `➡️ Mantiene un rendimiento estable a lo largo del periodo con variación mínima de ${Math.abs(trend).toFixed(2)} puntos.`;
@@ -462,31 +459,46 @@ export default function StudentSubjectAnalysis() {
           <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
             <h4 className="font-semibold text-indigo-900 mb-2">💡 Recomendaciones Específicas</h4>
             <ul className="text-sm text-indigo-800 space-y-1">
-              {data.tareas_no_entregadas > 0 && (
-                <li>• <strong>Tareas pendientes:</strong> Dar seguimiento a las {data.tareas_no_entregadas} tarea(s) no entregadas</li>
-              )}
               {data.entregas_tardias > 2 && (
-                <li>• <strong>Puntualidad:</strong> Trabajar en la gestión del tiempo - {data.entregas_tardias} entregas tardías detectadas</li>
+                <li><strong>Puntualidad:</strong> Trabajar en la gestión del tiempo - {data.entregas_tardias} entregas tardías detectadas</li>
               )}
               {data.asistencia_periodo < 0.8 && (
-                <li>• <strong>Asistencia:</strong> Mejorar la presencia en clases (actual: {(data.asistencia_periodo * 100).toFixed(0)}%)</li>
+                <li><strong>Asistencia:</strong> Mejorar la presencia en clases (actual: {(data.asistencia_periodo * 100).toFixed(0)}%)</li>
               )}
               {data.promedio_general < group.promedioGroup && (
-                <li>• <strong>Rendimiento:</strong> Considerar apoyo adicional para alcanzar el promedio del grupo ({((group.promedioGroup - data.promedio_general) || 0).toFixed(2)} puntos de diferencia)</li>
+                <li><strong>Rendimiento:</strong> Considerar apoyo adicional para alcanzar el promedio del grupo ({((group.promedioGroup - data.promedio_general) || 0).toFixed(2)} puntos de diferencia)</li>
               )}
               {data.prediccion_riesgo?.riesgo > 0.6 && (
-                <li>• <strong>Intervención:</strong> Implementar estrategias de apoyo inmediato - alto riesgo detectado</li>
+                <li><strong>Intervención:</strong> Implementar estrategias de apoyo inmediato - alto riesgo detectado</li>
               )}
               {evolutionData.length > 1 && (() => {
                 const trend = evolutionData[evolutionData.length - 1]?.nota - evolutionData[0]?.nota;
-                if (trend > 0.2) return <li>• <strong>Fortalezas:</strong> Mantener la tendencia positiva actual</li>;
-                if (trend < -0.2) return <li>• <strong>Atención:</strong> Abordar la tendencia descendente con estrategias de recuperación</li>;
+                if (trend > 0.2) return <li><strong>Fortalezas:</strong> Mantener la tendencia positiva actual</li>;
+                if (trend < -0.2) return <li><strong>Atención:</strong> Abordar la tendencia descendente con estrategias de recuperación</li>;
                 return null;
               })()}
             </ul>
           </div>
         </CardContent>
       </Card>
+
+      <div className="text-center print:hidden">
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors mx-auto"
+        >
+          <Printer className="w-4 h-4" />
+          Imprimir análisis completo
+        </button>
+      </div>
+
+      {/* Componente de impresión */}
+      {shouldPrint && (
+        <PrintStudentAnalysis
+          analysis={data}
+          metadata={data.metadata}
+        />
+      )}
     </div>
   );
 }

@@ -25,6 +25,7 @@ import StudentMateria from './components/students/StudentMateria.jsx';
 import StudentProfile from './components/students/StudentProfile';
 import StudentAnalisis from './components/students/StudentAnalysis.jsx';
 import MyGrades from './components/students/MyGrades.jsx';
+import StudentSubjectView from './components/students/StudentSubjectView.jsx';
 
 // Componentes de profesores
 import TeachersLayout from './components/layout/TeachersLayout.jsx';
@@ -36,6 +37,8 @@ import CourseGradesView from './components/teachers/CourseGradesView.jsx';
 import CourseAnalysis from './components/teachers/CourseAnalysis.jsx';
 import CourseGradesEdit from './components/teachers/CourseGradesEdit.jsx';
 import CourseAttendance from './components/teachers/CourseAttendance.jsx';
+import TeacherProfile from './components/teachers/TeacherProfile.jsx';
+
 
 function App() {
   return (
@@ -143,7 +146,12 @@ function App() {
             <Route path="materia/:studentId/:materiaId" element={<StudentMateria />} />
             <Route path="calificaciones" element={<MyGrades />} />
             <Route path="analisis" element={<StudentAnalisis />} />
+            {/* CORREGIDO: Cambiado de /estudiante/materias a solo estudiante-materias */}
+            <Route path="estudiante-materias" element={<StudentSubjectView />} />
           </Route>
+
+          {/* Ruta pública para perfil del docente */}
+          <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" />} />

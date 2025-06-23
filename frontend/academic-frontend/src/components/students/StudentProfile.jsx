@@ -1,8 +1,6 @@
-// C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\students\StudentProfile.jsx
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../shared/ui/card";
-import { User, BookOpen, GraduationCap, AlertCircle, Loader2 } from "lucide-react";
-import StudentAnalysis from "./StudentAnalysis";
+import { User, Mail, Calendar, GraduationCap, AlertCircle, Loader2, ImageIcon } from "lucide-react";
 
 const API_URL = "http://localhost:8000/api/academic/students/my-profile/";
 
@@ -28,14 +26,7 @@ const StudentProfile = () => {
           headers: getAuthHeaders(),
         });
 
-        if (response.status === 401) {
-          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
-        }
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: No se pudo cargar el perfil`);
-        }
-
+        if (!response.ok) throw new Error("Error al cargar el perfil.");
         const data = await response.json();
         setProfile(data);
       } catch (err) {
@@ -48,32 +39,28 @@ const StudentProfile = () => {
     fetchProfile();
   }, []);
 
-  // Estado de carga
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-gray-600">Cargando perfil del estudiante...</p>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-gray-600">Cargando perfil del estudiante...</span>
       </div>
     );
   }
 
-  // Estado de error
   if (error) {
     return (
       <div className="p-6">
         <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 text-red-800">
-              <AlertCircle className="h-5 w-5" />
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-center text-red-800">
+              <AlertCircle className="h-5 w-5 mr-2" />
               <p className="font-medium">Error al cargar el perfil</p>
             </div>
-            <p className="text-red-600 mt-2">{error}</p>
+            <p className="text-red-600">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Reintentar
             </button>
@@ -84,113 +71,71 @@ const StudentProfile = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      {/* Encabezado */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Perfil Académico</h1>
-        <p className="text-gray-600">Información personal y detalles académicos</p>
-      </div>
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">Mi Perfil</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Información Personal */}
-        <Card className="lg:col-span-2">
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-gray-200">
-              <User className="h-5 w-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Información Personal</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre Completo
-                </label>
-                <p className="text-lg font-semibold text-gray-900">
-                  {profile.first_name} {profile.last_name}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ID de Estudiante
-                </label>
-                <p className="text-lg font-mono text-gray-900 bg-gray-100 px-3 py-1 rounded">
-                  {profile.student_id}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Información del Curso */}
-        {profile.curso && (
-          <Card>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-gray-200">
-                <GraduationCap className="h-5 w-5 text-green-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Curso Actual</h2>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Curso
-                </label>
-                <p className="text-lg font-semibold text-gray-900">
-                  {profile.curso.nombre}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Grado
-                </label>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  {profile.curso.grado}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Materias */}
       <Card>
-        <CardContent>
-          <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-gray-200">
-            <BookOpen className="h-5 w-5 text-purple-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Materias Inscritas</h2>
-            {Array.isArray(profile.materias) && (
-              <span className="ml-auto bg-purple-100 text-purple-800 text-sm px-2 py-1 rounded-full">
-                {profile.materias.length} {profile.materias.length === 1 ? 'materia' : 'materias'}
-              </span>
+        <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Foto */}
+          <div className="flex justify-center">
+            {profile.photo ? (
+              <img 
+                src={profile.photo} 
+                alt="Foto del estudiante" 
+                className="w-32 h-32 rounded-full object-cover border" 
+              />
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border">
+                <ImageIcon className="h-10 w-10" />
+              </div>
             )}
           </div>
-          {Array.isArray(profile.materias) && profile.materias.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {profile.materias.map((materia) => (
-                <div
-                  key={materia.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                >
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {materia.nombre}
-                  </h3>
-                  <p className="text-sm text-gray-600 font-mono">
-                    Código: {materia.codigo}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No hay materias asignadas actualmente</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Contacta con tu coordinador académico para más información
+
+          {/* Datos personales */}
+          <div className="md:col-span-2 space-y-3">
+            <div>
+              <label className="text-sm text-gray-600">Nombre Completo</label>
+              <p className="text-lg font-semibold text-gray-900">
+                {profile.first_name} {profile.middle_name || ""} {profile.last_name} {profile.second_last_name || ""}
               </p>
             </div>
-          )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-600">ID Estudiante</label>
+                <p className="font-mono bg-gray-100 px-2 py-1 rounded">{profile.student_id}</p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Correo</label>
+                <p className="text-gray-800 flex items-center gap-1">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  {profile.email || "No disponible"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Fecha de nacimiento</label>
+                <p className="text-gray-800 flex items-center gap-1">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  {profile.date_of_birth || "No registrada"}
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Integración del componente StudentAnalysis */}
-      <StudentAnalysis />
+      {/* Curso actual */}
+      {profile.curso && (
+        <Card>
+          <CardContent className="pt-6 space-y-2">
+            <div className="flex items-center gap-2 mb-2">
+              <GraduationCap className="h-5 w-5 text-green-600" />
+              <h2 className="text-lg font-semibold text-gray-800">Curso Actual</h2>
+            </div>
+            <p><strong>Curso:</strong> {profile.curso.nombre}</p>
+            <p><strong>Grado:</strong> {profile.curso.grado}°</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

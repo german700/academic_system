@@ -54,12 +54,9 @@ class TeacherIAViewSet(viewsets.ViewSet):
                 'error': f'Error en análisis del curso: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
     @action(detail=False, methods=['get'], url_path='student-analysis')
     def student_analysis(self, request):
-        """
-        Análisis específico de un estudiante en una materia y periodo
-        GET /api/academic/teachers/ia/student-analysis/?course_id=1&subject_id=2&student_id=3&period=1
-        """
         try:
             course_id = request.query_params.get('course_id')
             subject_id = request.query_params.get('subject_id')
@@ -71,26 +68,43 @@ class TeacherIAViewSet(viewsets.ViewSet):
                     'error': 'Parámetros requeridos: course_id, subject_id, student_id, period'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Validar que existan los objetos
-            get_object_or_404(Course, id=course_id)
-            get_object_or_404(Subject, id=subject_id)
-            get_object_or_404(Student, id=student_id, course_id=course_id)
+            # Validaciones
+            course = get_object_or_404(Course, id=course_id)
+            subject = get_object_or_404(Subject, id=subject_id)
+            student = get_object_or_404(Student, id=student_id, course_id=course_id)
             get_object_or_404(CourseSubject, course_id=course_id, subject_id=subject_id)
 
-            # Obtener análisis del estudiante
+            academic_year = request.query_params.get('academic_year', '2024-2025')
+
             analysis = get_student_course_subject_analysis(
                 course_id=int(course_id),
                 subject_id=int(subject_id),
                 student_id=int(student_id),
-                period_id=int(period)
+                period_id=int(period),
+                academic_year=academic_year
             )
 
-            return Response(analysis, status=status.HTTP_200_OK)
+            # Agregar metadata para frontend
+            teacher = getattr(request.user, 'teacher_profile', None)
+
+            if teacher:
+                teacher_name = f"{teacher.first_name} {teacher.last_name}".strip()
+            else:
+                teacher_name = f"{request.user.first_name} {request.user.last_name}".strip() or "Desconocido"
+
+            return Response({
+                **analysis,
+                "student_name": f"{student.first_name} {student.last_name}",
+                "course_name": course.name,
+                "subject_name": subject.name,
+                "teacher_name": teacher_name
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
                 'error': f'Error en análisis del estudiante: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     @action(detail=False, methods=['get'], url_path='course-recommendations')
     def course_recommendations(self, request):

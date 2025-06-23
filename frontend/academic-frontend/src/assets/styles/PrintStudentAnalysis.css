@@ -1,0 +1,408 @@
+/* Print Student Analysis Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 15mm;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #2c3e50;
+  background: white;
+}
+
+.page-break {
+  page-break-before: always;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+  position: relative;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 15px;
+}
+
+.logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 3px;
+}
+
+.date-info {
+  font-size: 12px;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+/* SECTIONS */
+.section {
+  margin-top: 25px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border-left: 4px solid #3498db;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-title::before {
+  content: "▶";
+  color: #3498db;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+/* STUDENT INFO GRID */
+.student-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.info-item {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #495057;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* METRICS GRID */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.metric-card {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.metric-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.grade-excellent { color: #27ae60; }
+.grade-good { color: #2ecc71; }
+.grade-average { color: #f39c12; }
+.grade-poor { color: #e74c3c; }
+
+.risk-low { 
+  background: linear-gradient(135deg, #d5f4e6, #27ae60);
+  color: white;
+}
+
+.risk-medium { 
+  background: linear-gradient(135deg, #fef3cd, #f39c12);
+  color: white;
+}
+
+.risk-high { 
+  background: linear-gradient(135deg, #f8d7da, #e74c3c);
+  color: white;
+}
+
+/* TABLES */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+th {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 11px;
+}
+
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+tr:hover {
+  background-color: #e3f2fd;
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 4px 4px 4px 0;
+}
+
+.badge-success { 
+  background: #d4edda; 
+  color: #155724; 
+  border: 1px solid #c3e6cb; 
+}
+
+.badge-warning { 
+  background: #fff3cd; 
+  color: #856404; 
+  border: 1px solid #ffeaa7; 
+}
+
+.badge-danger { 
+  background: #f8d7da; 
+  color: #721c24; 
+  border: 1px solid #f5c6cb; 
+}
+
+.badge-info { 
+  background: #d1ecf1; 
+  color: #0c5460; 
+  border: 1px solid #bee5eb; 
+}
+
+/* EVOLUTION CHART SIMULATION */
+.evolution-chart {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  margin-top: 10px;
+}
+
+.chart-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.chart-period {
+  width: 80px;
+  font-weight: bold;
+  color: #495057;
+  font-size: 10px;
+}
+
+.chart-bar {
+  flex: 1;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  margin: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.chart-value {
+  width: 50px;
+  text-align: right;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+/* RECOMMENDATIONS */
+.recommendations {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #f39c12;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #fffbf0;
+  border-radius: 6px;
+  border: 1px solid #ffeaa7;
+}
+
+.recommendation-icon {
+  color: #f39c12;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* NARRATIVE */
+.narrative {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+.narrative-section {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.narrative-academic { 
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb); 
+}
+
+.narrative-risk { 
+  background: linear-gradient(135deg, #fff3e0, #ffcc02); 
+}
+
+.narrative-attendance { 
+  background: linear-gradient(135deg, #f3e5f5, #ce93d8); 
+}
+
+.narrative-trend { 
+  background: linear-gradient(135deg, #e8f5e8, #a5d6a7); 
+}
+
+.narrative-title {
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #e9ecef;
+  text-align: center;
+}
+
+.signature-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin: 30px 0;
+}
+
+.signature-box {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.signature-line {
+  border-top: 2px solid #2c3e50;
+  margin-bottom: 5px;
+}
+
+.signature-label {
+  font-size: 11px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-info {
+  font-size: 10px;
+  color: #95a5a6;
+  margin-top: 20px;
+}
+
+/* PRINT OPTIMIZATIONS */
+@media print {
+  body { 
+    margin: 10mm; 
+    font-size: 10px; 
+  }
+  
+  .section { 
+    break-inside: avoid; 
+  }
+  
+  .metric-card { 
+    break-inside: avoid; 
+  }
+  
+  table { 
+    break-inside: avoid; 
+  }
+}

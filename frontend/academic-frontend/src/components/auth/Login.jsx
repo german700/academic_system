@@ -20,43 +20,33 @@ const Login = () => {
     try {
       const authData = await authService.login({ email, password });
 
-      // Guardamos el token en localStorage
+      // Guardamos los tokens
       localStorage.setItem('token', authData.access);
       localStorage.setItem('refresh', authData.refresh);
+      localStorage.setItem('user_type', authData.user_type);
 
-      // Obtenemos el perfil del usuario
-      const userData = await authService.getUserProfile();
-
-      console.log('User Data:', userData);
-
-      // Guardamos el tipo de usuario
-      localStorage.setItem('user_type', userData.user_type);
-
-      // Pasamos los datos correctos al contexto de autenticación
+      // Guardamos en el contexto - usando directamente authData
       login({
         token: authData.access,
         refresh: authData.refresh,
-        user_type: userData.user_type,
-        is_superuser: userData.is_superuser,
+        user_type: authData.user_type,
+        is_superuser: authData.is_superuser,
+        first_name: authData.first_name,
+        last_name: authData.last_name,
+        email: authData.email,
       });
 
-      // Redirigimos según el tipo de usuario
-      console.log('User type from API:', userData.user_type);
-      const userId = userData.id || userData.user?.id;
+      // Redirección según tipo de usuario
+      console.log('User type from authData:', authData.user_type);
 
-      if (userData.user_type === 'student') {
-        if (userId) {
-          navigate('/student');
-        } else {
-          console.error('No se pudo obtener el ID del estudiante.');
-        }
-      } else if (userData.user_type === 'teacher') {
-        // CORRECCIÓN: Cambiar a la ruta correcta según tu App.jsx
+      if (authData.user_type === 'student') {
+        navigate('/student/estudiante-materias');
+      } else if (authData.user_type === 'teacher') {
         navigate('/teachers/dashboard');
-      } else if (userData.user_type === 'director') {
+      } else if (authData.user_type === 'director') {
         navigate('/directivo-dashboard');
       } else {
-        console.error('Tipo de usuario no reconocido:', userData.user_type);
+        console.error('Tipo de usuario no reconocido:', authData.user_type);
         navigate('/login');
       }
     } catch (err) {

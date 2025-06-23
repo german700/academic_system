@@ -13,54 +13,68 @@ const getAuthHeaders = () => {
   };
 };
 
+// Helper común para manejar errores de fetch
+const handleFetch = async (url, options = {}) => {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...getAuthHeaders(),
+      ...(options.headers || {}),
+    },
+  });
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || err.error || "Error desconocido");
+  }
+  
+  return res.json();
+};
+
+// Helper para fetch que solo requiere verificación de status (sin JSON)
+const handleFetchNoJson = async (url, options = {}) => {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...getAuthHeaders(),
+      ...(options.headers || {}),
+    },
+  });
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || err.error || "Error desconocido");
+  }
+  
+  return res;
+};
+
 // ================================
 // FUNCIONES CRUD BÁSICAS DE DOCENTES (ADMIN)
 // ================================
 
 export const obtenerDocentes = async () => {
-  const response = await fetch(`${TEACHERS_API}/`, {
-    method: "GET",
-    headers: getAuthHeaders(),
-  });
-  if (!response.ok) throw new Error("Error al obtener docentes");
-  return response.json();
+  return handleFetch(`${TEACHERS_API}/`);
 };
 
 export const crearDocente = async (docenteData) => {
-  const response = await fetch(`${TEACHERS_API}/`, {
+  return handleFetch(`${TEACHERS_API}/`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(docenteData),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Error al crear docente: ${errorData.detail || "Error desconocido"}`);
-  }
-  return response.json();
 };
 
 export const actualizarDocente = async (id, docenteData) => {
-  const response = await fetch(`${TEACHERS_API}/${id}/`, {
+  return handleFetch(`${TEACHERS_API}/${id}/`, {
     method: "PUT",
-    headers: getAuthHeaders(),
     body: JSON.stringify(docenteData),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Error al actualizar docente: ${errorData.detail || "Error desconocido"}`);
-  }
-  return response.json();
 };
 
 export const eliminarDocente = async (id) => {
-  const response = await fetch(`${TEACHERS_API}/${id}/`, {
+  return handleFetchNoJson(`${TEACHERS_API}/${id}/`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Error al eliminar docente: ${errorData.detail || "Error desconocido"}`);
-  }
 };
 
 // ================================
@@ -68,37 +82,22 @@ export const eliminarDocente = async (id) => {
 // ================================
 
 export const fetchTeacherDashboard = async () => {
-  const res = await fetch(`${TEACHERS_API}/me/dashboard/`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error("Error al cargar dashboard del docente");
-  return res.json();
+  return handleFetch(`${TEACHERS_API}/me/dashboard/`);
 };
 
 export const fetchCourseStudents = async (courseId) => {
-  const res = await fetch(`${TEACHERS_API}/me/course/${courseId}/students/`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error("Error al cargar estudiantes del curso");
-  return res.json();
+  return handleFetch(`${TEACHERS_API}/me/course/${courseId}/students/`);
 };
 
 export const fetchCourseSubjectGrades = async (courseId, subjectId, period = null) => {
   const url = period
     ? `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/?period=${period}`
     : `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/grades/`;
-  const res = await fetch(url, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error("Error al cargar calificaciones");
-  return res.json();
+  return handleFetch(url);
 };
 
 export const fetchCourseSubjectAssignments = async (courseId, subjectId) => {
-  const res = await fetch(
-    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/`,
-    { headers: getAuthHeaders() }
-  );
-  if (!res.ok) throw new Error("Error al cargar actividades de la materia");
-  return res.json();
+  return handleFetch(`${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/`);
 };
 
 // ================================
@@ -106,13 +105,10 @@ export const fetchCourseSubjectAssignments = async (courseId, subjectId) => {
 // ================================
 
 export const fetchCreateGradeEntry = async (data) => {
-  const res = await fetch(`${BASE_URL}/api/academic/grade-entries/`, {
+  return handleFetch(`${BASE_URL}/api/academic/grade-entries/`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Error creando entry");
-  return res.json();
 };
 
 export const updateGrades = async (courseId, subjectId, grades, period) => {
@@ -137,14 +133,10 @@ export const updateGrades = async (courseId, subjectId, grades, period) => {
   return res.json();
 };
 
-
 export const fetchDeleteGradeEntry = async (id) => {
-  const res = await fetch(`${BASE_URL}/api/academic/grade-entries/${id}/`, {
+  return handleFetchNoJson(`${BASE_URL}/api/academic/grade-entries/${id}/`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
-  if (!res.ok) throw new Error("Error al eliminar calificación");
-  return res;
 };
 
 // ================================
@@ -154,60 +146,38 @@ export const fetchAttendanceByDate = async (courseId, subjectId, date) => {
   const dateStr = date instanceof Date
     ? date.toISOString().slice(0,10)  // 'YYYY-MM-DD'
     : date;
-  const res = await fetch(
-    `${BASE_URL}/api/academic/attendances/by_course_subject_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`,
-    { headers: getAuthHeaders() }
+  return handleFetch(
+    `${BASE_URL}/api/academic/attendances/by_course_subject_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`
   );
-  if (!res.ok) throw new Error("Error cargando asistencia");
-  return res.json();
 };
 
 export const fetchBulkSaveAttendance = async (records) => {
-  const res = await fetch(`${BASE_URL}/api/academic/attendances/bulk_save/`, {
+  return handleFetch(`${BASE_URL}/api/academic/attendances/bulk_save/`, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(records),
   });
-  if (!res.ok) throw new Error("Error guardando asistencia en lote");
-  return res.json();
 };
 
-
-
 export const fetchCourseSubjectAssignmentsByPeriod = async (courseId, subjectId, period) => {
-  const res = await fetch(
-    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`,
-    { headers: getAuthHeaders() }
+  const res = await handleFetch(
+    `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`
   );
-  if (!res.ok) throw new Error("Error al cargar actividades de la materia");
-  const json = await res.json();
   // Asegúrate de que el backend filtre por period
-  return json.assignments || json;
+  return res.assignments || res;
 };
 
 export const createAssignment = async (courseId, subjectId, period, payload) => {
   const url = `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`;
-  const res = await fetch(url, {
+  return handleFetch(url, {
     method: "POST",
-    headers: getAuthHeaders(),
     body: JSON.stringify(payload)
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Error creando actividad");
-  }
-  return res.json();  // ya viene la nueva actividad
 };
 
 export const deleteAssignment = async (assignmentId) => {
-  const res = await fetch(`${BASE_URL}/api/academic/assignments/${assignmentId}/`, {
+  return handleFetchNoJson(`${BASE_URL}/api/academic/assignments/${assignmentId}/`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Error eliminando actividad");
-  }
 };
 
 // ================================
@@ -223,69 +193,66 @@ export const deleteAssignment = async (assignmentId) => {
  * @returns {Promise<Object>} Respuesta JSON del servidor
  */
 export const updateAssignmentWeights = async (courseId, subjectId, period, weights) => {
-  const res = await fetch(
+  return handleFetch(
     `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/assignments/?period=${period}`,
     {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      },
       body: JSON.stringify({ weights, period })
     }
   );
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(`Error ${res.status}: ${errorData.detail || errorData.error || "Error actualizando pesos"}`);
-  }
-
-  return res.json();
 };
 
-
+// ================================
+// FUNCIONES DE ANÁLISIS CON IA
+// ================================
 
 export const fetchCourseAnalysis = async (courseId, subjectId, period) => {
-  const res = await fetch(
-    `${TEACHERS_API}/ia/course-analysis/?course_id=${courseId}&subject_id=${subjectId}&period=${period}`,
-    { headers: getAuthHeaders() }
+  const data = await handleFetch(
+    `${TEACHERS_API}/ia/course-analysis/?course_id=${courseId}&subject_id=${subjectId}&period=${period}`
   );
-  if (!res.ok) throw new Error("Error al cargar análisis de curso");
-  
-  const data = await res.json();
+
+  const metadata = data.metadata || {};
 
   return {
     ...data,
     metadata: {
-      courseName: data.course_name || `Curso ${courseId}`,   
-      subjectName: data.subject_name || `Materia ${subjectId}`, 
-      teacherName: data.teacher_name || "Desconocido",
-      period: period
+      courseId: metadata.courseId || parseInt(courseId),
+      courseName: metadata.courseName || `Curso ${courseId}`,
+      subjectName: metadata.subjectName || `Materia ${subjectId}`,
+      teacherName: metadata.teacherName || "Desconocido",
+      period
     }
   };
 };
 
-
-export const fetchStudentAnalysis = async (courseId, subjectId, studentId, period) => {
-  const res = await fetch(
-    `${TEACHERS_API}/ia/student-analysis/?course_id=${courseId}&subject_id=${subjectId}&student_id=${studentId}&period=${period}`,
-    { headers: getAuthHeaders() }
+export const fetchStudentAnalysis = async (courseId, subjectId, studentId, period, academicYear = "2024-2025") => {
+  const data = await handleFetch(
+    `${TEACHERS_API}/ia/student-analysis/?course_id=${courseId}&subject_id=${subjectId}&student_id=${studentId}&period=${period}&academic_year=${academicYear}`
   );
-  if (!res.ok) throw new Error("Error al cargar análisis de estudiante");
-  return res.json();
+
+
+  // Agregar metadata para consistencia con fetchCourseAnalysis
+  const { student_name, course_name, subject_name, teacher_name, ...rest } = data;
+  console.log(" El profesor se llama ", teacher_name)
+  return {
+    ...rest,
+    metadata: {
+      studentName: student_name || "Estudiante",
+      courseName: course_name || `Curso ${courseId}`,
+      subjectName: subject_name || `Materia ${subjectId}`,
+      teacherName: teacher_name || "Desconocido",
+      period
+    }
+  };
 };
 
 export const fetchCourseMetadata = async (courseId, subjectId, period) => {
   try {
-    const res = await fetch(
-      `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/basic-info/`,
-      { headers: getAuthHeaders() }
+    const data = await handleFetch(
+      `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/basic-info/`
     );
-    if (!res.ok) throw new Error("Error al obtener información básica");
     
-    const data = await res.json();
-    
-    // Paso 3: transformar a camelCase para el frontend
+    // Transformar a camelCase para el frontend
     return {
       courseName: data.course_name,
       subjectName: data.subject_name,

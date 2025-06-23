@@ -8,9 +8,19 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     const userType = localStorage.getItem("user_type");
     const isSuperUser = localStorage.getItem("is_superuser") === "true";
+    const first_name = localStorage.getItem("first_name");
+    const last_name = localStorage.getItem("last_name");
+    const email = localStorage.getItem("email");
 
     if (token && userType) {
-      return { token, userType, isSuperUser };
+      return { 
+        token, 
+        userType, 
+        isSuperUser, 
+        first_name, 
+        last_name, 
+        email 
+      };
     }
     return null;
   });
@@ -21,9 +31,28 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       const userType = localStorage.getItem("user_type");
       const isSuperUser = localStorage.getItem("is_superuser") === "true";
-      console.log("🔁 Rehidratando contexto con:", { token, userType, isSuperUser });
+      const first_name = localStorage.getItem("first_name");
+      const last_name = localStorage.getItem("last_name");
+      const email = localStorage.getItem("email");
+      
+      console.log("🔁 Rehidratando contexto con:", { 
+        token, 
+        userType, 
+        isSuperUser, 
+        first_name, 
+        last_name, 
+        email 
+      });
+      
       if (token && userType) {
-        setUser({ token, userType, isSuperUser });
+        setUser({ 
+          token, 
+          userType, 
+          isSuperUser, 
+          first_name, 
+          last_name, 
+          email 
+        });
       } else {
         setUser(null);
       }
@@ -36,15 +65,25 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     console.log("🔐 Login: datos recibidos del backend:", userData);
 
+    // Almacenar datos básicos
     localStorage.setItem("token", userData.token);
     localStorage.setItem("refresh", userData.refresh);
     localStorage.setItem("user_type", userData.user_type);
     localStorage.setItem("is_superuser", userData.is_superuser ? "true" : "false");
 
+    // Almacenar datos adicionales del usuario si existen
+    if (userData.first_name) localStorage.setItem("first_name", userData.first_name);
+    if (userData.last_name) localStorage.setItem("last_name", userData.last_name);
+    if (userData.email) localStorage.setItem("email", userData.email);
+
+    // Actualizar el estado con todos los datos
     setUser({
       token: userData.token,
       userType: userData.user_type,
       isSuperUser: userData.is_superuser,
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      email: userData.email,
     });
   };
 
@@ -54,6 +93,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("refresh");
     localStorage.removeItem("user_type");
     localStorage.removeItem("is_superuser");
+    localStorage.removeItem("first_name");
+    localStorage.removeItem("last_name");
+    localStorage.removeItem("email");
     setUser(null);
   };
 

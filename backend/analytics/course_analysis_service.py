@@ -55,6 +55,8 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             "nota_min": None,
             "nota_max": None,
             "asistencia": None,
+            "asistencia_periodo": None,
+            "resumen_por_periodo": [],
             "mensaje": "No hay datos suficientes para este estudiante en esta materia y periodo."
         }
     
@@ -67,17 +69,6 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
     examenes = []
     tipos = {}
     entregas_tarde = 0
-    tareas_no_entregadas = 0
-    
-    # Obtener todas las asignaciones del periodo para calcular tareas no entregadas
-    from academic.models import Assignment
-    all_assignments = Assignment.objects.filter(
-        course_subject_id=course_subject_id,
-        period=period
-    )
-    total_assignments = all_assignments.count()
-    assignments_entregadas = entries.count()
-    tareas_no_entregadas = total_assignments - assignments_entregadas
     
     for entry in entries:
         score = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
@@ -123,6 +114,55 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
     presentes = Attendance.objects.filter(student=student, present=True).count()
     asistencia = round(presentes / total_asistencias, 2) if total_asistencias > 0 else 0.0
     
+    from academic.models import AcademicPeriod
+    # Asistencia del estudiante en esta materia y periodo
+    try:
+        periodo_actual = AcademicPeriod.objects.get(number=period, academic_year="2024-2025")  # <-- puedes ajustar esto dinámicamente
+        asistencias_periodo = Attendance.objects.filter(
+            student=student,
+            subject__id=course_subject_id,  # ← importante
+            date__range=(periodo_actual.start_date, periodo_actual.end_date)
+        )
+    except AcademicPeriod.DoesNotExist:
+        asistencias_periodo = Attendance.objects.none()
+
+    if asistencias_periodo.exists():
+        presentes_periodo = asistencias_periodo.filter(present=True).count()
+        asistencia_periodo = round(presentes_periodo / asistencias_periodo.count(), 2)
+    else:
+        asistencia_periodo = asistencia  # Fallback general
+
+        
+        # Si no tienes forma de filtrar por periodo, usa la asistencia general
+        if asistencias_periodo.exists():
+            presentes_periodo = asistencias_periodo.filter(present=True).count()
+            asistencia_periodo = round(presentes_periodo / asistencias_periodo.count(), 2)
+        else:
+            asistencia_periodo = asistencia  # Fallback a asistencia general
+    
+    # Evolución por periodo - agregado para solucionar el gráfico vacío
+    resumen_por_periodo = []
+    all_periods = GradeEntry.objects.filter(
+        student=student,
+        assignment__course_subject_id=course_subject_id
+    ).values_list('assignment__period', flat=True).distinct()
+    
+    for p in sorted(all_periods):
+        period_entries = GradeEntry.objects.filter(
+            student=student,
+            assignment__course_subject_id=course_subject_id,
+            assignment__period=p
+        )
+        if period_entries.exists():
+            notas_p = []
+            for entry in period_entries:
+                nota = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
+                notas_p.append(nota)
+            resumen_por_periodo.append({
+                "periodo": p,
+                "nota": round(sum(notas_p) / len(notas_p), 2)
+            })
+    
     # Riesgo IA
     prediccion_riesgo = predecir_riesgo_estudiante(entries)
     
@@ -143,8 +183,8 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
         "promedio_tareas": round(sum(tareas)/len(tareas), 2) if tareas else None,
         "promedio_examenes": round(sum(examenes)/len(examenes), 2) if examenes else None,
         "entregas_tardias": entregas_tarde,
-        "tareas_no_entregadas": tareas_no_entregadas,
         "asistencia": asistencia,
+        "asistencia_periodo": asistencia_periodo,  # AGREGADO
         "edad": edad,
         "estrato": estrato,
         "promedios_por_tipo": {
@@ -154,6 +194,7 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             } for tipo, scores in tipos.items()
         },
         "distribucion_tipos": distribucion_tipos,
+        "resumen_por_periodo": resumen_por_periodo,  # AGREGADO
         "prediccion_riesgo": prediccion_riesgo
     }
 
@@ -259,10 +300,10 @@ def get_course_subject_full_analysis(course_id: int, subject_id: int, period: in
         "metadata": {
             "courseName": cs.course.name,
             "subjectName": cs.subject.name,
-            "teacherName": teacher_name,  # ✅ Agregado
-            "period": period,             # ✅ Agregado
-            "courseId": course_id,        # ✅ Agregado
-            "subjectId": subject_id,      # ✅ Agregado
+            "teacherName": teacher_name,
+            "period": period,
+            "courseId": course_id,
+            "subjectId": subject_id,
         },
         "highPerformancePct": high_perf_pct,
         "lowPerformancePct": low_perf_pct,
@@ -273,7 +314,7 @@ def get_course_subject_full_analysis(course_id: int, subject_id: int, period: in
         "studentReports": reports
     }
 
-def get_student_course_subject_analysis(course_id: int, subject_id: int, student_id: int, period_id: int) -> dict:
+def get_student_course_subject_analysis(course_id: int, subject_id: int, student_id: int, period_id: int, academic_year: str = "2024-2025") -> dict:
     """
     Análisis específico de un estudiante en una materia y periodo,
     reutilizando la lógica de análisis usada para el análisis completo del curso.

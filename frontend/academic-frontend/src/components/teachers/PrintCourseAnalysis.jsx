@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../shared/ui/card";
 import PeriodComparisonChart from "./PeriodComparisonChart";
 import SiblingCoursesChart from "./SiblingCoursesChart";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList } from 'recharts';
 import { TrendingUp, Users, Target, Award, AlertTriangle } from "lucide-react";
 
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#8884D8'];
@@ -137,7 +137,7 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                     Análisis de Rendimiento
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
-                    {/* Gráfico de distribución */}
+                    {/* Gráfico de distribución con leyenda separada */}
                     <div className="bg-gray-50 p-4 rounded-lg border">
                         <h3 className="font-semibold text-gray-700 mb-3">Distribución de Rendimiento</h3>
                         <ResponsiveContainer width="100%" height={200}>
@@ -146,16 +146,30 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                                     data={performanceData}
                                     cx="50%" cy="50%"
                                     labelLine={false}
-                                    label={({ name, value }) => `${value}%`}
-                                    outerRadius={70}
+                                    label={({ value }) => `${value}%`}
+                                    outerRadius={110}
                                     dataKey="value"
+                                    labelStyle={{
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        fill: '#000',
+                                        textAnchor: 'middle',
+                                        dominantBaseline: 'middle',
+                                        textShadow: '1px 1px 2px rgba(255,255,255,0.8)'
+                                    }}
                                 >
                                     {performanceData.map((entry, idx) => (
                                         <Cell key={idx} fill={entry.color} />
                                     ))}
                                 </Pie>
                                 <Tooltip formatter={(value) => `${value}%`} />
-                                <Legend />
+                                <Legend 
+                                    layout="horizontal" 
+                                    verticalAlign="bottom" 
+                                    align="left" 
+                                    height={36}
+                                    wrapperStyle={{ paddingTop: 8 }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -197,7 +211,7 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                 </div>
             </div>
 
-            {/* Promedios por tipo de evaluación */}
+            {/* Promedios por tipo de evaluación con etiquetas */}
             {evaluationTypesData.length > 0 && (
                 <div className="mb-8">
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Promedios por Tipo de Evaluación</h2>
@@ -215,6 +229,12 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                                 <YAxis domain={[0, 5]} fontSize={10} />
                                 <Tooltip />
                                 <Bar dataKey="promedio" radius={[4, 4, 0, 0]}>
+                                    <LabelList 
+                                        dataKey="promedio" 
+                                        position="top" 
+                                        formatter={(value) => value.toFixed(2)}
+                                        style={{ fontSize: '10px', fontWeight: 'bold' }}
+                                    />
                                     {evaluationTypesData.map((entry, i) => (
                                         <Cell key={i} fill={entry.fill} />
                                     ))}
@@ -243,7 +263,8 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                 <div className="bg-gray-50 p-4 rounded-lg border">
                     <SiblingCoursesChart
                         data={analysis.siblingCourses}
-                        currentCourseId={null}
+                        currentCourseId={metadata.courseId}
+                        currentCourseName={metadata.courseName}
                     />
                 </div>
             </div>
@@ -318,7 +339,6 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                 <p className="mt-1">© 2024 - Todos los derechos reservados</p>
             </div>
 
-            {/* Estilos CSS específicos para impresión */}
             {/* Estilos CSS específicos para impresión */}
             <style>{`
     @media print {

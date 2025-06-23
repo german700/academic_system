@@ -13,28 +13,10 @@ export const authService = {
       throw new Error("Error en la autenticación");
     }
 
-    return await response.json();
-  },
-
-  getUserProfile: async () => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`${API_URL}/auth/profile/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener perfil de usuario");
-    }
-
-    return await response.json();
+    return await response.json(); // Contiene access, refresh, user_type, email, etc.
   },
 };
 
-// ✅ Exportar cambiarPassword por separado
 export const cambiarPassword = async ({ uid, token, password }) => {
   const response = await fetch(`${API_URL}/auth/set-password/`, {
     method: "POST",

@@ -54,7 +54,7 @@ export default function CourseAnalysis() {
         alert('No se pudo preparar el contenido para impresión');
         return;
       }
-      
+
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -137,13 +137,13 @@ export default function CourseAnalysis() {
   return (
     <div className="p-6 space-y-6">
       {/* Componente de impresión oculto */}
-      <div 
-        id="print-content" 
-        style={{ 
-          position: 'absolute', 
-          left: '-9999px', 
-          top: 0, 
-          width: '210mm', 
+      <div
+        id="print-content"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: 0,
+          width: '210mm',
           minHeight: '297mm',
           overflow: 'hidden',
           visibility: 'hidden'
@@ -153,10 +153,12 @@ export default function CourseAnalysis() {
           analysis={analysis}
           metadata={{
             courseName: courseInfo.courseName,
-            subjectName: courseInfo.subjectName
+            subjectName: courseInfo.subjectName,
+            courseId: courseId  
           }}
           period={period}
         />
+
       </div>
 
       {/* Encabezado con información del curso */}
@@ -183,7 +185,7 @@ export default function CourseAnalysis() {
               ))}
             </SelectContent>
           </Select>
-          
+
           <Button
             onClick={handlePrint}
             className="flex items-center gap-2"
@@ -356,10 +358,13 @@ export default function CourseAnalysis() {
         subjectName={courseInfo.subjectName}
       />
 
-      <SiblingCoursesChart
-        data={analysis.siblingCourses}
-        currentCourseId={parseInt(courseId)}
-      />
+      {analysis.metadata?.courseId != null && (
+        <SiblingCoursesChart
+          data={analysis.siblingCourses}
+          currentCourseId={analysis.metadata.courseId}
+          currentCourseName={analysis.metadata.courseName}
+        />
+      )}
 
       {/* Lista de estudiantes */}
       <StudentList

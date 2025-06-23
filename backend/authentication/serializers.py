@@ -23,13 +23,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = User.EMAIL_FIELD  # <- Esto usa email como campo de autenticación
-
     def validate(self, attrs):
-        # Copia el valor del campo email a username para que el backend funcione correctamente
         attrs['username'] = attrs.get('email')
         data = super().validate(attrs)
-        data["user_type"] = self.user.user_type
-        data["is_superuser"] = self.user.is_superuser
-        return data
 
+        data.update({
+            "user_type": self.user.user_type,
+            "is_superuser": self.user.is_superuser,
+            "first_name": self.user.first_name,
+            "last_name": self.user.last_name,
+            "email": self.user.email,
+        })
+
+        return data

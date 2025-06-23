@@ -8,12 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.db import transaction
 
-from academic.models import Student, Attendance, Course, Grade, CourseSubject
+from academic.models import Student, Attendance, Course, Grade, CourseSubject, GradeEntry, Assignment
 from academic.serializers import (
     StudentSerializer,
     StudentProfileSerializer,
     GradeSerializer,
-    AttendanceSerializer
+    AttendanceSerializer,
+    GradeEntrySerializer
 )
 
 class StudentProfileView(APIView):
@@ -38,6 +39,19 @@ class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all().select_related('grado', 'course')
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated], url_path="me/profile")
+    def me_profile(self, request):
+        """
+        GET /api/academic/students/me/profile/
+        Retorna el perfil del estudiante autenticado.
+        """
+        student = getattr(request.user, "student_profile", None)
+        if not student:
+            return Response({"error": "No es un estudiante."}, status=403)
+
+        serializer = StudentProfileSerializer(student)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='my-profile')
     def my_profile(self, request):
@@ -88,6 +102,106 @@ class StudentViewSet(viewsets.ModelViewSet):
             }
         }
         return Response(data)
+
+    @action(detail=True, methods=['get'])
+    def profile_detailed(self, request, pk=None):
+        """
+        GET /api/academic/students/{pk}/profile_detailed/
+        Obtener el perfil completo del estudiante con lista de materias
+        """
+        estudiante = self.get_object()
+        materias = CourseSubject.objects.filter(course=estudiante.course).select_related("subject")
+
+        data = {
+            "id": estudiante.id,
+            "nombre_completo": f"{estudiante.first_name} {estudiante.last_name}",
+            "curso": {
+                "id": estudiante.course.id,
+                "nombre": estudiante.course.name,
+                "grado": estudiante.course.grado.numero,
+            } if estudiante.course else None,
+            "materias": [
+                {
+                    "id": materia.subject.id,
+                    "nombre": materia.subject.name,
+                    "codigo": materia.subject.code
+                }
+                for materia in materias
+            ]
+        }
+        return Response(data)
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated], url_path="me/grades")
+    def my_grades_by_subject(self, request):
+        """
+        GET /api/academic/students/me/grades/?course_id=1&subject_id=2&period=1
+        Devuelve notas y actividades del estudiante autenticado para una materia, curso y periodo.
+        """
+        student = getattr(request.user, "student_profile", None)
+        if not student:
+            return Response({"error": "No es un estudiante."}, status=403)
+
+        course_id = request.query_params.get("course_id")
+        subject_id = request.query_params.get("subject_id")
+        period = request.query_params.get("period")
+
+        if not all([course_id, subject_id, period]):
+            return Response({"error": "Parámetros incompletos"}, status=400)
+
+        # Obtener actividades
+        assignments = Assignment.objects.filter(
+            course_subject__course_id=course_id,
+            course_subject__subject_id=subject_id,
+            period=period
+        ).order_by("due_date")
+
+        # Obtener calificaciones asociadas
+        grade_entries = GradeEntry.objects.filter(
+            assignment__in=assignments,
+            student=student
+        ).select_related("assignment")
+
+        # Mapeo: assignment_id -> grade
+        grade_map = {
+            ge.assignment.id: ge for ge in grade_entries
+        }
+
+        result = []
+        for assignment in assignments:
+            grade = grade_map.get(assignment.id)
+            result.append({
+                "assignment_id": assignment.id,
+                "assignment_name": assignment.name,
+                "assignment_type": assignment.assignment_type,
+                "due_date": assignment.due_date,
+                "weight": assignment.weight,
+                "score": grade.score if grade else None,
+                "late_submission": grade.late_submission if grade else False,
+                "comments": grade.comments if grade else None,
+            })
+
+        # Obtener el docente asignado a esa materia en ese curso
+        course_subject = CourseSubject.objects.filter(
+            course_id=course_id,
+            subject_id=subject_id
+        ).select_related("teacher").first()
+        
+        teacher_data = None
+        if course_subject and course_subject.teacher:
+            teacher_data = {
+                "id": course_subject.teacher.id,
+                "nombre": f"{course_subject.teacher.first_name} {course_subject.teacher.last_name}",
+                "codigo": course_subject.teacher.teacher_id  # ajusta si usas otro campo para el código
+            }
+
+        return Response({
+            "subject_id": subject_id,
+            "course_id": course_id,
+            "period": period,
+            "student_id": student.id,
+            "grades": result,
+            "teacher": teacher_data  # <--- ¡Información del docente incluida!
+        })
 
     def create(self, request, *args, **kwargs):
         with transaction.atomic():
@@ -161,34 +275,6 @@ class StudentViewSet(viewsets.ModelViewSet):
 
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['get'])
-    def profile_detailed(self, request, pk=None):
-        """
-        GET /api/academic/students/{pk}/profile_detailed/
-        Obtener el perfil completo del estudiante con lista de materias
-        """
-        estudiante = self.get_object()
-        materias = CourseSubject.objects.filter(course=estudiante.course).select_related("subject")
-
-        data = {
-            "id": estudiante.id,
-            "nombre_completo": f"{estudiante.first_name} {estudiante.last_name}",
-            "curso": {
-                "id": estudiante.course.id,
-                "nombre": estudiante.course.name,
-                "grado": estudiante.course.grado.numero,
-            } if estudiante.course else None,
-            "materias": [
-                {
-                    "id": materia.subject.id,
-                    "nombre": materia.subject.name,
-                    "codigo": materia.subject.code
-                }
-                for materia in materias
-            ]
-        }
-        return Response(data)
 
 
 @api_view(["GET"])
