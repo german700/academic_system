@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 from django.conf import settings
 from django.core.cache import cache
 from academic.models import GradeEntry, Student
+from analytics.ml_model.model_handler import MLModelHandler
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -20,67 +21,99 @@ class MLModelHandler:
     _modelo = None
     _encoder = None
     _modelo_disponible = False
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._cargar_modelo()
         return cls._instance
-    
+
     def _cargar_modelo(self):
         """Carga el modelo y encoder una sola vez"""
         try:
-            modelo_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "modelo_riesgo.h5"
+            modelo_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "modelo_riesgo.keras"
             encoder_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "encoder.pkl"
+            scaler_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "scaler.pkl"
             dataset_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "dataset.csv"
-            
+
             # Cargar modelo
             if modelo_path.exists():
                 from tensorflow.keras.models import load_model
                 self._modelo = load_model(str(modelo_path))
-                logger.info("Modelo ML cargado exitosamente")
+                logger.info("✅ Modelo ML cargado exitosamente")
+                print("✅ Modelo ML cargado exitosamente")
             else:
                 raise FileNotFoundError(f"Modelo no encontrado en {modelo_path}")
-            
+
             # Cargar encoder
             if encoder_path.exists():
                 with open(encoder_path, 'rb') as f:
                     self._encoder = pickle.load(f)
-                logger.info("Encoder cargado desde archivo pickle")
+                logger.info("✅ Encoder cargado desde archivo pickle")
+                print("✅ Encoder cargado desde archivo pickle")
             elif dataset_path.exists():
-                # Fallback: crear encoder desde dataset
                 from sklearn.preprocessing import OneHotEncoder
                 df = pd.read_csv(dataset_path)
                 self._encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-                self._encoder.fit(df[["subject", "course"]])
-                
-                # Guardar encoder para próximas ejecuciones
+                self._encoder.fit(df[["subject", "course", "assignment_type"]])
                 with open(encoder_path, 'wb') as f:
                     pickle.dump(self._encoder, f)
-                logger.info("Encoder creado y guardado desde dataset")
+                logger.info("✅ Encoder creado y guardado desde dataset")
+                print("✅ Encoder creado y guardado desde dataset")
             else:
                 raise FileNotFoundError("No se encontró encoder ni dataset para entrenar")
-            
+
+            # Cargar scaler
+            if scaler_path.exists():
+                with open(scaler_path, 'rb') as f:
+                    self._scaler = pickle.load(f)
+                logger.info("✅ Scaler cargado desde archivo pickle")
+                print("✅ Scaler cargado desde archivo pickle")
+            else:
+                raise FileNotFoundError(f"Scaler no encontrado en {scaler_path}")
+
             self._modelo_disponible = True
-            
+
         except Exception as e:
-            logger.error(f"Error cargando modelo ML: {e}")
+            logger.error(f"❌ Error cargando modelo ML: {e}")
+            print(f"❌ Error cargando modelo ML: {e}")
             self._modelo = None
             self._encoder = None
             self._modelo_disponible = False
-    
+
+
     @property
     def modelo_disponible(self) -> bool:
         return self._modelo_disponible
-    
+
     @property
     def modelo(self):
         return self._modelo
-    
+
     @property
     def encoder(self):
         return self._encoder
 
+    def transformar_dataframe(self, df):
+        if self._encoder is None:
+            raise ValueError("El encoder no está cargado")
+        
+        # Codificar variables categóricas
+        cat = self._encoder.transform(df[["subject", "course", "assignment_type"]])
+
+        # Cargar scaler si no se ha hecho
+        if not hasattr(self, "_scaler"):
+            scaler_path = Path(settings.BASE_DIR) / "analytics" / "ml_model" / "scaler.pkl"
+            if not scaler_path.exists():
+                raise FileNotFoundError(f"Scaler no encontrado en {scaler_path}")
+            with open(scaler_path, "rb") as f:
+                self._scaler = pickle.load(f)
+
+        # Escalar variables numéricas
+        num = self._scaler.transform(df[["grade", "late", "period", "attendance", "exam_score", "task_score", "estrato", "edad"]])
+
+        # Combinar y retornar
+        return np.concatenate([cat, num], axis=1)
 
 def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str, List[str], None]]:
     """
@@ -95,6 +128,7 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
         dict: Diccionario con la predicción de riesgo y información adicional
     """
     from academic.models import Student, GradeEntry
+    from datetime import date
     
     # Obtener instancia del manejador de ML
     ml_handler = MLModelHandler()
@@ -153,6 +187,34 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
     
     try:
         data = []
+        
+        # Calcular datos del estudiante una vez (para evitar repetir cálculos)
+        if student:
+            # Calcular edad
+            if student.date_of_birth:
+                today = date.today()
+                edad = today.year - student.date_of_birth.year - ((today.month, today.day) < (student.date_of_birth.month, student.date_of_birth.day))
+            else:
+                edad = 18  # valor por defecto
+            
+            # Mapear estrato socioeconómico
+            estrato_mapping = {
+                'BAJO': 1,
+                'MEDIO_BAJO': 2, 
+                'MEDIO': 3,
+                'MEDIO_ALTO': 4,
+                'ALTO': 5
+            }
+            estrato = estrato_mapping.get(student.socioeconomic_status, 3)  # default MEDIO
+            
+            # TODO: Calcular attendance_ratio real basado en asistencias
+            # Por ahora usamos un valor por defecto
+            attendance_ratio = 0.85  # 85% de asistencia por defecto
+        else:
+            edad = 18
+            estrato = 3
+            attendance_ratio = 0.85
+        
         for entry in entries:
             if not entry.assignment or not entry.assignment.course_subject:
                 continue
@@ -160,12 +222,23 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
             # Calcular nota normalizada (0-5)
             nota_normalizada = round((float(entry.score) / float(entry.assignment.max_score)) * 5.0, 2)
             
+            # Calcular exam_score y task_score según el tipo de assignment
+            assignment_type = entry.assignment.assignment_type or "TAREA"
+            exam_score = nota_normalizada if assignment_type == "EXAMEN" else 0
+            task_score = nota_normalizada if assignment_type in ["TAREA", "PROYECTO"] else 0
+            
             data.append({
                 "subject": entry.assignment.course_subject.subject.name,
                 "course": student.course.name if student and student.course else "Sin curso",
+                "assignment_type": assignment_type,
                 "grade": nota_normalizada,
                 "late": int(entry.late_submission),
                 "period": entry.assignment.period,
+                "attendance": attendance_ratio,
+                "exam_score": exam_score,
+                "task_score": task_score,
+                "estrato": estrato,
+                "edad": edad
             })
         
         if not data:
@@ -176,18 +249,13 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
                 "confianza": None
             }
         
+        # Crear DataFrame con todas las columnas necesarias
         df = pd.DataFrame(data)
         
-        # Preparar datos para el modelo
+        # Preparar datos para el modelo usando el transformador
         try:
-            # Codificar variables categóricas
-            subject_encoded = ml_handler.encoder.transform(df[["subject", "course"]])
-            
-            # Preparar features numéricas
-            numeric_features = df[["grade", "late", "period"]].values
-            
-            # Combinar features
-            X = np.concatenate([subject_encoded, numeric_features], axis=1)
+            # ✅ CAMBIO PRINCIPAL: Usar transformar_dataframe en lugar del encoder directo
+            X = ml_handler.transformar_dataframe(df)
             
             # Realizar predicción
             predicciones = ml_handler.modelo.predict(X, verbose=0)
@@ -223,7 +291,7 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
             return resultado
             
         except Exception as encoding_error:
-            logger.error(f"Error en codificación de datos: {encoding_error}")
+            logger.error(f"Error en procesamiento de datos: {encoding_error}")
             return {
                 "riesgo": None,
                 "mensaje": f"Error en procesamiento de datos: {str(encoding_error)}",
@@ -239,7 +307,6 @@ def predecir_riesgo_estudiante(entries_or_student) -> Dict[str, Union[float, str
             "materias_con_riesgo": [],
             "confianza": None
         }
-
 
 def interpretar_riesgo(riesgo: float) -> Dict[str, str]:
     """

@@ -4710,3 +4710,13 @@ student_id,student_email,course,grade,subject,period,late,year,attendance,assign
 41,maximiliano.lozano@estudiantescol.edu.co,1-D,4.62,Tecnología,4,0,2024,0.95,PARTICIPACION,0,0,4,6
 41,maximiliano.lozano@estudiantescol.edu.co,1-D,4.66,Tecnología,4,0,2024,0.95,TAREA,0,4.66,4,6
 41,maximiliano.lozano@estudiantescol.edu.co,1-D,4.93,Tecnología,4,0,2024,0.95,PROYECTO,0,4.93,4,6
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,PARTICIPACION,0,0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,PROYECTO,0,4.0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,PARTICIPACION,0,0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,QUIZ,0,0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,PROYECTO,0,4.0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,QUIZ,0,0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,TAREA,0,4.0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,EXAMEN,4.0,0,4,4
+42,snoopy@correo.com,1-A,4.0,Matemáticas,1,0,2024,0,EXAMEN,4.0,0,4,4
+42,snoopy@correo.com,1-A,0.2,Matemáticas,1,0,2024,0,TAREA,0,0.2,4,4

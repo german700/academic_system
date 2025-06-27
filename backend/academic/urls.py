@@ -9,10 +9,13 @@ from .views.student_views import (
     student_grades_view
 )
 
+# Student IA Analysis
+from .views.studentIA_views import StudentIAAnalysisView
+
 # Teacher
 from .views.teacher_views import (
     TeacherViewSet,
-    teacher_student_profile,  # AGREGADO
+    teacher_student_profile,
 )
 from academic.views.teacherIA_view import TeacherIAViewSet
 
@@ -51,7 +54,6 @@ router.register(r'course-subjects', CourseSubjectViewSet)
 router.register(r'assignments', AssignmentViewSet)
 router.register(r'grade-entries', GradeEntryViewSet, basename='gradeentry')
 
-# CORREGIDO: Cambiar 'attendance' por 'attendances' para que coincida con la URL
 router.register(r'attendances', AttendanceViewSet, basename='attendance')
 
 router.register(r'teachers/ia', TeacherIAViewSet, basename='teacher-ia')
@@ -61,7 +63,10 @@ urlpatterns = [
     path('students/my-grades/', student_grades_view, name='student-grades'),
     path('students/my-profile/', StudentProfileView.as_view(), name='my-student-profile'),
     
-    # Teacher routes - AGREGADO
+    # Student IA Analysis - NUEVA RUTA
+    path('students/<int:pk>/ia-analysis/', StudentIAAnalysisView.as_view(), name='student-ia-analysis'),
+    
+    # Teacher routes
     path('teachers/student-profile/<int:student_id>/', teacher_student_profile, name='teacher-student-profile'),
     
     # Periodo académico

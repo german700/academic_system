@@ -160,8 +160,11 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = [
             'id', 'first_name', 'middle_name', 'last_name', 'second_last_name',
-            'date_of_birth', 'email', 'student_id', 'photo', 'grado', 'grado_id', 'course', 'course_id'
+            'date_of_birth', 'email', 'student_id', 'photo',
+            'gender', 'neighborhood', 'socioeconomic_status',
+            'grado', 'grado_id', 'course', 'course_id'
         ]
+
 
 # Serializador para el perfil de estudiante (completo con información personal)
 class StudentProfileSerializer(serializers.ModelSerializer):
@@ -181,7 +184,10 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "photo",
             "curso",
-            "materias"
+            "materias",
+            "gender",                
+            "neighborhood",          
+            "socioeconomic_status",
         ]
 
     def get_curso(self, obj):
@@ -195,38 +201,20 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
     def get_materias(self, obj):
         if obj.course:
-            asignaciones = obj.course.course_subjects.select_related("subject")
-            return [
+            asignaciones = obj.course.course_subjects.select_related("subject", "teacher")
+            materias = [
                 {
                     "id": asig.subject.id,
                     "nombre": asig.subject.name,
-                    "codigo": asig.subject.code
+                    "codigo": asig.subject.code,
+                    "docente": f"{asig.teacher.first_name} {asig.teacher.last_name}" if asig.teacher else "Desconocido"
                 }
                 for asig in asignaciones
             ]
+            print("Materias serializadas:", materias)  # Agregado para depuración
+            return materias
         return []
 
-    def get_curso(self, obj):
-        if obj.course:
-            return {
-                "id": obj.course.id,
-                "nombre": obj.course.name,
-                "grado": obj.course.grado.numero if obj.course.grado else None,
-            }
-        return None
-
-    def get_materias(self, obj):
-        if obj.course:
-            asignaciones = obj.course.course_subjects.select_related("subject")
-            return [
-                {
-                    "id": asig.subject.id,
-                    "nombre": asig.subject.name,
-                    "codigo": asig.subject.code
-                }
-                for asig in asignaciones
-            ]
-        return []
 
 class CourseSerializerMinimal(serializers.ModelSerializer):
     grado = serializers.SerializerMethodField()

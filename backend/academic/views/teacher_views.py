@@ -200,46 +200,53 @@ class TeacherViewSet(viewsets.ModelViewSet):
                     {"error": "Debe proporcionar el número del periodo (?period=)."},
                     status=400
                 )
-
+            
             if not is_teacher_assigned_to_subject(course_id, subject_id, teacher):
                 return Response({"error": "No autorizado para esta materia en este curso."}, status=403)
-
+            
             cs = get_object_or_404(
                 CourseSubject,
                 course_id=course_id,
                 subject_id=subject_id,
                 teacher=teacher
             )
-
+            
+            # ✅ Obtener todos los estudiantes del curso
+            students = Student.objects.filter(course_id=course_id).order_by('last_name', 'first_name')
+            
+            # ✅ Obtener las calificaciones existentes
             grade_entries = GradeEntry.objects.filter(
                 assignment__course_subject=cs,
                 assignment__period=period_number
             ).select_related('student', 'assignment')
-
+            
+            # Organizar calificaciones por estudiante
             from collections import defaultdict
-            data = defaultdict(lambda: {
-                "student_id": None,
-                "student_name": "",
-                "grades": []
-            })
-
+            grades_by_student = defaultdict(list)
+            
             for entry in grade_entries:
-                sid = entry.student.id
-                data[sid]["student_id"] = sid
-                data[sid]["student_name"] = f"{entry.student.first_name} {entry.student.last_name}"
-                data[sid]["grades"].append({
+                grades_by_student[entry.student.id].append({
                     "entry_id": entry.id,
                     "assignment_id": entry.assignment.id,
                     "assignment_name": entry.assignment.name,
                     "score": float(entry.score),
-                    "late_submission": entry.late_submission 
+                    "late_submission": entry.late_submission
+                })
+            
+            # Construir respuesta con todos los estudiantes
+            data = []
+            for student in students:
+                data.append({
+                    "student_id": student.id,
+                    "student_name": f"{student.first_name} {student.last_name}",
+                    "grades": grades_by_student.get(student.id, [])  # ✅ vacío si no hay notas
                 })
 
             return Response({
                 "course_id": int(course_id),
                 "subject_id": int(subject_id),
                 "period": int(period_number),
-                "students": list(data.values())
+                "students": data
             })
 
         elif request.method == 'PATCH':

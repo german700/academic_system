@@ -14,7 +14,7 @@ export default function CourseStudents() {
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedSubject, setSelectedSubject] = useState(""); // Añadido para manejar materia seleccionada
+    const [selectedSubject, setSelectedSubject] = useState("");
 
     useEffect(() => {
         fetchCourseStudents(courseId)

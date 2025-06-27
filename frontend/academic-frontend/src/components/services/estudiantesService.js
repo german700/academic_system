@@ -133,3 +133,34 @@ export async function getGradesForStudentSubject(studentId, courseId, subjectId,
 export const fetchPublicStudentProfile = async (studentId) => {
   return handleFetch(`${API_URL}public-profile/${studentId}/`);
 };
+
+export const buscarEstudiantes = async (query) => {
+  const response = await fetch(`${API_URL}search/?q=${encodeURIComponent(query)}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Error al buscar estudiantes");
+  return await response.json();
+};
+
+// Obtener perfil detallado del estudiante
+export const obtenerPerfilDetalladoEstudiante = async (id) => {
+  return handleFetch(`${API_URL}${id}/profile_detailed/`);
+};
+
+// Obtener el periodo actual
+export const obtenerPeriodoActual = async () => {
+  return handleFetch(`${BASE_URL}/api/academic/periodo-actual/`);
+};
+
+// Obtener análisis IA del estudiante
+export const obtenerIAAnalisisEstudiante = async (studentId, courseId, subjectId, period) => {
+  const url = `${BASE_URL}/api/academic/teachers/ia/student-analysis/?student_id=${studentId}&course_id=${courseId}&subject_id=${subjectId}&period=${period}`;
+  return handleFetch(url);
+};
+
+// Obtener análisis con IA completo del estudiante por ID
+export const obtenerIAAnalisisCompletoEstudiante = async (studentId) => {
+  const url = `${API_URL}${studentId}/ia-analysis/`;
+  return handleFetch(url);
+};

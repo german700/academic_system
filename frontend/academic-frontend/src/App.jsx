@@ -18,6 +18,7 @@ import MateriasGestion from "./components/admin/MateriasGestion.jsx";
 import CursosPorGrado from "./components/admin/CursosPorGrado.jsx";
 import CursoDetalle from "./components/admin/CursoDetalle.jsx";
 import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
+import StudentDetail from './components/admin/StudentDetail.jsx'; 
 
 // Componentes de estudiantes
 import StudentLayout from './components/layout/StudentLayout.jsx';
@@ -99,6 +100,13 @@ function App() {
           <Route path="/admin/students-per-grade" element={
             <PrivateRoute allowedRoles={["director"]}>
               <StudentsPerGrade />
+            </PrivateRoute>
+          } />
+
+          {/* ✅ NUEVA RUTA PARA DETALLE DE ESTUDIANTE */}
+          <Route path="/students/:id" element={
+            <PrivateRoute allowedRoles={["director"]}>
+              <StudentDetail />
             </PrivateRoute>
           } />
 

@@ -163,7 +163,7 @@ class Course(models.Model):
     teachers = models.ManyToManyField("Teacher", blank=True)
     academic_year = models.CharField(max_length=9, default="2023-2024")
     description = models.TextField(blank=True, default="")
-    grado = models.ForeignKey("Grado", on_delete=models.SET_NULL, null=True, blank=True)
+    grado = models.ForeignKey("Grado", on_delete=models.SET_NULL, null=True, blank=True, related_name="courses")
 
     def __str__(self):
         return f"{self.name} - {self.code}"
@@ -261,7 +261,7 @@ class Grade(models.Model):
 
 # Modelo actualizado para entradas de calificaciones con relación a tareas
 class GradeEntry(models.Model):
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, null=True, blank=True)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='grade_entries', null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)   
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name='entries', null=True, blank=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)

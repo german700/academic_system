@@ -7,6 +7,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.db import transaction
+from django.db.models import Q
 
 from academic.models import Student, Attendance, Course, Grade, CourseSubject, GradeEntry, Assignment
 from academic.serializers import (
@@ -39,6 +40,26 @@ class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all().select_related('grado', 'course')
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='search')
+    def search_students(self, request):
+        """
+        GET /api/academic/students/search/?q=perez
+        Busca estudiantes por nombre, apellido, student_id o correo
+        """
+        query = request.query_params.get('q', '').strip().lower()
+        if not query:
+            return Response([], status=200)
+        
+        estudiantes = Student.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(student_id__icontains=query) |
+            Q(email__icontains=query)
+        ).select_related("grado", "course")
+        
+        serializer = self.get_serializer(estudiantes, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated], url_path="me/profile")
     def me_profile(self, request):
@@ -107,29 +128,12 @@ class StudentViewSet(viewsets.ModelViewSet):
     def profile_detailed(self, request, pk=None):
         """
         GET /api/academic/students/{pk}/profile_detailed/
-        Obtener el perfil completo del estudiante con lista de materias
+        Devuelve el perfil completo del estudiante usando StudentProfileSerializer
         """
         estudiante = self.get_object()
-        materias = CourseSubject.objects.filter(course=estudiante.course).select_related("subject")
+        serializer = StudentProfileSerializer(estudiante)
+        return Response(serializer.data)
 
-        data = {
-            "id": estudiante.id,
-            "nombre_completo": f"{estudiante.first_name} {estudiante.last_name}",
-            "curso": {
-                "id": estudiante.course.id,
-                "nombre": estudiante.course.name,
-                "grado": estudiante.course.grado.numero,
-            } if estudiante.course else None,
-            "materias": [
-                {
-                    "id": materia.subject.id,
-                    "nombre": materia.subject.name,
-                    "codigo": materia.subject.code
-                }
-                for materia in materias
-            ]
-        }
-        return Response(data)
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated], url_path="me/grades")
     def my_grades_by_subject(self, request):
