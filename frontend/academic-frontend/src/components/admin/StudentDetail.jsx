@@ -1,73 +1,75 @@
+//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\StudentDetail.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import StudentIAAnalysis from "./StudentDetail/StudentIAAnalysis";
-import StudentInfo from "./StudentDetail/StudentInfo";
-import {
-  obtenerPerfilDetalladoEstudiante,
-  obtenerPeriodoActual,
-  obtenerIAAnalisisCompletoEstudiante
-} from "../services/estudiantesService";
+import { useParams } from "react-router-dom";
+import { obtenerIAAnalisisCompletoEstudiante } from "../services/estudiantesService";
+
+// Subcomponentes
+import StudentProfile from "./StudentDetail/StudentProfile";
+import StudentGradesTable from "./StudentDetail/StudentGradesTable";
+import StudentAttendance from "./StudentDetail/StudentAttendance";
+import SubjectComparisonChart from "./StudentDetail/SubjectComparisonChart";
+import IAAnalysisSection from "./StudentDetail/IAAnalysisSection";
 
 const StudentDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [student, setStudent] = useState(null);
-  const [iaData, setIaData] = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    (async () => {
+    const cargarDatos = async () => {
       try {
-        const profile = await obtenerPerfilDetalladoEstudiante(id);
-        const periodo = await obtenerPeriodoActual();
-        setStudent(profile);
-
-        // ahora solo necesitas el studentId
-        const fullIa = await obtenerIAAnalisisCompletoEstudiante(id);
-        setIaData(fullIa);
-      } catch (e) {
-        setError(e.message);
+        setLoading(true);
+        const result = await obtenerIAAnalisisCompletoEstudiante(id);
+        setData(result);
+      } catch (err) {
+        setError("No se pudo cargar el análisis del estudiante.");
+        console.error(err);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    cargarDatos();
   }, [id]);
 
-  if (loading) return <p>Cargando información del estudiante...</p>;
-  if (error)   return <p className="text-red-600">Error: {error}</p>;
-  if (!student) return <p>No se encontró el estudiante.</p>;
+  if (loading) return <p>Cargando datos...</p>;
+  if (error) return <p>{error}</p>;
+
+  if (!data || !data.student || Object.keys(data.student).length === 0) {
+    return <p>Perfil del estudiante no disponible.</p>;
+  }
 
   return (
-    <div className="p-6">
-      <button onClick={() => navigate(-1)} className="mb-4 px-3 py-1 bg-gray-300 rounded">
-        ← Volver
-      </button>
-      <h1 className="text-2xl font-bold mb-4">
-        Detalle de {student.first_name} {student.last_name}
-      </h1>
+    <div>
+      <h1>Análisis detallado del estudiante</h1>
 
-      <StudentInfo student={student} />
+      {/* CAMBIO AQUÍ: Cambié profile={data.student} por student={data.student} */}
+      <StudentProfile student={data.student} />
 
-      {student.materias?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Materias</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {student.materias.map(m => (
-              <div key={m.id} className="bg-blue-100 p-2 rounded">
-                <p className="font-medium">{m.nombre}</p>
-                <p className="text-sm text-gray-600">ID: {m.id}</p>
-                <p className="text-sm text-gray-700">Docente: {m.docente}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      {data.grades_summary ? (
+        <StudentGradesTable gradesData={data.grades_summary} />
+      ) : (
+        <p>Calificaciones no disponibles.</p>
       )}
 
-      <section className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Análisis de IA</h2>
-        <StudentIAAnalysis data={iaData} />
-      </section>
+      {data.attendance ? (
+        <StudentAttendance attendance={data.attendance} />
+      ) : (
+        <p>Datos de asistencia no disponibles.</p>
+      )}
+
+      {data.subject_comparison ? (
+        <SubjectComparisonChart comparisonData={data.subject_comparison} />
+      ) : (
+        <p>Comparación de materias no disponible.</p>
+      )}
+
+      {data.ia_analysis ? (
+        <IAAnalysisSection ia={data.ia_analysis} />
+      ) : (
+        <p>Análisis de IA no disponible.</p>
+      )}
     </div>
   );
 };

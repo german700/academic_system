@@ -1,7 +1,8 @@
 # C:\Users\germa\Desktop\academic_system\backend\academic\urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
+from academic.views.admin_views import teacher_engagement_overview
+from academic.views.admin_views import teacher_ia_analysis
 # Student
 from .views.student_views import (
     StudentProfileView,
@@ -16,6 +17,8 @@ from .views.studentIA_views import StudentIAAnalysisView
 from .views.teacher_views import (
     TeacherViewSet,
     teacher_student_profile,
+    TeacherDashboardView,
+    CourseStudentsByTeacherView, 
 )
 from academic.views.teacherIA_view import TeacherIAViewSet
 
@@ -68,6 +71,10 @@ urlpatterns = [
     
     # Teacher routes
     path('teachers/student-profile/<int:student_id>/', teacher_student_profile, name='teacher-student-profile'),
+    path("teachers/<int:pk>/dashboard/", TeacherDashboardView.as_view()),
+    
+    # 👈 NUEVA RUTA: Estudiantes por docente y curso
+    path("teachers/<int:teacher_id>/course/<int:course_id>/students/", CourseStudentsByTeacherView.as_view()),
     
     # Periodo académico
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),
@@ -75,7 +82,8 @@ urlpatterns = [
     # Grado–Materia
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),
     path('grados/<int:grado_id>/materias/<int:materia_id>/', GradoMateriaViewSet.as_view({'delete': 'destroy'}), name='eliminar_materia_grado'),
-    
+    path('teachers/<int:teacher_id>/engagement/', teacher_engagement_overview, name='teacher-engagement-overview'),
+     path('teachers/<int:teacher_id>/ia-analysis/', teacher_ia_analysis, name='teacher-ia-analysis'),
     # ViewSets (router) - AL FINAL para evitar conflictos
     path('', include(router.urls)),
 ]

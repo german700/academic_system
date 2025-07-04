@@ -23,6 +23,14 @@ class Teacher(models.Model):
     email = models.EmailField(unique=True, default="default@gmail.com")
     specialization = models.CharField(max_length=100, default="General")
     teacher_id = models.CharField(max_length=20, unique=True, blank=True)
+    
+    # Nuevo campo para foto de perfil
+    profile_picture = models.ImageField(
+        upload_to='teachers/profile_pictures/',
+        null=True,
+        blank=True,
+        help_text="Foto de perfil del profesor"
+    )
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.specialization}"
@@ -52,6 +60,14 @@ class Administrator(models.Model):
     title = models.CharField(max_length=50, blank=True, default="")
     date_of_birth = models.DateField(null=True, blank=True, default=timezone.now)
     email = models.EmailField(unique=True, default="default@gmail.com")
+    
+    # Nuevo campo para foto de perfil
+    profile_picture = models.ImageField(
+        upload_to='administrators/profile_pictures/',
+        null=True,
+        blank=True,
+        help_text="Foto de perfil del administrador"
+    )
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -320,4 +336,3 @@ class AcademicPeriod(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.academic_year})"
-    

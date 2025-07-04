@@ -26,7 +26,7 @@ def analizar_estudiante_en_subject_period(student, course_subject_id: int, perio
 def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: int, period: int) -> dict:
     """
     Análisis completo del rendimiento del estudiante en una materia y periodo específico.
-    Usa todas las variables relevantes para el modelo ML y para análisis humano.
+    Maneja robustamente los casos donde el estudiante no tiene notas.
     """
     from datetime import date
     from analytics.services import predecir_riesgo_estudiante
@@ -40,7 +40,20 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
     # Datos básicos del estudiante que siempre incluimos
     course_name = student.course.name if student.course else "Sin curso"
     
+    # MEJORADO: Manejo robusto de casos sin notas
     if not entries.exists():
+        # Buscar si tiene entradas en otras materias o periodos
+        otros_entries = GradeEntry.objects.filter(student=student)
+        otros_periodos = sorted(list(otros_entries.values_list("assignment__period", flat=True).distinct()))
+        otras_materias = list(otros_entries.values_list("assignment__course_subject__subject__name", flat=True).distinct())
+        
+        # Construir mensaje informativo
+        mensaje = "No hay notas para este estudiante en esta materia y periodo."
+        if otros_entries.exists():
+            mensaje += f" Sin embargo, tiene notas en otras materias: {otras_materias} y/o en otros periodos: {otros_periodos}."
+        else:
+            mensaje += " Este estudiante no tiene notas registradas aún."
+        
         return {
             "student_id": student.id,
             "first_name": student.first_name,
@@ -57,10 +70,10 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             "asistencia": None,
             "asistencia_periodo": None,
             "resumen_por_periodo": [],
-            "mensaje": "No hay datos suficientes para este estudiante en esta materia y periodo."
+            "mensaje": mensaje
         }
     
-    # Datos base
+    # Datos base (cuando SÍ hay notas)
     materia = entries.first().assignment.course_subject.subject.name
     
     # Promedio de notas y recuentos
@@ -71,6 +84,10 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
     entregas_tarde = 0
     
     for entry in entries:
+        # Validación de datos antes de calcular
+        if entry.assignment.max_score <= 0:
+            continue  # Evitar división por cero
+            
         score = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
         nota = round(score, 2)
         notas.append(nota)
@@ -84,6 +101,27 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             examenes.append(nota)
         if entry.late_submission:
             entregas_tarde += 1
+    
+    # Verificar que tengamos notas válidas después del filtrado
+    if not notas:
+        return {
+            "student_id": student.id,
+            "first_name": student.first_name,
+            "last_name": student.last_name,
+            "segundo_apellido": getattr(student, 'second_last_name', ''),
+            "student_email": student.user.email,
+            "curso": course_name,
+            "course_subject_id": course_subject_id,
+            "period": period,
+            "promedio_general": None,
+            "prediccion_riesgo": None,
+            "nota_min": None,
+            "nota_max": None,
+            "asistencia": None,
+            "asistencia_periodo": None,
+            "resumen_por_periodo": [],
+            "mensaje": "Las notas encontradas no son válidas para el cálculo."
+        }
     
     promedio_general = round(sum(notas) / len(notas), 2)
     
@@ -102,7 +140,7 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             }
     
     # Otros datos personales
-    edad = (date.today() - student.date_of_birth).days // 365
+    edad = (date.today() - student.date_of_birth).days // 365 if student.date_of_birth else 0
     estrato_str = (student.socioeconomic_status or "").upper()
     estrato_map = {
         "BAJO_BAJO": 1, "BAJO": 2, "MEDIO_BAJO": 3, "MEDIO": 4, "MEDIO_ALTO": 5, "ALTO": 6
@@ -117,10 +155,10 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
     from academic.models import AcademicPeriod
     # Asistencia del estudiante en esta materia y periodo
     try:
-        periodo_actual = AcademicPeriod.objects.get(number=period, academic_year="2024-2025")  # <-- puedes ajustar esto dinámicamente
+        periodo_actual = AcademicPeriod.objects.get(number=period, academic_year="2024-2025")
         asistencias_periodo = Attendance.objects.filter(
             student=student,
-            subject__id=course_subject_id,  # ← importante
+            subject__id=course_subject_id,
             date__range=(periodo_actual.start_date, periodo_actual.end_date)
         )
     except AcademicPeriod.DoesNotExist:
@@ -131,14 +169,6 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
         asistencia_periodo = round(presentes_periodo / asistencias_periodo.count(), 2)
     else:
         asistencia_periodo = asistencia  # Fallback general
-
-        
-        # Si no tienes forma de filtrar por periodo, usa la asistencia general
-        if asistencias_periodo.exists():
-            presentes_periodo = asistencias_periodo.filter(present=True).count()
-            asistencia_periodo = round(presentes_periodo / asistencias_periodo.count(), 2)
-        else:
-            asistencia_periodo = asistencia  # Fallback a asistencia general
     
     # Evolución por periodo - agregado para solucionar el gráfico vacío
     resumen_por_periodo = []
@@ -156,15 +186,20 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
         if period_entries.exists():
             notas_p = []
             for entry in period_entries:
-                nota = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
-                notas_p.append(nota)
-            resumen_por_periodo.append({
-                "periodo": p,
-                "nota": round(sum(notas_p) / len(notas_p), 2)
-            })
+                if entry.assignment.max_score > 0:  # Validación adicional
+                    nota = (float(entry.score) / float(entry.assignment.max_score)) * 5.0
+                    notas_p.append(nota)
+            if notas_p:  # Solo agregar si hay notas válidas
+                resumen_por_periodo.append({
+                    "periodo": p,
+                    "nota": round(sum(notas_p) / len(notas_p), 2)
+                })
     
-    # Riesgo IA
-    prediccion_riesgo = predecir_riesgo_estudiante(entries)
+    # Riesgo IA - Solo si hay entries válidos
+    try:
+        prediccion_riesgo = predecir_riesgo_estudiante(entries)
+    except Exception as e:
+        prediccion_riesgo = {"riesgo": None, "error": str(e)}
     
     return {
         "student_id": student.id,
@@ -184,7 +219,7 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
         "promedio_examenes": round(sum(examenes)/len(examenes), 2) if examenes else None,
         "entregas_tardias": entregas_tarde,
         "asistencia": asistencia,
-        "asistencia_periodo": asistencia_periodo,  # AGREGADO
+        "asistencia_periodo": asistencia_periodo,
         "edad": edad,
         "estrato": estrato,
         "promedios_por_tipo": {
@@ -194,7 +229,7 @@ def analizar_rendimiento_en_subject_period(student: Student, course_subject_id: 
             } for tipo, scores in tipos.items()
         },
         "distribucion_tipos": distribucion_tipos,
-        "resumen_por_periodo": resumen_por_periodo,  # AGREGADO
+        "resumen_por_periodo": resumen_por_periodo,
         "prediccion_riesgo": prediccion_riesgo
     }
 
@@ -231,17 +266,21 @@ def get_course_subject_full_analysis(course_id: int, subject_id: int, period: in
     # 2) Informes por estudiante
     reports = [analizar_rendimiento_en_subject_period(s, cs.id, period) for s in students]
     
-    # 3) Promedios básicos
+    # 3) Promedios básicos - MEJORADO: Manejo robusto de None
     real_avgs = [r["promedio_general"] for r in reports if r.get("promedio_general") is not None]
-    ia_avgs   = [r["prediccion_riesgo"]["riesgo"] for r in reports
-                 if r.get("prediccion_riesgo") and r["prediccion_riesgo"].get("riesgo") is not None]
+    ia_avgs = []
+    for r in reports:
+        if (r.get("prediccion_riesgo") and 
+            isinstance(r["prediccion_riesgo"], dict) and 
+            r["prediccion_riesgo"].get("riesgo") is not None):
+            ia_avgs.append(r["prediccion_riesgo"]["riesgo"])
     
     real_avg = round(sum(real_avgs)/len(real_avgs), 2) if real_avgs else 0.0
-    ia_avg   = round(sum(ia_avgs)/len(ia_avgs), 2)     if ia_avgs   else 0.0
+    ia_avg = round(sum(ia_avgs)/len(ia_avgs), 2) if ia_avgs else 0.0
     
-    # 4) Distribución de rendimiento
-    buenos = sum(1 for r in reports if r.get("promedio_general", 0) >= 4.0)
-    riesgo = sum(1 for r in reports if r.get("promedio_general", 0) < 3.0)
+    # 4) Distribución de rendimiento - MEJORADO: Verificación de None
+    buenos = sum(1 for r in reports if r.get("promedio_general") is not None and r["promedio_general"] >= 4.0)
+    riesgo = sum(1 for r in reports if r.get("promedio_general") is not None and r["promedio_general"] < 3.0)
     total = len([r for r in reports if r.get("promedio_general") is not None])
     high_perf_pct = round((buenos / total) * 100, 1) if total > 0 else 0
     low_perf_pct = round((riesgo / total) * 100, 1) if total > 0 else 0

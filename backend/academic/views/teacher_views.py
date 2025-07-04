@@ -8,6 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import generics
+
 from academic.models import (
     Teacher, Course, Student, CourseSubject, Assignment,
     GradeEntry, Subject, AcademicPeriod
@@ -15,7 +17,7 @@ from academic.models import (
 from academic.serializers import (
     TeacherSerializer, CourseSerializer, StudentSerializer,
     AssignmentSerializer, GradeEntrySerializer, AcademicPeriodSerializer,
-    CourseSerializerMinimal
+    CourseSerializerMinimal, TeacherDashboardSerializer, SimpleStudentSerializer
 )
 from academic.permissions import IsTeacher, IsTeacherOrAdmin
 from analytics.services import predecir_riesgo_estudiante
@@ -44,6 +46,15 @@ class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     permission_classes = [IsAuthenticated, IsTeacherOrAdmin]
+    def get_serializer_class(self):
+        """
+        Retorna diferentes serializadores según la acción:
+        - retrieve: TeacherDashboardSerializer (incluye materias/subjects)
+        - otras acciones: TeacherSerializer (básico)
+        """
+        if self.action == "retrieve":
+            return TeacherDashboardSerializer
+        return TeacherSerializer
     
     @action(detail=False, url_path='me/courses', methods=['get'])
     def me_courses(self, request):
@@ -178,8 +189,8 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
         return Response({
             "course_id": course.id,
-            "course_name": course.name,  # ✅ añadido
-            "students": StudentSerializer(students, many=True).data,
+            "course_name": course.name,
+            "students": SimpleStudentSerializer(students, many=True).data,
             "subjects": subjects,
             "total_students": students.count(),
             "total_subjects": len(subjects)
@@ -495,6 +506,21 @@ class TeacherViewSet(viewsets.ModelViewSet):
             "subject_name": cs.subject.name,
             "teacher_name": f"{cs.teacher.first_name} {cs.teacher.last_name}"
         })
+    
+    @action(detail=True, methods=['get'], url_path='course/(?P<course_id>[^/.]+)/students')
+    def course_students_admin(self, request, pk=None, course_id=None):
+        """
+        Devuelve los estudiantes de un curso si el docente identificado por `pk` (teacher_id) enseña allí.
+        """
+        teacher = get_object_or_404(Teacher, id=pk)
+
+        if not CourseSubject.objects.filter(course__id=course_id, teacher=teacher).exists():
+            return Response({"error": "Este docente no está asignado a ese curso."}, status=403)
+
+        course = get_object_or_404(Course, id=course_id)
+        students = Student.objects.filter(course=course).order_by('last_name', 'first_name')
+
+        return Response(SimpleStudentSerializer(students, many=True).data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -526,3 +552,29 @@ def teacher_student_profile(request, student_id):
     from academic.serializers import StudentProfileSerializer
     serializer = StudentProfileSerializer(student)
     return Response(serializer.data)
+
+
+class TeacherDashboardView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherDashboardSerializer
+
+class CourseStudentsByTeacherView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, teacher_id, course_id):
+        teacher = get_object_or_404(Teacher, id=teacher_id)
+
+        # Verificar que enseña en ese curso
+        if not CourseSubject.objects.filter(course__id=course_id, teacher=teacher).exists():
+            return Response({"error": "Este docente no está asignado a ese curso."}, status=403)
+
+        course = get_object_or_404(Course, id=course_id)
+        students = Student.objects.filter(course=course).order_by("first_name", "last_name")
+
+        return Response({
+            "course_id": course.id,
+            "course_name": course.name,
+            "students": SimpleStudentSerializer(students, many=True).data,
+            "total_students": students.count()
+        })

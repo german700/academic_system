@@ -18,7 +18,9 @@ import MateriasGestion from "./components/admin/MateriasGestion.jsx";
 import CursosPorGrado from "./components/admin/CursosPorGrado.jsx";
 import CursoDetalle from "./components/admin/CursoDetalle.jsx";
 import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
-import StudentDetail from './components/admin/StudentDetail.jsx'; 
+import StudentDetail from './components/admin/StudentDetail.jsx';
+import EditarEstudiante from "./components/admin/EditarEstudiante";
+import TeacherDetail from "./components/admin/TeacherDetail.jsx";
 
 // Componentes de estudiantes
 import StudentLayout from './components/layout/StudentLayout.jsx';
@@ -40,7 +42,6 @@ import CourseGradesEdit from './components/teachers/CourseGradesEdit.jsx';
 import CourseAttendance from './components/teachers/CourseAttendance.jsx';
 import TeacherProfile from './components/teachers/TeacherProfile.jsx';
 import PublicTeacherProfile from "./components/shared/ui/PublicTeacherProfile.jsx";
-
 
 function App() {
   return (
@@ -103,10 +104,33 @@ function App() {
             </PrivateRoute>
           } />
 
-          {/* ✅ NUEVA RUTA PARA DETALLE DE ESTUDIANTE */}
+          {/* ✅ RUTAS CORREGIDAS PARA DETALLES */}
+          {/* Ruta para detalle de estudiante - CORREGIDA */}
+          <Route path="/admin/estudiantes/:id" element={
+            <PrivateRoute allowedRoles={["director"]}>
+              <StudentDetail />
+            </PrivateRoute>
+          } />
+          
+          {/* Ruta para detalle de docente - CORREGIDA */}
+          <Route path="/admin/docentes/:teacherId" element={
+            <PrivateRoute allowedRoles={["director"]}>
+              <TeacherDetail />
+            </PrivateRoute>
+          } />
+
+          {/* Mantener rutas originales como fallback */}
           <Route path="/students/:id" element={
             <PrivateRoute allowedRoles={["director"]}>
               <StudentDetail />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/students/:id/edit" element={<EditarEstudiante />} />
+
+          <Route path="/teacher/:teacherId" element={
+            <PrivateRoute allowedRoles={["director"]}>
+              <TeacherDetail />
             </PrivateRoute>
           } />
 
@@ -126,19 +150,19 @@ function App() {
             <Route path="courses/:courseId/subject/:subjectId/grades" element={<CourseGradesView />} />
             <Route path="courses/:courseId/subject/:subjectId/edit" element={<CourseGradesEdit />} />
             <Route path="courses/:courseId/subject/:subjectId/attendance" element={<CourseAttendance />} />
-            
+
             {/* Análisis de IA */}
-            <Route 
-              path="courses/:courseId/subject/:subjectId/analysis" 
-              element={<CourseAnalysis />} 
+            <Route
+              path="courses/:courseId/subject/:subjectId/analysis"
+              element={<CourseAnalysis />}
             />
 
             {/* Análisis por estudiante - RUTA CORREGIDA */}
-            <Route 
-              path="courses/:courseId/subject/:subjectId/students/:studentId/analysis" 
-              element={<StudentSubjectAnalysis />} 
+            <Route
+              path="courses/:courseId/subject/:subjectId/students/:studentId/analysis"
+              element={<StudentSubjectAnalysis />}
             />
-            
+
             {/* Mantener la ruta original como fallback */}
             <Route path="students/:studentId/analysis" element={<StudentSubjectAnalysis />} />
           </Route>
@@ -155,7 +179,6 @@ function App() {
             <Route path="materia/:studentId/:materiaId" element={<StudentMateria />} />
             <Route path="calificaciones" element={<MyGrades />} />
             <Route path="analisis" element={<StudentAnalisis />} />
-            {/* CORREGIDO: Cambiado de /estudiante/materias a solo estudiante-materias */}
             <Route path="estudiante-materias" element={<StudentSubjectView />} />
           </Route>
 
@@ -167,7 +190,6 @@ function App() {
           } />
 
           {/* Rutas públicas para perfiles de docentes */}
-          <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
           <Route path="/perfil-docente/:teacherId" element={<PublicTeacherProfile />} />
 
           {/* Catch-all */}

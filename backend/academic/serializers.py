@@ -1,6 +1,7 @@
 #C:\Users\germa\Desktop\academic_system\backend\academic\serializers.py
 from rest_framework import serializers
 from .models import Student, Teacher, Course, Grade, Administrator, Subject, CourseSubject, Grado, GradeEntry, Attendance, Assignment, AcademicPeriod
+from django.db.models import Count, Avg, Case, When, Value, CharField
 
 class AcademicPeriodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -229,3 +230,120 @@ class CourseSerializerMinimal(serializers.ModelSerializer):
 
     def get_students_count(self, obj):
         return obj.students.count()
+
+class TeacherDashboardSerializer(serializers.ModelSerializer):
+    subjects = serializers.SerializerMethodField()
+
+    assignments_stats = serializers.SerializerMethodField()
+    performance_summary = serializers.SerializerMethodField()
+    attendance_overview = serializers.SerializerMethodField()
+    risk_analysis = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()  
+    class Meta:
+        model = Teacher
+        fields = (
+            # info personal
+            "id", "teacher_id", "first_name", "middle_name", "last_name",
+            "second_last_name", "title", "date_of_birth", "email",
+            "specialization", "profile_picture",
+            # relaciones
+            "subjects",
+            # métricas
+            "assignments_stats", "performance_summary",
+            "attendance_overview", "risk_analysis",
+        )
+
+    # ---------- MÉTRICAS ----------
+    def get_assignments_stats(self, obj):
+        qs = Assignment.objects.filter(course_subject__teacher=obj)
+        total = qs.count()
+        by_type = (
+            qs.values("assignment_type")
+              .annotate(count=Count("id"))
+              .order_by()
+        )
+        on_time = GradeEntry.objects.filter(
+            assignment__course_subject__teacher=obj,
+            late_submission=False
+        ).count()
+        late = GradeEntry.objects.filter(
+            assignment__course_subject__teacher=obj,
+            late_submission=True
+        ).count()
+        return {
+            "total": total,
+            "by_type": by_type,
+            "on_time": on_time,
+            "late": late,
+        }
+
+    def get_performance_summary(self, obj):
+        # promedio de las notas que obtienen los estudiantes
+        qs = GradeEntry.objects.filter(assignment__course_subject__teacher=obj)
+        avg = qs.aggregate(avg=Avg("score"))["avg"] or 0
+        dist = (
+            qs.annotate(rango=Case(
+                    When(score__gte=4, then=Value(">=4")),
+                    When(score__gte=3, then=Value("3‑3.9")),
+                    default=Value("<3"),
+                    output_field=CharField()))
+              .values("rango")
+              .annotate(count=Count("id"))
+        )
+        return {"average": round(avg, 2), "distribution": dist}
+
+    def get_attendance_overview(self, obj):
+        # % promedio asistencia de sus clases
+        # Usar la relación inversa correcta: coursesubject en lugar de coursesubject_set
+        subjects = Subject.objects.filter(coursesubject__teacher=obj).distinct()
+        att = Attendance.objects.filter(subject__in=subjects)
+
+        if not att.exists():
+            return {"avg_attendance": 0}
+        total = att.count()
+        present = att.filter(present=True).count()
+        return {"avg_attendance": round(present / total * 100, 2)}
+
+    def get_risk_analysis(self, obj):
+        """
+        Ejemplo mínimo: % de estudiantes en ‘riesgo’ (usa tu propia lógica).
+        Supongamos que ya tienes StudentIAAnalysisView => risk_index por estudiante.
+        """
+        from analytics.services import predecir_riesgo_estudiante
+        students = Student.objects.filter(course__teachers=obj)
+        riesgos = [predecir_riesgo_estudiante(s)["risk_index"] for s in students]
+        if not riesgos:
+            return {"avg_risk": 0, "high_risk_pct": 0}
+        high = sum(1 for r in riesgos if r >= 0.7)
+        return {
+            "avg_risk": round(sum(riesgos) / len(riesgos), 2),
+            "high_risk_pct": round(high / len(riesgos) * 100, 1),
+        }
+    
+    def get_subjects(self, obj):
+        from .models import CourseSubject
+        course_subjects = CourseSubject.objects.filter(teacher=obj).select_related('subject', 'course').order_by('subject__name', 'course__name')
+        return [
+            {
+                "id": cs.subject.id,
+                "name": cs.subject.name,
+                "code": cs.subject.code,
+                "course": cs.course.name,
+                "course_id": cs.course.id,
+                "grado": cs.course.grado.numero if cs.course.grado else None,
+            }
+            for cs in course_subjects
+        ]
+    def get_profile_picture(self, obj):
+        request = self.context.get('request')
+        if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return obj.profile_picture.url
+        return None
+
+
+class SimpleStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ["id", "first_name", "last_name"]

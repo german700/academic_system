@@ -164,3 +164,13 @@ export const obtenerIAAnalisisCompletoEstudiante = async (studentId) => {
   const url = `${API_URL}${studentId}/ia-analysis/`;
   return handleFetch(url);
 };
+
+// Obtener un estudiante por su ID (datos crudos para edición)
+export const obtenerEstudiantePorId = async (id) => {
+  const response = await fetch(`${API_URL}${id}/`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Error al obtener el estudiante por ID");
+  return await response.json();
+};

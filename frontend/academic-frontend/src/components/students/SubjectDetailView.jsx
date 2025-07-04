@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getGradesForStudentSubject } from "../services/estudiantesService";
 import { Calendar, User, BookOpen, ChevronLeftCircle, TrendingUp, Calculator } from "lucide-react";
-
+import {
+  obtenerPerfilDetalladoEstudiante,
+  obtenerPeriodoActual,
+  obtenerIAAnalisisEstudiante
+} from "../services/estudiantesService";
 const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
   const [gradesData, setGradesData] = useState({ grades: [], teacher: null }); // Agregado teacher
   const [loading, setLoading] = useState(false);

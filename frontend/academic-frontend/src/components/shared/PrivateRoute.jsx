@@ -7,8 +7,11 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
 
   useEffect(() => {
-    console.log("🔒 Evaluando acceso. Usuario:", user);
-  }, [user]);
+    console.log("🔍 Evaluando acceso:");
+    console.log(" - userType:", user?.userType);
+    console.log(" - isSuperUser:", user?.isSuperUser);
+    console.log(" - allowedRoles:", allowedRoles);
+  }, [user, allowedRoles]);
 
   if (!user) {
     console.warn("⛔ Usuario no autenticado. Redirigiendo al login.");

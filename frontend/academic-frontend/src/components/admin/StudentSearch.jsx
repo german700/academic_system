@@ -1,6 +1,7 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\StudentSearch.jsx
 import React, { useEffect, useState } from "react";
-import { obtenerCursos, buscarEstudiantes } from "../services/estudiantesService";
+import { Link } from "react-router-dom";
+import { obtenerCursos, buscarEstudiantes, obtenerPerfilDetalladoEstudiante } from "../services/estudiantesService";
 
 const StudentSearch = () => {
   const [query, setQuery] = useState("");
@@ -61,35 +62,40 @@ const StudentSearch = () => {
       </div>
 
       <table className="min-w-full bg-white border">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2">ID</th>
-            <th className="border px-4 py-2">Nombre</th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Curso</th>
-            <th className="border px-4 py-2">Género</th>
-            <th className="border px-4 py-2">Barrio</th>
-            <th className="border px-4 py-2">Nivel Socioeconómico</th>
-          </tr>
-        </thead>
+        {resultados.length > 0 && (
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">ID</th>
+              <th className="border px-4 py-2">Nombre</th>
+              <th className="border px-4 py-2">Curso</th>
+            </tr>
+          </thead>
+        )}
         <tbody>
           {resultados.map((est) => (
             <tr key={est.id}>
               <td className="border px-4 py-2">{est.student_id}</td>
-              <td className="border px-4 py-2">{`${est.first_name} ${est.last_name}`}</td>
-              <td className="border px-4 py-2">{est.email}</td>
+              <td className="border px-4 py-2">
+                <Link 
+                  to={`/students/${est.id}`} 
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  {`${est.first_name} ${est.middle_name || ""} ${est.last_name} ${est.second_last_name || ""}`.trim()}
+                </Link>
+              </td>
               <td className="border px-4 py-2">
                 {est.course
                   ? `${est.course.name} - ${est.course.code}`
                   : "Sin curso"}
               </td>
-              <td className="border px-4 py-2">{est.gender}</td>
-              <td className="border px-4 py-2">{est.neighborhood}</td>
-              <td className="border px-4 py-2">{est.socioeconomic_status}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {resultados.length === 0 && query && (
+        <p className="mt-4 text-gray-500">No se encontraron estudiantes.</p>
+      )}
     </div>
   );
 };

@@ -22,12 +22,12 @@ const handleFetch = async (url, options = {}) => {
       ...(options.headers || {}),
     },
   });
-  
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.error || "Error desconocido");
   }
-  
+
   return res.json();
 };
 
@@ -40,12 +40,12 @@ const handleFetchNoJson = async (url, options = {}) => {
       ...(options.headers || {}),
     },
   });
-  
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.error || "Error desconocido");
   }
-  
+
   return res;
 };
 
@@ -87,6 +87,15 @@ export const fetchTeacherDashboard = async () => {
 
 export const fetchCourseStudents = async (courseId) => {
   return handleFetch(`${TEACHERS_API}/me/course/${courseId}/students/`);
+};
+
+/**
+ * Obtiene los estudiantes de un curso dictado por un docente específico (solo admins pueden usar esto).
+ * @param {number} teacherId - ID del docente
+ * @param {string|number} courseId - ID o código del curso (ej. "1-A")
+ */
+export const fetchCourseStudentsByTeacherId = async (teacherId, courseId) => {
+  return handleFetch(`${TEACHERS_API}/${teacherId}/course/${courseId}/students/`);
 };
 
 export const fetchCourseSubjectGrades = async (courseId, subjectId, period = null) => {
@@ -144,7 +153,7 @@ export const fetchDeleteGradeEntry = async (id) => {
 // ================================
 export const fetchAttendanceByDate = async (courseId, subjectId, date) => {
   const dateStr = date instanceof Date
-    ? date.toISOString().slice(0,10)  // 'YYYY-MM-DD'
+    ? date.toISOString().slice(0, 10)  // 'YYYY-MM-DD'
     : date;
   return handleFetch(
     `${BASE_URL}/api/academic/attendances/by_course_subject_date/?course_id=${courseId}&subject_id=${subjectId}&date=${dateStr}`
@@ -251,14 +260,14 @@ export const fetchCourseMetadata = async (courseId, subjectId, period) => {
     const data = await handleFetch(
       `${TEACHERS_API}/me/course/${courseId}/subject/${subjectId}/basic-info/`
     );
-    
+
     // Transformar a camelCase para el frontend
     return {
       courseName: data.course_name,
       subjectName: data.subject_name,
       teacherName: data.teacher_name
     };
-    
+
   } catch (error) {
     console.warn("Fallo en fetchCourseMetadata:", error);
     return {}; // fallback seguro
@@ -279,3 +288,45 @@ export const fetchStudentProfileByTeacher = async (studentId) => {
   return handleFetch(`${TEACHERS_API}/student-profile/${studentId}/`);
 };
 
+// Buscar docentes por nombre, apellido, email, etc.
+export const buscarDocentes = async (q) => {
+  return handleFetch(`${TEACHERS_API}/search/?q=${encodeURIComponent(q)}`);
+};
+
+// Obtener un docente por ID (para vista detallada)
+export const obtenerDocentePorId = async (id) => {
+  return handleFetch(`${TEACHERS_API}/${id}/`);
+};
+
+// Obtener grados (útil si los docentes están vinculados indirectamente)
+export const obtenerGrados = async () => {
+  return handleFetch(`${BASE_URL}/api/academic/grados/`);
+};
+
+export const obtenerDetalleDocente = async (id) => {
+  return obtenerDocentePorId(id);
+};
+
+// O si necesitas una versión más específica con datos adicionales:
+export const obtenerDetalleDocenteCompleto = async (id) => {
+  try {
+    const docente = await obtenerDocentePorId(id);
+    // Aquí podrías hacer llamadas adicionales para obtener más datos
+    // Por ejemplo: materias, métricas, etc.
+    return docente;
+  } catch (error) {
+    console.error("Error obteniendo detalle completo del docente:", error);
+    throw error;
+  }
+};
+
+export const obtenerMetricaDocenteCompleto = (id) =>
+  handleFetch(`${TEACHERS_API}/${id}/dashboard/`);
+
+export const obtenerResumenEngagementDocente = (teacherId) => {
+  return handleFetch(`${TEACHERS_API}/${teacherId}/engagement/`);
+};
+
+export const fetchTeacherIAAnalysis = async (teacherId, period = 1) => {
+  return handleFetch(`${TEACHERS_API}/${teacherId}/ia-analysis/?period=${period}`);
+};
