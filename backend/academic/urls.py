@@ -1,8 +1,14 @@
 # C:\Users\germa\Desktop\academic_system\backend\academic\urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from academic.views.admin_views import teacher_engagement_overview
-from academic.views.admin_views import teacher_ia_analysis
+from academic.views.admin_views import (
+    teacher_engagement_overview,
+    teacher_ia_analysis,
+    academic_periods_view,
+    academic_period_detail,
+    manual_retrain_model
+)
+
 # Student
 from .views.student_views import (
     StudentProfileView,
@@ -76,14 +82,22 @@ urlpatterns = [
     # 👈 NUEVA RUTA: Estudiantes por docente y curso
     path("teachers/<int:teacher_id>/course/<int:course_id>/students/", CourseStudentsByTeacherView.as_view()),
     
-    # Periodo académico
+    # Teacher Analytics
+    path('teachers/<int:teacher_id>/engagement/', teacher_engagement_overview, name='teacher-engagement-overview'),
+    path('teachers/<int:teacher_id>/ia-analysis/', teacher_ia_analysis, name='teacher-ia-analysis'),
+    
+    # 🆕 RUTAS DE ADMINISTRADOR - Períodos académicos
+    path('admin/periods/', academic_periods_view, name='admin-periods-list-create'),
+    path('admin/periods/<int:period_id>/', academic_period_detail, name='admin-period-detail'),
+    path('admin/retrain-ia/', manual_retrain_model, name='admin-manual-retrain-ia'),
+    
+    # Periodo académico (vista general)
     path('periodo-actual/', AcademicPeriodView.as_view(), name='periodo-actual'),
     
     # Grado–Materia
     path('grados/<int:grado_id>/materias/', GradoMateriaViewSet.as_view({'get': 'list', 'post': 'create'}), name='gestionar_materias_por_grado'),
     path('grados/<int:grado_id>/materias/<int:materia_id>/', GradoMateriaViewSet.as_view({'delete': 'destroy'}), name='eliminar_materia_grado'),
-    path('teachers/<int:teacher_id>/engagement/', teacher_engagement_overview, name='teacher-engagement-overview'),
-     path('teachers/<int:teacher_id>/ia-analysis/', teacher_ia_analysis, name='teacher-ia-analysis'),
+    
     # ViewSets (router) - AL FINAL para evitar conflictos
     path('', include(router.urls)),
 ]

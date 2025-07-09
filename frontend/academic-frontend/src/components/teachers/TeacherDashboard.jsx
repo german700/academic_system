@@ -36,7 +36,7 @@ export default function TeacherDashboard() {
             boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)'
         },
         headerTitle: {
-            fontSize: '32px',
+            fontSize: '20px', // Reducido de 32px a 20px
             fontWeight: 'bold',
             margin: '0 0 24px 0',
             display: 'flex',

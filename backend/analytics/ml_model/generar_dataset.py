@@ -78,4 +78,4 @@ with open(dataset_path, 'w', newline='', encoding='utf-8') as csvfile:
         except Exception as e:
             print(f"❌ Error con estudiante {student.id}: {e}")
 
-print("✅ Dataset generado exitosamente con columnas enriquecidas.")
+print("Dataset generado exitosamente con columnas enriquecidas.")

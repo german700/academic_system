@@ -94,21 +94,27 @@ export default function CourseGradesEdit() {
             return;
         }
 
-        setLoading(true);
-        setError("");
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-        fetchTeacherDashboard()
-            .then((d) => {
-                setCurrentPeriod(d.current_period.number);
-                setPeriodLabel(d.current_period.name);
-                return fetchCourseSubjectGrades(courseId, subjectId, d.current_period.number);
-            })
-            .then((res) => {
-                setStudents(res.students);
+                // Obtener el periodo actual del dashboard
+                const dashboard = await fetchTeacherDashboard();
+                const currentPeriodNumber = dashboard.current_period.number;
+
+                // Actualizar el estado con el periodo actual
+                setCurrentPeriod(currentPeriodNumber);
+                setPeriodLabel(dashboard.current_period.name);
+
+                // Cargar las notas del periodo actual
+                const gradesResponse = await fetchCourseSubjectGrades(courseId, subjectId, currentPeriodNumber);
+                setStudents(gradesResponse.students);
+
+                // Inicializar las notas en el estado
                 const initialGrades = {};
-                res.students.forEach((student) => {
+                gradesResponse.students.forEach((student) => {
                     student.grades.forEach((g) => {
-                        // Update to store both score and late_submission
                         initialGrades[`${student.student_id}-${g.assignment_id}`] = {
                             score: g.score,
                             late_submission: g.late_submission || false
@@ -116,19 +122,26 @@ export default function CourseGradesEdit() {
                     });
                 });
                 setGrades(initialGrades);
-                return fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, currentPeriod);
-            })
-            .then(tasks => {
+
+                // Cargar las actividades del periodo actual (usando currentPeriodNumber)
+                const tasks = await fetchCourseSubjectAssignmentsByPeriod(courseId, subjectId, currentPeriodNumber);
                 const withWeights = tasks.map(a => ({
                     ...a,
                     newWeight: decimalToPercentage(a.weight)
                 }));
                 setAssignments(withWeights);
-            })
-            .catch((err) => {
-                if (!handleAuthError(err)) setError("Error al cargar notas y actividades");
-            })
-            .finally(() => setLoading(false));
+
+            } catch (err) {
+                console.error("Error loading data:", err);
+                if (!handleAuthError(err)) {
+                    setError("Error al cargar notas y actividades");
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
     }, [courseId, subjectId, user]);
 
     const handleWeightChange = (assignmentId, value) => {

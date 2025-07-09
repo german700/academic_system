@@ -17,7 +17,7 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Panel Administrativo</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
           className="p-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={() => navigate("/admin/estudiantes")}
@@ -47,6 +47,12 @@ const AdminDashboard = () => {
           onClick={() => navigate("/admin/cursos")}
         >
           Gestionar Cursos
+        </button>
+        <button
+          className="p-4 bg-indigo-500 text-white rounded-lg shadow-md hover:bg-indigo-600"
+          onClick={() => navigate("/admin/periodos")}
+        >
+          📅 Gestionar Períodos Académicos
         </button>
       </div>
     </div>

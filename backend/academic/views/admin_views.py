@@ -2,14 +2,20 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from collections import defaultdict
 from academic.models import (
     Teacher, CourseSubject, Assignment, GradeEntry, 
     Attendance, AcademicPeriod
 )
+from academic.serializers import AcademicPeriodSerializer
 from analytics.course_analysis_service import get_course_subject_full_analysis
 from collections import OrderedDict
+from datetime import datetime
+import subprocess
+import os
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def teacher_engagement_overview(request, teacher_id):
@@ -91,6 +97,7 @@ def teacher_engagement_overview(request, teacher_id):
         "overview": overview_list,
         "narrative": " ".join(narrativa)
     })
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def teacher_ia_analysis(request, teacher_id):
@@ -199,3 +206,201 @@ def teacher_ia_analysis(request, teacher_id):
         "delivery_compliance": delivery_compliance,
         "risk_distribution": risk_distribution,
     })
+
+# ==================== NUEVA FUNCIONALIDAD: CRUD PERIODOS ACADÉMICOS ====================
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def academic_periods_view(request):
+    """
+    GET: Listar todos los periodos académicos
+    POST: Crear nuevo periodo académico
+    """
+    if request.method == 'GET':
+        periods = AcademicPeriod.objects.all().order_by('-start_date')
+        serializer = AcademicPeriodSerializer(periods, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = AcademicPeriodSerializer(data=request.data)
+        if serializer.is_valid():
+            new_period = serializer.save()
+            
+            # Si el periodo es el último del año, reentrenar IA
+            if is_last_period_of_year(new_period):
+                try:
+                    retrain_ia_model(new_period.academic_year)
+                    return Response({
+                        "period": serializer.data,
+                        "message": "Periodo creado y modelo de IA reentrenado exitosamente."
+                    }, status=status.HTTP_201_CREATED)
+                except Exception as e:
+                    return Response({
+                        "period": serializer.data,
+                        "message": "Periodo creado pero el reentrenamiento falló.",
+                        "error": str(e)
+                    }, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def academic_period_detail(request, period_id):
+    """
+    GET: Obtener un periodo académico específico
+    PUT: Editar un periodo académico existente
+    DELETE: Eliminar un periodo académico
+    """
+    try:
+        period = AcademicPeriod.objects.get(id=period_id)
+    except AcademicPeriod.DoesNotExist:
+        return Response({"error": "Periodo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = AcademicPeriodSerializer(period)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = AcademicPeriodSerializer(period, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        period.delete()
+        return Response({"message": "Periodo eliminado exitosamente"}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def manual_retrain_model(request):
+    """
+    Permite reentrenar manualmente el modelo de IA para un año específico.
+    Body: {"year": 2024}
+    """
+    year = request.data.get('year')
+    if not year:
+        return Response({"error": "Año requerido"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        retrain_ia_model(year)
+        return Response({
+            "message": f"Modelo reentrenado exitosamente para el año {year}"
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            "error": f"Error en reentrenamiento: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# ==================== FUNCIONES AUXILIARES ====================
+
+def is_last_period_of_year(period_obj):
+    """
+    Determina si el periodo creado es el último del año lectivo.
+    Asume que se reentrena el modelo cuando se crea el último periodo del año.
+    """
+    same_year_periods = AcademicPeriod.objects.filter(academic_year=period_obj.academic_year)
+    if not same_year_periods.exists():
+        return False
+    
+    latest_end = max([p.end_date for p in same_year_periods])
+    return period_obj.end_date == latest_end
+
+import sys
+
+def retrain_ia_model(year):
+    """
+    Ejecuta la generación del dataset y el reentrenamiento del modelo de IA.
+    """
+    print(f"🤖 Iniciando reentrenamiento del modelo para el año {year}")
+    
+    # Obtener la ruta del backend
+    backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    dataset_script = os.path.join(backend_path, "analytics", "ml_model", "generar_dataset.py")
+    training_script = os.path.join(backend_path, "analytics", "ml_model", "entrenar_modelo.py")
+
+    try:
+        # Ejecutar generación del dataset
+        print("📊 Generando dataset...")
+        gen_output = subprocess.check_output(
+            [sys.executable, dataset_script],  # ✅ usar el python activo del entorno virtual
+            stderr=subprocess.STDOUT,
+            cwd=backend_path
+        )
+        print("✅ Generación dataset completada:", gen_output.decode())
+
+        # Ejecutar entrenamiento del modelo
+        print("🎯 Entrenando modelo...")
+        train_output = subprocess.check_output(
+            [sys.executable, training_script],  # ✅ usar el python activo del entorno virtual
+            stderr=subprocess.STDOUT,
+            cwd=backend_path
+        )
+        print("[OK] Entrenamiento modelo completado:", train_output.decode())
+
+        print(f"[OK] Reentrenamiento del modelo para el año {year} completado exitosamente")
+
+    except subprocess.CalledProcessError as e:
+        print(f"X Error en reentrenamiento: {e}")
+        print(f"X Output: {e.output.decode()}")
+        raise Exception(f"Error en reentrenamiento del modelo: {e.output.decode()}")
+    except Exception as e:
+        print(f"X Error inesperado: {e}")
+        raise Exception(f"Error inesperado en reentrenamiento: {str(e)}")
+    """
+from academic.models import Student, Subject, Grade, Grado
+
+def promote_students(academic_year):
+    
+    Promociona automáticamente a los estudiantes si no reprueban 3 o más materias.
+    Condición: promedio de los 4 periodos por materia >= 3.0 (sobre 5).
+    
+    students = Student.objects.all()
+    
+    for student in students:
+        if not student.course or not student.grado:
+            continue
+
+        current_course = student.course
+        current_grado = student.grado
+
+        subjects = Subject.objects.filter(grado=current_grado)
+
+        failed_subjects = 0
+
+        for subject in subjects:
+            # Calcular el promedio de los 4 periodos para esa materia
+            grades = Grade.objects.filter(
+                student=student,
+                course=current_course,
+                period__in=[1, 2, 3, 4],
+                year=academic_year
+            )
+
+            # Filtrar solo las notas de esta materia
+            subject_grades = [
+                g.value for g in grades if g.course.course_subjects.filter(subject=subject).exists()
+            ]
+
+            if len(subject_grades) == 4:
+                avg = sum(subject_grades) / 4
+                if avg < 3.0:
+                    failed_subjects += 1
+
+        if failed_subjects >= 3:
+            # Repite el grado → no hacer nada
+            continue
+
+        # PROMOCIÓN
+        next_grado = Grado.objects.filter(numero=current_grado.numero + 1).first()
+        if next_grado:
+            student.grado = next_grado
+
+            # Buscar un curso en ese grado para el nuevo año (o asignarlo luego manualmente)
+            next_course = student.course  # mantener mismo curso o buscar dinámicamente
+            student.course = None  # o next_course si lo manejas
+
+            student.save()
+    """

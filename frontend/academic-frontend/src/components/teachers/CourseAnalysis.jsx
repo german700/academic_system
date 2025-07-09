@@ -1,7 +1,7 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\CourseAnalysis.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchCourseAnalysis } from "../services/docentesService";
+import { fetchCourseAnalysis, fetchTeacherDashboard } from "../services/docentesService";
 import OverviewMetrics from "./OverviewMetrics";
 import PeriodComparisonChart from "./PeriodComparisonChart";
 import SiblingCoursesChart from "./SiblingCoursesChart";
@@ -17,7 +17,7 @@ const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#8884D8'];
 
 export default function CourseAnalysis() {
   const { courseId, subjectId } = useParams();
-  const [period, setPeriod] = useState("1");
+  const [period, setPeriod] = useState(""); // ✅ Inicializar vacío para detectar período actual
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [courseInfo, setCourseInfo] = useState({
@@ -26,24 +26,43 @@ export default function CourseAnalysis() {
   });
 
   const periods = [
-    { value: "1", label: "Periodo 1" },
-    { value: "2", label: "Periodo 2" },
-    { value: "3", label: "Periodo 3" },
-    { value: "4", label: "Periodo 4" },
+    { value: "1", label: "Primer Periodo" },
+    { value: "2", label: "Segundo Periodo" },
+    { value: "3", label: "Tercer Periodo" },
+    { value: "4", label: "Cuarto Periodo" },
   ];
 
+  // ✅ useEffect unificado para manejar la carga de datos con detección automática del período
   useEffect(() => {
-    setLoading(true);
-    fetchCourseAnalysis(courseId, subjectId, period)
-      .then((data) => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        let effectivePeriod = period;
+        
+        // Si no hay periodo seleccionado, obtener el periodo actual
+        if (!effectivePeriod) {
+          const dashboard = await fetchTeacherDashboard();
+          effectivePeriod = dashboard.current_period.number.toString();
+          setPeriod(effectivePeriod);
+        }
+        
+        // Cargar análisis del período efectivo
+        const data = await fetchCourseAnalysis(courseId, subjectId, effectivePeriod);
+        
         setAnalysis(data);
         setCourseInfo({
           courseName: data.metadata?.courseName || `${courseId}`,
           subjectName: data.metadata?.subjectName || "Matemáticas"
         });
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        
+      } catch (error) {
+        console.error("Error al cargar análisis:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, [courseId, subjectId, period]);
 
   // Función de impresión mejorada
@@ -134,6 +153,9 @@ export default function CourseAnalysis() {
   const attendanceStatus = avgAttendance >= 0.8 ? 'Excelente' : avgAttendance >= 0.6 ? 'Buena' : 'Necesita atención';
   const attendanceColor = avgAttendance >= 0.8 ? 'text-green-600' : avgAttendance >= 0.6 ? 'text-yellow-600' : 'text-red-600';
 
+  // ✅ Obtener label del período seleccionado
+  const selectedPeriodLabel = periods.find(p => p.value === period)?.label;
+
   return (
     <div className="p-6 space-y-6">
       {/* Componente de impresión oculto */}
@@ -164,7 +186,7 @@ export default function CourseAnalysis() {
       {/* Encabezado con información del curso */}
       <div className="mb-6">
         <h2 className="text-xl font-bold">
-          Análisis de <span className="text-blue-600">{courseInfo.subjectName}</span> en el curso <span className="text-green-600">{courseInfo.courseName}</span>, periodo <span className="text-purple-600">{period}</span>
+          Análisis de <span className="text-blue-600">{courseInfo.subjectName}</span> en el curso <span className="text-green-600">{courseInfo.courseName}</span>, periodo <span className="text-purple-600">{selectedPeriodLabel}</span>
         </h2>
         <p className="text-sm text-gray-500">
           El "Promedio IA" es la probabilidad promedio de que un estudiante caiga en riesgo académico, según nuestro modelo.
@@ -177,7 +199,9 @@ export default function CourseAnalysis() {
         <CardContent className="flex items-center gap-4">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-48">
-              <SelectValue>{periods.find(p => p.value === period)?.label}</SelectValue>
+              <SelectValue placeholder="Selecciona un periodo">
+                {selectedPeriodLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {periods.map(p => (

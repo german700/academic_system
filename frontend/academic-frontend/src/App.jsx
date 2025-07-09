@@ -15,6 +15,7 @@ import DocentesGestion from "./components/admin/DocentesGestion.jsx";
 import AdministrativosGestion from "./components/admin/AdministrativosGestion.jsx";
 import CursosGestion from "./components/admin/CursosGestion.jsx";
 import MateriasGestion from "./components/admin/MateriasGestion.jsx";
+import PeriodosGestion from "./components/admin/PeriodosGestion.jsx"; // ✅ NUEVO IMPORT
 import CursosPorGrado from "./components/admin/CursosPorGrado.jsx";
 import CursoDetalle from "./components/admin/CursoDetalle.jsx";
 import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
@@ -88,6 +89,12 @@ function App() {
               <MateriasGestion />
             </PrivateRoute>
           } />
+          {/* ✅ NUEVA RUTA PARA PERÍODOS */}
+          <Route path="/admin/periodos" element={
+            <PrivateRoute allowedRoles={["director"]}>
+              <PeriodosGestion />
+            </PrivateRoute>
+          } />
           <Route path="/admin/cursos-por-grado" element={
             <PrivateRoute allowedRoles={["director"]}>
               <CursosPorGrado />
@@ -118,7 +125,7 @@ function App() {
               <TeacherDetail />
             </PrivateRoute>
           } />
-
+          
           {/* Mantener rutas originales como fallback */}
           <Route path="/students/:id" element={
             <PrivateRoute allowedRoles={["director"]}>
@@ -163,6 +170,12 @@ function App() {
               element={<StudentSubjectAnalysis />}
             />
 
+            {/* Perfil de estudiante para profesores */}
+            <Route
+              path="students/:studentId/profile"
+              element={<StudentProfile />}
+            />
+
             {/* Mantener la ruta original como fallback */}
             <Route path="students/:studentId/analysis" element={<StudentSubjectAnalysis />} />
           </Route>
@@ -185,6 +198,20 @@ function App() {
           {/* ✅ RUTA UNIVERSAL PARA PERFIL DE ESTUDIANTE */}
           <Route path="/perfil-estudiante/:studentId" element={
             <PrivateRoute allowedRoles={["director", "teacher", "student"]}>
+              <StudentProfile />
+            </PrivateRoute>
+          } />
+
+          {/* ✅ RUTA PARA ESTUDIANTE ESPECÍFICO (DOCENTES Y DIRECTORES) */}
+          <Route path="/estudiante/:studentId/perfil" element={
+            <PrivateRoute allowedRoles={["director", "teacher"]}>
+              <StudentProfile />
+            </PrivateRoute>
+          } />
+
+          {/* ✅ RUTA PARA ESTUDIANTE VIENDO SU PROPIO PERFIL */}
+          <Route path="/perfil" element={
+            <PrivateRoute allowedRoles={["student"]}>
               <StudentProfile />
             </PrivateRoute>
           } />
