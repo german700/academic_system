@@ -1,0 +1,102 @@
+/* StudentAnalysis.css */
+
+.analysis-container {
+  padding: 1.5rem;
+  max-width: 96rem;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.analysis-card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.analysis-title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  color: #1f2937; /* gray-800 */
+}
+
+.analysis-subtitle {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.risk-box {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 2px solid;
+}
+
+.risk-high {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.risk-medium {
+  background-color: #fef9c3;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.risk-low {
+  background-color: #dcfce7;
+  border-color: #bbf7d0;
+  color: #065f46;
+}
+
+.analysis-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .analysis-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.legend-color-box {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.analysis-alert-box {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  color: #991b1b;
+  font-size: 0.95rem;
+}
+
+.analysis-recommendation-box {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fde68a;
+  background-color: #fefce8;
+  color: #92400e;
+  font-size: 0.95rem;
+}
+
+.analysis-recommendation-box ul,
+.analysis-alert-box ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.analysis-recommendation-box li,
+.analysis-alert-box li {
+  margin-bottom: 0.5rem;
+}

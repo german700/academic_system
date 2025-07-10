@@ -4,6 +4,7 @@ import { obtenerGrados } from "../services/gradosService";
 import { obtenerCursos } from "../services/cursosService";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "./admin_css/CursosPorGrado.css";
 
 const CursosPorGrado = () => {
   const { user } = useAuth();
@@ -16,7 +17,6 @@ const CursosPorGrado = () => {
     cargarGrados();
   }, []);
 
-  // Cargar la lista de grados desde el servicio
   const cargarGrados = async () => {
     try {
       const data = await obtenerGrados();
@@ -26,10 +26,9 @@ const CursosPorGrado = () => {
     }
   };
 
-  // Filtrar cursos por grado seleccionado
   const cargarCursosPorGrado = async (gradoId) => {
     try {
-      const data = await obtenerCursos(); // Obtener todos los cursos
+      const data = await obtenerCursos();
       const filtrados = data.filter((curso) => curso.grado && curso.grado.id === gradoId);
       setCursos(filtrados);
     } catch (error) {
@@ -37,7 +36,6 @@ const CursosPorGrado = () => {
     }
   };
 
-  // Manejar cambios en la selección del grado
   const manejarCambioGrado = (e) => {
     const gradoId = parseInt(e.target.value);
     setGradoSeleccionado(gradoId);
@@ -45,11 +43,11 @@ const CursosPorGrado = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Cursos por Grado</h1>
+    <div className="cursosgrado-container">
+      <h1 className="cursosgrado-title">Cursos por Grado</h1>
 
       <div className="mb-4">
-        <select onChange={manejarCambioGrado} className="border p-2">
+        <select onChange={manejarCambioGrado} className="cursosgrado-select">
           <option value="">Seleccione un Grado</option>
           {grados.map((grado) => (
             <option key={grado.id} value={grado.id}>
@@ -61,23 +59,26 @@ const CursosPorGrado = () => {
 
       {gradoSeleccionado && (
         <div>
-          <h2 className="text-xl font-semibold mb-2">Cursos del Grado seleccionado</h2>
+          <h2 className="cursosgrado-subtitle">Cursos del Grado seleccionado</h2>
           {cursos.length > 0 ? (
-            <table className="min-w-full bg-white border">
+            <table className="cursosgrado-table">
               <thead>
                 <tr>
-                  <th className="border px-4 py-2">Nombre</th>
-                  <th className="border px-4 py-2">Descripción</th>
-                  <th className="border px-4 py-2">Acciones</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cursos.map((curso) => (
                   <tr key={curso.id}>
-                    <td className="border px-4 py-2">{curso.name || "Sin nombre"}</td>
-                    <td className="border px-4 py-2">{curso.description || "Sin descripción"}</td>
-                    <td className="border px-4 py-2">
-                      <button onClick={() => navigate(`/admin/cursos/${curso.id}`)} className="p-2 bg-yellow-500 text-white mr-2">
+                    <td>{curso.name || "Sin nombre"}</td>
+                    <td>{curso.description || "Sin descripción"}</td>
+                    <td>
+                      <button
+                        onClick={() => navigate(`/admin/cursos/${curso.id}`)}
+                        className="cursosgrado-btn"
+                      >
                         Ver detalles
                       </button>
                     </td>
@@ -91,7 +92,10 @@ const CursosPorGrado = () => {
         </div>
       )}
 
-      <button onClick={() => navigate("/Directivo-dashboard")} className="mt-4 p-2 bg-gray-500 text-white">
+      <button
+        onClick={() => navigate("/Directivo-dashboard")}
+        className="cursosgrado-btn cursosgrado-btn-volver"
+      >
         Volver
       </button>
     </div>

@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { obtenerCurso } from "../services/cursosService";
 import { obtenerMateriasPorCurso, asignarDocenteAMateria } from "../services/materiasService";
 import { obtenerDocentes } from "../services/docentesService";
+import "./admin_css/CursoDetalle.css";
 
 const CursoDetalle = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const CursoDetalle = () => {
   const [materias, setMaterias] = useState([]);
   const [docentes, setDocentes] = useState([]);
   const [asignaciones, setAsignaciones] = useState({});
-  const [modoEdicion, setModoEdicion] = useState({}); // Estado para manejar la edición por materia
+  const [modoEdicion, setModoEdicion] = useState({});
 
   useEffect(() => {
     cargarCurso();
@@ -20,55 +21,44 @@ const CursoDetalle = () => {
     cargarDocentes();
   }, []);
 
-  // Cargar la información del curso, incluyendo estudiantes y materias
   const cargarCurso = async () => {
     try {
       const data = await obtenerCurso(id);
-      console.log("Curso cargado:", data);
       setCurso(data);
     } catch (error) {
       console.error("Error al cargar curso:", error);
     }
   };
 
-  // Cargar las materias asignadas al curso
   const cargarMaterias = async () => {
     try {
       const data = await obtenerMateriasPorCurso(id);
-      console.log("Materias cargadas:", data);
       setMaterias(data);
     } catch (error) {
       console.error("Error al cargar materias:", error);
     }
   };
 
-  // Cargar la lista de docentes
   const cargarDocentes = async () => {
     try {
       const data = await obtenerDocentes();
-      console.log("Docentes cargados:", data);
       setDocentes(data);
     } catch (error) {
       console.error("Error al cargar docentes:", error);
     }
   };
 
-  // Manejar la selección de docente en el combo box
   const manejarCambioDocente = (e, materiaId) => {
     setAsignaciones({ ...asignaciones, [materiaId]: e.target.value });
   };
 
-  // Guardar la asignación de docente a una materia
   const manejarAsignacionDocente = async (materia) => {
     const docenteId = asignaciones[materia.id];
     if (!docenteId) return;
-  
+
     try {
-      await asignarDocenteAMateria(materia.id, docenteId); // Asignar docente a la materia
-      console.log(`Docente ${docenteId} asignado a ${materia.subject.name}`);
-  
-      // Refrescar la información del curso y las materias para actualizar la UI
-      await cargarCurso();  
+      await asignarDocenteAMateria(materia.id, docenteId);
+      await cargarCurso();
       await cargarMaterias();
     } catch (error) {
       console.error("Error al asignar docente:", error);
@@ -78,25 +68,28 @@ const CursoDetalle = () => {
   if (!curso) return <div className="p-6 text-center">Cargando curso...</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">{curso.name} - {curso.grado?.numero}° {curso.grado?.categoria}</h1>
-      <button onClick={() => navigate(-1)} className="p-2 bg-gray-500 text-white mb-4">Volver</button>
+    <div className="cursodetalle-container">
+      <h1 className="cursodetalle-title">
+        {curso.name} - {curso.grado?.numero}° {curso.grado?.categoria}
+      </h1>
+      <button onClick={() => navigate(-1)} className="cursodetalle-btn cursodetalle-btn-volver mb-4">
+        Volver
+      </button>
 
-      {/* Tabla de Estudiantes */}
-      <h2 className="text-xl font-bold mt-4">Estudiantes</h2>
-      <table className="min-w-full bg-white border mt-2">
+      <h2 className="cursodetalle-subtitle">Estudiantes</h2>
+      <table className="cursodetalle-table">
         <thead>
           <tr>
-            <th className="border px-4 py-2">Código</th>
-            <th className="border px-4 py-2">Nombre</th>
+            <th>Código</th>
+            <th>Nombre</th>
           </tr>
         </thead>
         <tbody>
           {curso.students?.length > 0 ? (
             curso.students.map((est) => (
               <tr key={est.id}>
-                <td className="border px-4 py-2">{est.student_id}</td>
-                <td className="border px-4 py-2">{est.first_name} {est.last_name}</td>
+                <td>{est.student_id}</td>
+                <td>{est.first_name} {est.last_name}</td>
               </tr>
             ))
           ) : (
@@ -107,29 +100,28 @@ const CursoDetalle = () => {
         </tbody>
       </table>
 
-      {/* Tabla de Materias */}
-      <h2 className="text-xl font-bold mt-6">Materias</h2>
-      <table className="min-w-full bg-white border mt-2">
+      <h2 className="cursodetalle-subtitle">Materias</h2>
+      <table className="cursodetalle-table">
         <thead>
           <tr>
-            <th className="border px-4 py-2">Materia</th>
-            <th className="border px-4 py-2">Docente</th>
-            <th className="border px-4 py-2">Acciones</th>
+            <th>Materia</th>
+            <th>Docente</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {curso.course_subjects?.length > 0 ? (
             curso.course_subjects.map((materia) => (
               <tr key={materia.id}>
-                <td className="border px-4 py-2">{materia.subject.name}</td>
-                <td className="border px-4 py-2">
+                <td>{materia.subject.name}</td>
+                <td>
                   {materia.teacher ? `${materia.teacher.first_name} ${materia.teacher.last_name}` : "Sin docente"}
                 </td>
-                <td className="border px-4 py-2 flex">
+                <td>
                   {modoEdicion[materia.id] ? (
                     <>
                       <select
-                        className="border p-2 mr-2"
+                        className="cursodetalle-select"
                         onChange={(e) => manejarCambioDocente(e, materia.id)}
                       >
                         <option value="">Seleccionar docente</option>
@@ -141,7 +133,7 @@ const CursoDetalle = () => {
                       </select>
                       <button
                         onClick={() => manejarAsignacionDocente(materia)}
-                        className="p-2 bg-green-500 text-white"
+                        className="cursodetalle-btn cursodetalle-btn-guardar"
                       >
                         Guardar
                       </button>
@@ -149,7 +141,7 @@ const CursoDetalle = () => {
                   ) : (
                     <button
                       onClick={() => setModoEdicion({ ...modoEdicion, [materia.id]: true })}
-                      className="p-2 bg-blue-500 text-white"
+                      className="cursodetalle-btn cursodetalle-btn-editar"
                     >
                       Editar
                     </button>

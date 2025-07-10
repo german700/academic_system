@@ -1,13 +1,19 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\StudentSearch.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { obtenerCursos, buscarEstudiantes, obtenerPerfilDetalladoEstudiante } from "../services/estudiantesService";
+import {
+  obtenerCursos,
+  buscarEstudiantes,
+} from "../services/estudiantesService";
+import "./admin_css/StudentSearch.css";
 
 const StudentSearch = () => {
   const [query, setQuery] = useState("");
   const [cursoSeleccionado, setCursoSeleccionado] = useState("");
   const [resultados, setResultados] = useState([]);
   const [cursos, setCursos] = useState([]);
+  const [busquedaRealizada, setBusquedaRealizada] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
     const fetchCursos = async () => {
@@ -18,33 +24,63 @@ const StudentSearch = () => {
   }, []);
 
   const manejarBusqueda = async () => {
+    if (!query.trim()) {
+      setResultados([]);
+      setBusquedaRealizada(false);
+      return;
+    }
+
+    setCargando(true);
+    setBusquedaRealizada(false);
+
     try {
-      const data = await buscarEstudiantes(query); // usa /teacher/search-students/?q=
+      const data = await buscarEstudiantes(query);
       const filtrados = cursoSeleccionado
-        ? data.filter((est) => est.course?.id?.toString() === cursoSeleccionado)
+        ? data.filter(
+            (est) => est.course?.id?.toString() === cursoSeleccionado
+          )
         : data;
       setResultados(filtrados);
     } catch (error) {
       console.error("Error al buscar estudiantes:", error);
+      setResultados([]);
+    } finally {
+      setCargando(false);
+      setBusquedaRealizada(true);
     }
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Buscar Estudiantes</h1>
+  const manejarEnterKey = (e) => {
+    if (e.key === 'Enter') {
+      manejarBusqueda();
+    }
+  };
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+  const limpiarBusqueda = () => {
+    setQuery("");
+    setCursoSeleccionado("");
+    setResultados([]);
+    setBusquedaRealizada(false);
+  };
+
+  return (
+    <div className="search-container">
+      <h1 className="search-title">Buscar Estudiantes</h1>
+      
+      <div className="search-bar">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyPress={manejarEnterKey}
           placeholder="Buscar por nombre, apellido o ID"
-          className="border p-2 flex-1"
+          className="search-input"
         />
+        
         <select
           value={cursoSeleccionado}
           onChange={(e) => setCursoSeleccionado(e.target.value)}
-          className="border p-2"
+          className="search-select"
         >
           <option value="">Todos los cursos</option>
           {cursos.map((curso) => (
@@ -53,48 +89,66 @@ const StudentSearch = () => {
             </option>
           ))}
         </select>
-        <button
-          onClick={manejarBusqueda}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+        
+        <button 
+          onClick={manejarBusqueda} 
+          className="search-button"
+          disabled={cargando}
         >
-          Buscar
+          {cargando ? "Buscando..." : "Buscar"}
+        </button>
+        
+        <button 
+          onClick={limpiarBusqueda} 
+          className="clear-button"
+          disabled={cargando}
+        >
+          Limpiar
         </button>
       </div>
 
-      <table className="min-w-full bg-white border">
-        {resultados.length > 0 && (
+      {cargando && (
+        <div className="loading-message">
+          Buscando estudiantes...
+        </div>
+      )}
+
+      {resultados.length > 0 && (
+        <table className="search-table">
           <thead>
             <tr>
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">Nombre</th>
-              <th className="border px-4 py-2">Curso</th>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Curso</th>
             </tr>
           </thead>
-        )}
-        <tbody>
-          {resultados.map((est) => (
-            <tr key={est.id}>
-              <td className="border px-4 py-2">{est.student_id}</td>
-              <td className="border px-4 py-2">
-                <Link 
-                  to={`/students/${est.id}`} 
-                  className="text-blue-600 hover:underline font-medium"
-                >
-                  {`${est.first_name} ${est.middle_name || ""} ${est.last_name} ${est.second_last_name || ""}`.trim()}
-                </Link>
-              </td>
-              <td className="border px-4 py-2">
-                {est.course
-                  ? `${est.course.name} - ${est.course.code}`
-                  : "Sin curso"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <tbody>
+            {resultados.map((est) => (
+              <tr key={est.id}>
+                <td>{est.student_id}</td>
+                <td>
+                  <Link to={`/students/${est.id}`} className="search-link">
+                    {`${est.first_name} ${est.middle_name || ""} ${est.last_name} ${
+                      est.second_last_name || ""
+                    }`.trim()}
+                  </Link>
+                </td>
+                <td>
+                  {est.course
+                    ? `${est.course.name} - ${est.course.code}`
+                    : "Sin curso"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      {resultados.length === 0 && query && (
-        <p className="mt-4 text-gray-500">No se encontraron estudiantes.</p>
+      {busquedaRealizada && resultados.length === 0 && (
+        <div className="no-results">
+          <p>No se encontraron estudiantes que coincidan con tu búsqueda.</p>
+          <p>Intenta con otros términos de búsqueda.</p>
+        </div>
       )}
     </div>
   );

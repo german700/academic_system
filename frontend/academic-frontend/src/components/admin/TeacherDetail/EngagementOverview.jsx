@@ -9,6 +9,7 @@ import {
 } from "../../shared/ui/select";
 import { Card } from "../../shared/ui/card";
 import { Table } from "../../shared/ui/table";
+import "./TeacherDetail_css/EngagementOverview.css";
 
 const EngagementOverview = ({ overview = [], narrative = "" }) => {
   if (!overview.length) return <p>No hay datos de compromiso disponibles.</p>;
@@ -26,8 +27,6 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
     });
   });
 
-  const porcentajeTardias =
-    totalAttendanceRecords > 0 ? Math.round((totalLate / totalAttendanceRecords) * 100) : 0;
   const porcentajeAsistencia =
     totalAttendanceRecords > 0
       ? Math.round(((totalAttendanceRecords - totalAbsences) / totalAttendanceRecords) * 100)
@@ -82,20 +81,22 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
   }, [overview]);
 
   return (
-    <section className="mb-6">
-      <h2 className="text-xl font-semibold mb-2">Resumen de Compromiso Estudiantil</h2>
+    <section className="engagement-section">
+      <h2>Resumen de Compromiso Estudiantil</h2>
 
-      <p><strong>Asistencia promedio:</strong> {porcentajeAsistencia}%</p>
-      <p><strong>Entregas tardías:</strong> {porcentajeTardias}% ({totalLate} entregas tardías)</p>
-      <p className="mt-2 italic text-gray-700">🧠 {generarNarrativa(porcentajeAsistencia, totalLate)}</p>
+      <div className="engagement-summary">
+        <p><strong>Asistencia promedio:</strong> {porcentajeAsistencia}%</p>
+        <p><strong>Entregas tardías:</strong> {totalLate} en total</p>
+        <p className="narrative-summary">🧠 {generarNarrativa(porcentajeAsistencia, totalLate)}</p>
+      </div>
 
       {/* 🧠 Narrativa detallada por curso */}
       {cursosDisponibles.length > 0 && (
-        <Card className="mt-4 p-4">
-          <h3 className="font-semibold mb-2">Narrativa Detallada por Curso:</h3>
+        <Card className="narrative-card">
+          <h3>Narrativa Detallada por Curso:</h3>
 
           <Select value={cursoSeleccionado} onValueChange={setCursoSeleccionado}>
-            <SelectTrigger className="w-[200px] mb-3">
+            <SelectTrigger>
               <SelectValue placeholder="Selecciona un curso" />
             </SelectTrigger>
             <SelectContent>
@@ -107,7 +108,7 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
             </SelectContent>
           </Select>
 
-          <div className="mt-3 space-y-1 text-sm text-gray-800">
+          <div className="narrative-text">
             {narrativaPorCurso[cursoSeleccionado]?.map((linea, i) => (
               <p key={i}>• {linea}</p>
             ))}
@@ -116,11 +117,11 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
       )}
 
       {/* 📊 Tabla resumen por curso y periodo */}
-      <Card className="mt-6 p-4">
-        <h3 className="font-semibold mb-2">Resumen Tabulado por Curso y Periodo</h3>
+      <Card className="tabla-resumen">
+        <h3>Resumen Tabulado por Curso y Periodo</h3>
         {Object.entries(resumenPorCurso).map(([curso, registros]) => (
-          <div key={curso} className="mb-4">
-            <h4 className="text-md font-semibold mb-1">Curso {curso}</h4>
+          <div key={curso} className="tabla-curso">
+            <h4>Curso {curso}</h4>
             <Table>
               <thead>
                 <tr>

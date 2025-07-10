@@ -13,13 +13,13 @@ export const AuthProvider = ({ children }) => {
     const email = localStorage.getItem("email");
 
     if (token && userType) {
-      return { 
-        token, 
-        userType, 
-        isSuperUser, 
-        first_name, 
-        last_name, 
-        email 
+      return {
+        token,
+        user_type: userType,
+        isSuperUser,
+        first_name,
+        last_name,
+        email
       };
     }
     return null;
@@ -34,24 +34,24 @@ export const AuthProvider = ({ children }) => {
       const first_name = localStorage.getItem("first_name");
       const last_name = localStorage.getItem("last_name");
       const email = localStorage.getItem("email");
-      
-      console.log("🔁 Rehidratando contexto con:", { 
-        token, 
-        userType, 
-        isSuperUser, 
-        first_name, 
-        last_name, 
-        email 
+
+      console.log("🔁 Rehidratando contexto con:", {
+        token,
+        userType,
+        isSuperUser,
+        first_name,
+        last_name,
+        email
       });
-      
+
       if (token && userType) {
-        setUser({ 
-          token, 
-          userType, 
-          isSuperUser, 
-          first_name, 
-          last_name, 
-          email 
+        setUser({
+          token,
+          userType,
+          isSuperUser,
+          first_name,
+          last_name,
+          email
         });
       } else {
         setUser(null);
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
     // Actualizar el estado con todos los datos
     setUser({
       token: userData.token,
-      userType: userData.user_type,
+      user_type: userData.user_type,
       isSuperUser: userData.is_superuser,
       first_name: userData.first_name,
       last_name: userData.last_name,

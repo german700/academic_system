@@ -9,9 +9,9 @@ import {
 } from "../services/docentesService";
 import PersonalInfo from "./TeacherDetail/PersonalInfo";
 import SubjectList from "./TeacherDetail/SubjectList";
-// ✅ NUEVAS IMPORTACIONES
 import EngagementOverview from "./TeacherDetail/EngagementOverview";
 import RiskAnalysis from "./TeacherDetail/RiskAnalysis";
+import "./admin_css/TeacherDetail.css";
 
 const TeacherDetail = () => {
     const { teacherId } = useParams();
@@ -34,7 +34,6 @@ const TeacherDetail = () => {
         fetchDetalle();
     }, [teacherId]);
 
-    // ✅ NUEVO useEffect PARA TRAER EL ENGAGEMENT
     useEffect(() => {
         const fetchEngagement = async () => {
             try {
@@ -64,57 +63,85 @@ const TeacherDetail = () => {
         fetchEstudiantes();
     }, [selectedSubject, periodo, teacherId]);
 
-    if (!docente) return <p className="p-4">Cargando...</p>;
-
-    // 🔎 CONSOLE LOG PARA DEBUGGING
-    console.log("Engagement:", engagement);
+    if (!docente) return <p className="loading-text">Cargando...</p>;
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">
+        <div className="teacher-detail-container">
+            <h1 className="teacher-name">
                 {`${docente.title || ""} ${docente.first_name} ${docente.middle_name || ""} ${docente.last_name} ${docente.second_last_name || ""}`}
             </h1>
 
-            <PersonalInfo docente={docente} />
+            <div className="card-section">
+                <PersonalInfo docente={docente} />
+            </div>
 
-            <SubjectList
-                subjects={docente.subjects}
-                onSelect={(subject) => setSelectedSubject(subject)}
-                selected={selectedSubject}
-            />
+            <div className="card-section">
+                <SubjectList
+                    subjects={docente.subjects}
+                    onSelect={(subject) => setSelectedSubject(subject)}
+                    selected={selectedSubject}
+                />
+            </div>
+
             {selectedSubject && (
-                <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-2">
-                        Estudiantes en {selectedSubject.name} - Curso {selectedSubject.course}
-                    </h3>
+                <div className="card-section mt-6">
+                    <div className="section-header">
+                        <h3 className="section-heading mb-2">
+                            Estudiantes en {selectedSubject.name} - Curso {selectedSubject.course}
+                        </h3>
+                        
+                        <div className="select-group">
+                            <label className="select-label" htmlFor="periodo-select">
+                                Período
+                            </label>
+                            <div className="select-container compact">
+                                <select
+                                    id="periodo-select"
+                                    className="custom-select"
+                                    value={periodo}
+                                    onChange={(e) => setPeriodo(e.target.value)}
+                                >
+                                    <option value="1">Primer Período</option>
+                                    <option value="2">Segundo Período</option>
+                                    <option value="3">Tercer Período</option>
+                                    <option value="4">Cuarto Período</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     {cargandoEstudiantes ? (
-                        <p>Cargando estudiantes...</p>
+                        <p className="loading-text">Cargando estudiantes...</p>
                     ) : (
-                        <ul className="list-disc pl-6">
+                        <ul className="students-list">
                             {students.map((student) => (
                                 <li key={student.id}>
                                     <Link
                                         to={`/admin/estudiantes/${student.id}`}
-                                        className="text-blue-600 hover:underline"
+                                        className="student-link"
                                     >
                                         #{student.id} - {student.first_name} {student.last_name}
                                     </Link>
                                 </li>
                             ))}
-                            {students.length === 0 && <li>No hay estudiantes.</li>}
+                            {students.length === 0 && <li className="empty-state">No hay estudiantes.</li>}
                         </ul>
                     )}
                 </div>
             )}
 
-            {/* ✅ COMPONENTE ACTUALIZADO CON NUEVO ENGAGEMENT */}
-            <EngagementOverview
-                overview={engagement?.overview}
-                narrative={engagement?.narrative}
-            />
+            <div className="analysis-section">
+                <EngagementOverview
+                    className="card-section"
+                    overview={engagement?.overview}
+                    narrative={engagement?.narrative}
+                />
 
-            <RiskAnalysis teacherId={teacherId} />
-
+                <RiskAnalysis 
+                    className="card-section"
+                    teacherId={teacherId} 
+                />
+            </div>
         </div>
     );
 };

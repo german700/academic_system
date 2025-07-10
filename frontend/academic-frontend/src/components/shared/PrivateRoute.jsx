@@ -8,7 +8,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
 
   useEffect(() => {
     console.log("🔍 Evaluando acceso:");
-    console.log(" - userType:", user?.userType);
+    console.log(" - userType:", user?.user_type);
     console.log(" - isSuperUser:", user?.isSuperUser);
     console.log(" - allowedRoles:", allowedRoles);
   }, [user, allowedRoles]);
@@ -18,7 +18,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.isSuperUser || allowedRoles.includes(user.userType)) {
+  if (user.isSuperUser || allowedRoles.includes(user.user_type)) {
     return children;
   }
 

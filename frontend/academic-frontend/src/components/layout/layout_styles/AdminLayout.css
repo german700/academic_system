@@ -1,0 +1,106 @@
+/* src/components/layout/layout_styles/AdminLayout.css */
+
+/* === HEADER === */
+.header {
+  background-color: var(--bg-header);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logo {
+  height: 7rem;
+  max-width: 170px;
+  object-fit: contain;
+}
+
+.panel-header {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--primary-600);
+}
+
+.panel-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+}
+
+/* === AVATAR Y BOTÓN === */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.user-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  background-color: var(--primary-600);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+  font-weight: var(--font-semibold);
+}
+
+.logout-button {
+  font-size: var(--text-sm);
+  color: var(--error-500);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: color var(--transition-fast);
+}
+
+.logout-button:hover {
+  text-decoration: underline;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 16rem;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: var(--space-6);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.menu-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.menu-item.active {
+  background-color: var(--primary-600);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+/* === MAIN CONTENT === */
+.main-content-student {
+  flex: 1;
+  background-color: var(--bg-primary);
+  overflow-y: auto;
+  padding: var(--space-6);
+}

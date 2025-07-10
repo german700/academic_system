@@ -1,5 +1,4 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\EstudiantesGestion.jsx
-// src/components/admin/EstudiantesGestion.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -7,16 +6,17 @@ import {
   crearEstudiante,
   eliminarEstudiante,
   obtenerCursos,
-
 } from "../services/estudiantesService";
 import { obtenerGrados } from "../services/gradosService";
 import StudentSearch from "./StudentSearch";
+import "../admin/admin_css/EstudiantesGestion.css";
 
 const EstudiantesGestion = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [grados, setGrados] = useState([]);
   const [gradoSeleccionado, setGradoSeleccionado] = useState("");
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
     middle_name: "",
@@ -30,7 +30,6 @@ const EstudiantesGestion = () => {
     neighborhood: "",
     socioeconomic_status: "",
   });
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
     cargarEstudiantes();
@@ -83,7 +82,6 @@ const EstudiantesGestion = () => {
     e.preventDefault();
     try {
       await crearEstudiante(formData);
-
       setFormData({
         first_name: "",
         middle_name: "",
@@ -117,35 +115,35 @@ const EstudiantesGestion = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Gestión de Estudiantes</h1>
+    <div className="estudiantes-container">
+      <h1 className="titulo-principal">Gestión de Estudiantes</h1>
 
-      <div className="mb-8 bg-gray-50 p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-4 text-gray-700">🔍 Búsqueda Avanzada de Estudiantes</h2>
+      <div className="busqueda-avanzada">
+        <h2>🔍 Búsqueda Avanzada de Estudiantes</h2>
         <StudentSearch />
       </div>
 
       <div className="mb-4">
         <button
           onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          className="btn-primario"
         >
           {mostrarFormulario ? "Cancelar" : "➕ Agregar Nuevo Estudiante"}
         </button>
       </div>
 
       {mostrarFormulario && (
-        <div className="mb-6 bg-white border rounded-lg p-4 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">➕ Agregar Nuevo Estudiante</h3>
-          <form onSubmit={manejarEnvio} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" name="first_name" placeholder="Nombre" value={formData.first_name} onChange={manejarCambio} className="border p-2 rounded" required />
-            <input type="text" name="middle_name" placeholder="Segundo Nombre" value={formData.middle_name} onChange={manejarCambio} className="border p-2 rounded" />
-            <input type="text" name="last_name" placeholder="Apellido Paterno" value={formData.last_name} onChange={manejarCambio} className="border p-2 rounded" required />
-            <input type="text" name="second_last_name" placeholder="Apellido Materno" value={formData.second_last_name} onChange={manejarCambio} className="border p-2 rounded" />
-            <input type="email" name="email" placeholder="Correo Electrónico" value={formData.email} onChange={manejarCambio} className="border p-2 rounded" required />
-            <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={manejarCambio} className="border p-2 rounded" required />
+        <div className="formulario-box">
+          <h3>➕ Agregar Nuevo Estudiante</h3>
+          <form onSubmit={manejarEnvio} className="formulario-estudiante">
+            <input type="text" name="first_name" placeholder="Nombre" value={formData.first_name} onChange={manejarCambio} className="input-form" required />
+            <input type="text" name="middle_name" placeholder="Segundo Nombre" value={formData.middle_name} onChange={manejarCambio} className="input-form" />
+            <input type="text" name="last_name" placeholder="Apellido Paterno" value={formData.last_name} onChange={manejarCambio} className="input-form" required />
+            <input type="text" name="second_last_name" placeholder="Apellido Materno" value={formData.second_last_name} onChange={manejarCambio} className="input-form" />
+            <input type="email" name="email" placeholder="Correo Electrónico" value={formData.email} onChange={manejarCambio} className="input-form" required />
+            <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={manejarCambio} className="input-form" required />
 
-            <select name="grado_id" value={gradoSeleccionado} onChange={manejarCambioGrado} className="border p-2 rounded" required>
+            <select name="grado_id" value={gradoSeleccionado} onChange={manejarCambioGrado} className="input-form" required>
               <option value="">Selecciona un Grado</option>
               {grados.map((grado) => (
                 <option key={grado.id} value={grado.id}>
@@ -154,7 +152,7 @@ const EstudiantesGestion = () => {
               ))}
             </select>
 
-            <select name="course_id" value={formData.course_id} onChange={manejarCambio} className="border p-2 rounded">
+            <select name="course_id" value={formData.course_id} onChange={manejarCambio} className="input-form">
               <option value="">Selecciona un Curso</option>
               {cursosFiltrados.map((curso) => (
                 <option key={curso.id} value={curso.id}>
@@ -163,16 +161,16 @@ const EstudiantesGestion = () => {
               ))}
             </select>
 
-            <select name="gender" value={formData.gender} onChange={manejarCambio} className="border p-2 rounded" required>
+            <select name="gender" value={formData.gender} onChange={manejarCambio} className="input-form" required>
               <option value="">Selecciona Género</option>
               <option value="M">Masculino</option>
               <option value="F">Femenino</option>
               <option value="O">Otro</option>
             </select>
 
-            <input type="text" name="neighborhood" placeholder="Barrio o Zona" value={formData.neighborhood} onChange={manejarCambio} className="border p-2 rounded" />
+            <input type="text" name="neighborhood" placeholder="Barrio o Zona" value={formData.neighborhood} onChange={manejarCambio} className="input-form" />
 
-            <select name="socioeconomic_status" value={formData.socioeconomic_status} onChange={manejarCambio} className="border p-2 rounded">
+            <select name="socioeconomic_status" value={formData.socioeconomic_status} onChange={manejarCambio} className="input-form">
               <option value="">Nivel Socioeconómico</option>
               <option value="BAJO">Bajo</option>
               <option value="MEDIO_BAJO">Medio Bajo</option>
@@ -182,7 +180,7 @@ const EstudiantesGestion = () => {
             </select>
 
             <div className="md:col-span-2">
-              <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+              <button type="submit" className="btn-primario">
                 ➕ Agregar Estudiante
               </button>
             </div>
@@ -191,55 +189,47 @@ const EstudiantesGestion = () => {
       )}
 
       {/* Tabla de estudiantes */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <h3 className="text-lg font-semibold p-4 bg-gray-100 border-b">📋 Lista de Estudiantes ({estudiantes.length})</h3>
+      <div className="tabla-wrapper">
+        <h3>📋 Lista de Estudiantes ({estudiantes.length})</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
+          <table className="tabla-estudiantes">
+            <thead>
               <tr>
-                <th className="border px-4 py-3 text-left font-medium text-gray-700">Nombre Completo</th>
-                <th className="border px-4 py-3 text-left font-medium text-gray-700">Correo</th>
-                <th className="border px-4 py-3 text-left font-medium text-gray-700">Grado</th>
-                <th className="border px-4 py-3 text-left font-medium text-gray-700">Curso</th>
-                <th className="border px-4 py-3 text-left font-medium text-gray-700">Género</th>
-                <th className="border px-4 py-3 text-center font-medium text-gray-700">Acciones</th>
+                <th>Nombre Completo</th>
+                <th>Correo</th>
+                <th>Grado</th>
+                <th>Curso</th>
+                <th>Género</th>
+                <th className="text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {estudiantes.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="border px-4 py-8 text-center text-gray-500">
+                  <td colSpan="6" className="text-center">
                     No hay estudiantes registrados
                   </td>
                 </tr>
               ) : (
                 estudiantes.map((estudiante) => (
-                  <tr key={estudiante.id} className="hover:bg-gray-50">
-                    <td className="border px-4 py-3">
-                      <Link to={`/students/${estudiante.id}`} className="text-blue-600 hover:underline font-medium">
+                  <tr key={estudiante.id}>
+                    <td>
+                      <Link to={`/students/${estudiante.id}`} className="link-detalle">
                         {`${estudiante.first_name} ${estudiante.middle_name || ''} ${estudiante.last_name} ${estudiante.second_last_name || ''}`.trim()}
                       </Link>
                     </td>
-                    <td className="border px-4 py-3">{estudiante.email}</td>
-                    <td className="border px-4 py-3">{estudiante.grado ? `${estudiante.grado.numero} - ${estudiante.grado.categoria}` : "Sin grado"}</td>
-                    <td className="border px-4 py-3">{estudiante.course ? `${estudiante.course.name} - ${estudiante.course.code}` : "Sin curso"}</td>
-                    <td className="border px-4 py-3">
+                    <td>{estudiante.email}</td>
+                    <td>{estudiante.grado ? `${estudiante.grado.numero} - ${estudiante.grado.categoria}` : "Sin grado"}</td>
+                    <td>{estudiante.course ? `${estudiante.course.name} - ${estudiante.course.code}` : "Sin curso"}</td>
+                    <td>
                       {estudiante.gender === "M" ? "Masculino" : estudiante.gender === "F" ? "Femenino" : estudiante.gender === "O" ? "Otro" : "-"}
                     </td>
-                    <td className="border px-4 py-3 text-center">
-                      <div className="flex justify-center gap-2">
-                        <Link
-                          to={`/students/${estudiante.id}/edit`}
-                          className="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition-colors"
-                          title="Editar estudiante"
-                        >
+                    <td className="text-center">
+                      <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
+                        <Link to={`/students/${estudiante.id}/edit`} className="btn-editar">
                           ✏️ Editar
                         </Link>
-                        <button
-                          onClick={() => manejarEliminacion(estudiante.id)}
-                          className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-                          title="Eliminar estudiante"
-                        >
+                        <button onClick={() => manejarEliminacion(estudiante.id)} className="btn-eliminar">
                           🗑️ Eliminar
                         </button>
                       </div>

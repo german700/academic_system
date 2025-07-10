@@ -1,0 +1,27 @@
+.students-per-grade-container {
+  padding: 1rem;
+}
+
+.students-per-grade-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.students-per-grade-table {
+  width: 100%;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-collapse: collapse;
+}
+
+.students-per-grade-table th {
+  background-color: #f3f4f6; /* gray-100 */
+  text-align: left;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.students-per-grade-table td {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+}

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../shared/ui/card";
-import { User, Mail, Calendar, GraduationCap, AlertCircle, Loader2, ImageIcon } from "lucide-react";
+import {
+  User, Mail, Calendar, GraduationCap,
+  AlertCircle, Loader2, ImageIcon
+} from "lucide-react";
+import "./students_css/StudentProfile.css"; // <- Importación del CSS
 
 const API_URL = "http://localhost:8000/api/academic/students/my-profile/";
 
@@ -51,8 +55,8 @@ const StudentProfile = () => {
   if (error) {
     return (
       <div className="p-6">
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 space-y-4">
+        <Card className="error-card">
+          <CardContent className="error-content">
             <div className="flex items-center text-red-800">
               <AlertCircle className="h-5 w-5 mr-2" />
               <p className="font-medium">Error al cargar el perfil</p>
@@ -60,7 +64,7 @@ const StudentProfile = () => {
             <p className="text-red-600">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              className="retry-button"
             >
               Reintentar
             </button>
@@ -71,8 +75,8 @@ const StudentProfile = () => {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">Mi Perfil</h1>
+    <div className="profile-container space-y-6">
+      <h1 className="profile-title">Mi Perfil</h1>
 
       <Card>
         <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -82,10 +86,10 @@ const StudentProfile = () => {
               <img 
                 src={profile.photo} 
                 alt="Foto del estudiante" 
-                className="w-32 h-32 rounded-full object-cover border" 
+                className="profile-photo"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border">
+              <div className="profile-photo-placeholder">
                 <ImageIcon className="h-10 w-10" />
               </div>
             )}

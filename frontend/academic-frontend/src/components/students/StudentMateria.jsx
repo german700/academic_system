@@ -1,10 +1,11 @@
 // C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\students\StudentMateria.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { obtenerMateriaEstudiante } from "../services/estudiantesService"; // ✅ Importamos el servicio
+import { obtenerMateriaEstudiante } from "../services/estudiantesService";
+import "./students_css/StudentMateria.css"; // <-- Importación del CSS modular
 
 const StudentMateria = () => {
-  const { studentId, materiaId } = useParams(); // ✅ Obtener parámetros de la URL
+  const { studentId, materiaId } = useParams();
   const navigate = useNavigate();
   const [materia, setMateria] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -25,45 +26,44 @@ const StudentMateria = () => {
     }
   };
 
-  if (cargando) return <div className="p-6 text-center">Cargando...</div>;
-  if (!materia) return <div className="p-6 text-center text-red-500">Materia no encontrada</div>;
+  if (cargando) return <div className="materia-container text-center">Cargando...</div>;
+  if (!materia) return <div className="materia-container text-center text-red-500">Materia no encontrada</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="materia-container">
+      <h1 className="materia-title">
         {materia.student.first_name} {materia.student.last_name} - {materia.subject.name}
       </h1>
-      <button onClick={() => navigate(-1)} className="p-2 bg-gray-500 text-white mb-4">Volver</button>
 
-      {/* 🔹 Datos de la materia */}
-      <div className="bg-white p-4 rounded shadow">
+      <button onClick={() => navigate(-1)} className="materia-button">Volver</button>
+
+      <div className="materia-card">
         <h2 className="text-xl font-bold">Materia: {materia.subject.name}</h2>
         <p><strong>Código:</strong> {materia.subject.code}</p>
         <p><strong>Docente:</strong> {materia.teacher ? `${materia.teacher.first_name} ${materia.teacher.last_name}` : "Sin asignar"}</p>
       </div>
 
-      {/* 🔹 Tabla de notas */}
-      <h2 className="text-xl font-bold mt-6">Notas</h2>
-      <table className="min-w-full bg-white border mt-2">
+      <h2 className="notas-title">Notas</h2>
+      <table className="notas-table">
         <thead>
           <tr>
-            <th className="border px-4 py-2">Período</th>
-            <th className="border px-4 py-2">Nota</th>
-            <th className="border px-4 py-2">Año</th>
+            <th>Período</th>
+            <th>Nota</th>
+            <th>Año</th>
           </tr>
         </thead>
         <tbody>
           {materia.grades.length > 0 ? (
             materia.grades.map((nota) => (
               <tr key={nota.id}>
-                <td className="border px-4 py-2">{nota.period}</td>
-                <td className="border px-4 py-2">{nota.value}</td>
-                <td className="border px-4 py-2">{nota.year}</td>
+                <td>{nota.period}</td>
+                <td>{nota.value}</td>
+                <td>{nota.year}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="3" className="text-center p-4">No hay notas registradas.</td>
+              <td colSpan="3" className="notas-empty">No hay notas registradas.</td>
             </tr>
           )}
         </tbody>

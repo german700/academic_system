@@ -1,14 +1,15 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\students\StudentCharts.jsx
 import React from "react";
+import "./students_css/StudentCharts.css";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
 
 const COLORS = {
-  Bajo: "#ef4444",      // Rojo - Notas 1.0-2.9
-  Básico: "#f97316",    // Naranja - Notas 3.0-3.4
-  Alto: "#3b82f6",      // Azul - Notas 3.5-4.4
-  Superior: "#22c55e",  // Verde - Notas 4.5-5.0
+  Bajo: "#ef4444",
+  Básico: "#f97316",
+  Alto: "#3b82f6",
+  Superior: "#22c55e",
 };
 
 const StudentCharts = ({ analysis }) => {
@@ -20,7 +21,6 @@ const StudentCharts = ({ analysis }) => {
     niveles_desempeno = {},
   } = analysis;
 
-  // Solo usar el campo 'nota' (sistema colombiano 1-5)
   const materiasChartData = promedios_por_materia.map(item => ({
     ...item,
     nota: typeof item.nota === 'number' ? item.nota : 0
@@ -38,22 +38,20 @@ const StudentCharts = ({ analysis }) => {
       value: niveles_desempeno[key],
     }));
 
-  // Función para obtener color según la nota
   const getBarColor = (nota) => {
-    if (nota >= 4.5) return "#22c55e"; // Superior
-    if (nota >= 3.5) return "#3b82f6"; // Alto
-    if (nota >= 3.0) return "#f97316"; // Básico
-    return "#ef4444"; // Bajo
+    if (nota >= 4.5) return "#22c55e";
+    if (nota >= 3.5) return "#3b82f6";
+    if (nota >= 3.0) return "#f97316";
+    return "#ef4444";
   };
 
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Gráficos Detallados</h2>
 
-      {/* Promedios por materia */}
       {materiasChartData.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Promedios por Materia</h3>
+        <div className="chart-card">
+          <h3 className="chart-title">Promedios por Materia</h3>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={materiasChartData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
               <XAxis 
@@ -85,16 +83,15 @@ const StudentCharts = ({ analysis }) => {
               />
             </BarChart>
           </ResponsiveContainer>
-          <div className="mt-4 text-xs text-gray-500 text-center">
+          <div className="chart-hint">
             <p>Escala colombiana: 1.0-2.9 (Bajo) | 3.0-3.4 (Básico) | 3.5-4.4 (Alto) | 4.5-5.0 (Superior)</p>
           </div>
         </div>
       )}
 
-      {/* Promedios por periodo */}
       {periodosChartData.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Evolución por Periodo</h3>
+        <div className="chart-card">
+          <h3 className="chart-title">Evolución por Periodo</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={periodosChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <XAxis 
@@ -123,16 +120,15 @@ const StudentCharts = ({ analysis }) => {
               />
             </BarChart>
           </ResponsiveContainer>
-          <div className="mt-4 text-xs text-gray-500 text-center">
+          <div className="chart-hint">
             <p>Evolución del rendimiento académico por periodo</p>
           </div>
         </div>
       )}
 
-      {/* Niveles de desempeño */}
       {nivelesData.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribución de Niveles de Desempeño</h3>
+        <div className="chart-card">
+          <h3 className="chart-title">Distribución de Niveles de Desempeño</h3>
           <div className="flex flex-col lg:flex-row items-center">
             <ResponsiveContainer width="100%" height={350}>
               <PieChart>
@@ -167,15 +163,14 @@ const StudentCharts = ({ analysis }) => {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Resumen textual de niveles */}
             <div className="lg:ml-6 mt-4 lg:mt-0 min-w-[250px]">
               <h4 className="font-semibold text-gray-700 mb-4">Resumen por Nivel:</h4>
               <div className="space-y-3">
                 {nivelesData.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between p-2 rounded bg-gray-50">
+                  <div key={item.name} className="chart-legend-box">
                     <div className="flex items-center">
                       <div 
-                        className="w-4 h-4 rounded mr-3" 
+                        className="chart-legend-color" 
                         style={{ backgroundColor: COLORS[item.name] || "#8884d8" }}
                       ></div>
                       <div>
@@ -200,10 +195,9 @@ const StudentCharts = ({ analysis }) => {
         </div>
       )}
 
-      {/* Mensaje cuando no hay datos */}
       {materiasChartData.length === 0 && periodosChartData.length === 0 && nivelesData.length === 0 && (
-        <div className="bg-gray-50 p-8 rounded-lg text-center border border-gray-200">
-          <div className="text-gray-400 text-6xl mb-4">📊</div>
+        <div className="chart-empty">
+          <div className="chart-empty-icon">📊</div>
           <p className="text-gray-600 text-lg font-medium mb-2">
             No hay datos suficientes para mostrar gráficos
           </p>

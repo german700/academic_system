@@ -1,4 +1,3 @@
-# C:\Users\germa\Desktop\academic_system\backend\academic\urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from academic.views.admin_views import (
@@ -6,7 +5,8 @@ from academic.views.admin_views import (
     teacher_ia_analysis,
     academic_periods_view,
     academic_period_detail,
-    manual_retrain_model
+    manual_retrain_model,
+    AdministratorViewSet,
 )
 
 # Student
@@ -39,7 +39,6 @@ from .views.common_views import (
     AssignmentViewSet,
     GradoMateriaViewSet,
     CourseSubjectViewSet,
-    AdministratorViewSet
 )
 
 # AcademicPeriod
@@ -58,7 +57,7 @@ router.register(r'subjects', SubjectViewSet)
 router.register(r'grados', GradoViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'grades', GradeViewSet)
-router.register(r'administrators', AdministratorViewSet, basename="administrator")
+router.register(r'administrators', AdministratorViewSet, basename="administrator")  # Aquí está tu administrador
 router.register(r'course-subjects', CourseSubjectViewSet)
 router.register(r'assignments', AssignmentViewSet)
 router.register(r'grade-entries', GradeEntryViewSet, basename='gradeentry')

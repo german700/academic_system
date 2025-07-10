@@ -1,4 +1,4 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\TeacherDetail\RiskAnalysis.jsx
+// src/components/admin/TeacherDetail/RiskAnalysis.jsx
 import React, { useEffect, useState } from "react";
 import { fetchTeacherIAAnalysis } from "../../services/docentesService";
 import IAInsightNarrative from "./IAAnalysisSection/IAInsightNarrative";
@@ -12,6 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "../../shared/ui/select";
+import "./TeacherDetail_css/RiskAnalysis.css";
 
 const RiskAnalysis = ({ teacherId }) => {
   const [loading, setLoading] = useState(true);
@@ -30,24 +31,24 @@ const RiskAnalysis = ({ teacherId }) => {
       .finally(() => setLoading(false));
   }, [teacherId, period]);
 
-  if (loading) return <p>Cargando análisis de IA…</p>;
+  if (loading) return <p className="loading-text">Cargando análisis de IA…</p>;
 
   const { narrative, delivery_compliance, risk_distribution } = data;
 
   return (
-    <section className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Análisis IA del Docente</h2>
+    <section className="risk-analysis-section">
+      <h2 className="risk-analysis-title">Análisis IA del Docente</h2>
 
       {/* Selector de periodo */}
-      <div className="mb-4">
-        <label className="mr-2 font-medium">Periodo:</label>
+      <div className="period-selector">
+        <label className="font-medium">Periodo:</label>
         <Select value={period.toString()} onValueChange={(val) => setPeriod(Number(val))}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="period-select-trigger">
             <SelectValue placeholder="Selecciona un período" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="period-select-content">
             {[1, 2, 3, 4].map((p) => (
-              <SelectItem key={p} value={p.toString()}>
+              <SelectItem key={p} value={p.toString()} className="period-select-item">
                 Período {p}
               </SelectItem>
             ))}
@@ -55,19 +56,17 @@ const RiskAnalysis = ({ teacherId }) => {
         </Select>
       </div>
 
-      {/* 1. Narrativa */}
-      <Card className="mb-6 p-4">
+      {/* Narrativa */}
+      <Card className="narrative-card mb-6">
         <IAInsightNarrative narrative={narrative} />
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 2. Cumplimiento entregas */}
-        <Card className="p-4">
+      {/* Gráficas */}
+      <div className="charts-grid">
+        <Card className="chart-card">
           <DeliveryComplianceChart data={delivery_compliance} />
         </Card>
-
-        {/* 3. Distribución riesgo */}
-        <Card className="p-4">
+        <Card className="chart-card">
           <RiskDistributionChart data={risk_distribution} />
         </Card>
       </div>

@@ -1,0 +1,113 @@
+.risk-analysis-section {
+  margin-bottom: var(--space-8);
+  font-family: var(--font-primary);
+}
+
+.risk-analysis-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.period-selector {
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* Estilos específicos para el Select del período */
+.period-selector .period-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 150px !important;
+  padding: var(--space-2) var(--space-3) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-size: var(--text-sm) !important;
+  font-family: var(--font-primary) !important;
+  cursor: pointer !important;
+  transition: var(--transition-fast) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.period-selector .period-select-trigger:hover {
+  border-color: var(--border-hover) !important;
+  background-color: var(--hover-bg) !important;
+}
+
+.period-selector .period-select-trigger:focus {
+  outline: none !important;
+  border-color: var(--primary-500) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.period-selector .period-select-trigger svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-muted) !important;
+  transition: var(--transition-fast) !important;
+  flex-shrink: 0 !important;
+}
+
+.period-selector .period-select-trigger[data-state="open"] svg {
+  transform: rotate(180deg) !important;
+}
+
+.period-select-content {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: var(--space-1) 0 !important;
+  min-width: 150px !important;
+  z-index: 50 !important;
+}
+
+.period-select-item {
+  padding: var(--space-2) var(--space-3) !important;
+  color: var(--text-primary) !important;
+  font-size: var(--text-sm) !important;
+  font-family: var(--font-primary) !important;
+  cursor: pointer !important;
+  transition: var(--transition-fast) !important;
+  border-radius: 0 !important;
+}
+
+.period-select-item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.period-select-item[data-highlighted] {
+  background-color: var(--hover-bg) !important;
+}
+
+.period-select-item[data-state="checked"] {
+  background-color: var(--primary-50) !important;
+  color: var(--primary-700) !important;
+}
+
+.narrative-card,
+.chart-card {
+  padding: var(--space-4);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

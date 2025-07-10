@@ -1,16 +1,17 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\EditarEstudiante.jsx
+// src/components/admin/EditarEstudiante.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  obtenerEstudiantePorId, 
+import {
+  obtenerEstudiantePorId,
   actualizarEstudiante,
   obtenerCursos,
-  obtenerPerfilDetalladoEstudiante 
+  obtenerPerfilDetalladoEstudiante,
 } from "../services/estudiantesService";
 import { obtenerGrados } from "../services/gradosService";
+import "./admin_css/EditarEstudiante.css"; // ✅ Importa el CSS modular
 
 const EditarEstudiante = () => {
-  const { id } = useParams(); // ID del estudiante desde la URL
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -66,7 +67,7 @@ const EditarEstudiante = () => {
   }, [id]);
 
   const cursosFiltrados = gradoSeleccionado
-    ? cursos.filter(c => c.grado && c.grado.id.toString() === gradoSeleccionado)
+    ? cursos.filter((c) => c.grado && c.grado.id.toString() === gradoSeleccionado)
     : cursos;
 
   const handleChange = (e) => {
@@ -83,7 +84,7 @@ const EditarEstudiante = () => {
     e.preventDefault();
     try {
       await actualizarEstudiante(id, formData);
-      navigate(-1); // 👈 Regresa a la vista anterior
+      navigate(-1);
     } catch (error) {
       console.error("Error al actualizar estudiante:", error.message);
       alert("No se pudo actualizar el estudiante.");
@@ -91,58 +92,168 @@ const EditarEstudiante = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">✏️ Editar Estudiante</h2>
+    <div className="editar-estudiante-container">
+      <h2 className="editar-estudiante-titulo">✏️ Editar Estudiante</h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-lg shadow">
-        <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Nombre" className="border p-2 rounded" required />
-        <input type="text" name="middle_name" value={formData.middle_name} onChange={handleChange} placeholder="Segundo Nombre" className="border p-2 rounded" />
-        <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Apellido Paterno" className="border p-2 rounded" required />
-        <input type="text" name="second_last_name" value={formData.second_last_name} onChange={handleChange} placeholder="Apellido Materno" className="border p-2 rounded" />
-        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Correo Electrónico" className="border p-2 rounded" required />
-        <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} className="border p-2 rounded" required />
+      <form onSubmit={handleSubmit} className="editar-estudiante-form">
+        <label className="form-label">
+          Nombre
+          <input
+            type="text"
+            name="first_name"
+            value={formData.first_name}
+            onChange={handleChange}
+            className="input-form"
+            required
+          />
+        </label>
 
-        <select name="grado_id" value={gradoSeleccionado} onChange={handleGradoChange} className="border p-2 rounded" required>
-          <option value="">Selecciona un Grado</option>
-          {grados.map((grado) => (
-            <option key={grado.id} value={grado.id}>
-              {grado.numero} - {grado.categoria}
-            </option>
-          ))}
-        </select>
+        <label className="form-label">
+          Segundo Nombre
+          <input
+            type="text"
+            name="middle_name"
+            value={formData.middle_name}
+            onChange={handleChange}
+            className="input-form"
+          />
+        </label>
 
-        <select name="course_id" value={formData.course_id} onChange={handleChange} className="border p-2 rounded">
-          <option value="">Selecciona un Curso</option>
-          {cursosFiltrados.map((curso) => (
-            <option key={curso.id} value={curso.id}>
-              {curso.name} - {curso.code}
-            </option>
-          ))}
-        </select>
+        <label className="form-label">
+          Apellido Paterno
+          <input
+            type="text"
+            name="last_name"
+            value={formData.last_name}
+            onChange={handleChange}
+            className="input-form"
+            required
+          />
+        </label>
 
-        <select name="gender" value={formData.gender} onChange={handleChange} className="border p-2 rounded" required>
-          <option value="">Selecciona Género</option>
-          <option value="M">Masculino</option>
-          <option value="F">Femenino</option>
-          <option value="O">Otro</option>
-        </select>
+        <label className="form-label">
+          Apellido Materno
+          <input
+            type="text"
+            name="second_last_name"
+            value={formData.second_last_name}
+            onChange={handleChange}
+            className="input-form"
+          />
+        </label>
 
-        <input type="text" name="neighborhood" value={formData.neighborhood} onChange={handleChange} placeholder="Barrio o Zona" className="border p-2 rounded" />
+        <label className="form-label">
+          Correo Electrónico
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="input-form"
+            required
+          />
+        </label>
 
-        <select name="socioeconomic_status" value={formData.socioeconomic_status} onChange={handleChange} className="border p-2 rounded">
-          <option value="">Nivel Socioeconómico</option>
-          <option value="BAJO">Bajo</option>
-          <option value="MEDIO_BAJO">Medio Bajo</option>
-          <option value="MEDIO">Medio</option>
-          <option value="MEDIO_ALTO">Medio Alto</option>
-          <option value="ALTO">Alto</option>
-        </select>
+        <label className="form-label">
+          Fecha de Nacimiento
+          <input
+            type="date"
+            name="date_of_birth"
+            value={formData.date_of_birth}
+            onChange={handleChange}
+            className="input-form"
+            required
+          />
+        </label>
 
-        <div className="md:col-span-2 flex justify-between mt-4">
-          <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+        <label className="form-label">
+          Grado
+          <select
+            name="grado_id"
+            value={gradoSeleccionado}
+            onChange={handleGradoChange}
+            className="input-form"
+            required
+          >
+            <option value="">Selecciona un Grado</option>
+            {grados.map((grado) => (
+              <option key={grado.id} value={grado.id}>
+                {grado.numero} - {grado.categoria}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="form-label">
+          Curso
+          <select
+            name="course_id"
+            value={formData.course_id}
+            onChange={handleChange}
+            className="input-form"
+          >
+            <option value="">Selecciona un Curso</option>
+            {cursosFiltrados.map((curso) => (
+              <option key={curso.id} value={curso.id}>
+                {curso.name} - {curso.code}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="form-label">
+          Género
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="input-form"
+            required
+          >
+            <option value="">Selecciona Género</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+            <option value="O">Otro</option>
+          </select>
+        </label>
+
+        <label className="form-label">
+          Barrio o Zona
+          <input
+            type="text"
+            name="neighborhood"
+            value={formData.neighborhood}
+            onChange={handleChange}
+            className="input-form"
+          />
+        </label>
+
+        <label className="form-label">
+          Nivel Socioeconómico
+          <select
+            name="socioeconomic_status"
+            value={formData.socioeconomic_status}
+            onChange={handleChange}
+            className="input-form"
+          >
+            <option value="">Selecciona Nivel</option>
+            <option value="BAJO">Bajo</option>
+            <option value="MEDIO_BAJO">Medio Bajo</option>
+            <option value="MEDIO">Medio</option>
+            <option value="MEDIO_ALTO">Medio Alto</option>
+            <option value="ALTO">Alto</option>
+          </select>
+        </label>
+
+        <div className="botones-acciones">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="btn-cancelar"
+          >
             ← Volver
           </button>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button type="submit" className="btn-guardar">
             ✅ Guardar Cambios
           </button>
         </div>

@@ -4,6 +4,7 @@ import { obtenerCursos, crearCurso, eliminarCurso } from "../services/cursosServ
 import { obtenerGrados } from "../services/gradosService";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "./admin_css/CursosGestion.css";
 
 const CursosGestion = () => {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ const CursosGestion = () => {
     description: "",
     grado_id: "",
   });
+  
   // Cargar la lista de grados desde el servicio
   const cargarGrados = async () => {
     try {
@@ -24,9 +26,9 @@ const CursosGestion = () => {
       setGrados(data);
     } catch (error) {
       console.error("Error al cargar grados:", error);
-
-    };
-  }
+    }
+  };
+  
   // Cargar la lista de cursos desde el servicio
   const cargarCursos = async () => {
     try {
@@ -78,35 +80,43 @@ const CursosGestion = () => {
 
   // Restringir acceso si el usuario no es superusuario
   if (!user?.isSuperUser) {
-    return <div className="p-6 text-red-500">Acceso restringido. Solo los administradores pueden gestionar cursos.</div>;
+    return <div className="cursos-container">
+      <div style={{ color: 'var(--danger-600)' }}>
+        Acceso restringido. Solo los administradores pueden gestionar cursos.
+      </div>
+    </div>;
   }
 
   useEffect(() => {
     cargarGrados();
     cargarCursos();
   }, []);
+  
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Gestión de Cursos</h1>
-      <button onClick={() => navigate(-1)} className="p-2 bg-gray-500 text-white mb-4">Volver</button>
+    <div className="cursos-container">
+      <h1 className="cursos-title">Gestión de Cursos</h1>
+      
+      <button onClick={() => navigate(-1)} className="cursos-btn cursos-btn-volver">
+        Volver
+      </button>
 
       {/* Botón para mostrar el formulario de agregar curso */}
       <button
         onClick={() => setMostrarFormulario(true)}
-        className="p-2 bg-blue-500 text-white mb-4">
+        className="cursos-btn cursos-btn-agregar">
         + Agregar Curso
       </button>
 
       {/* Modal para agregar un nuevo curso */}
       {mostrarFormulario && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Agregar Nuevo Curso</h2>
+        <div className="cursos-modal-overlay">
+          <div className="cursos-modal">
+            <h2>Agregar Nuevo Curso</h2>
             <form onSubmit={manejarEnvio}>
               <select
                 name="grado_id"
                 onChange={manejarCambio}
-                className="border p-2 w-full mb-2"
+                className="cursos-input"
               >
                 <option value="">Selecciona un grado</option>
                 {grados.map(grado => (
@@ -122,7 +132,7 @@ const CursosGestion = () => {
                 placeholder="Nombre del curso"
                 value={formData.name}
                 onChange={manejarCambio}
-                className="border p-2 w-full mb-2"
+                className="cursos-input"
               />
 
               <input
@@ -131,14 +141,16 @@ const CursosGestion = () => {
                 placeholder="Descripción"
                 value={formData.description}
                 onChange={manejarCambio}
-                className="border p-2 w-full mb-2"
+                className="cursos-input"
               />
 
-              <div className="flex justify-between">
-                <button type="submit" className="p-2 bg-green-500 text-white">Guardar</button>
+              <div className="cursos-modal-btns">
+                <button type="submit" className="cursos-btn cursos-btn-guardar">
+                  Guardar
+                </button>
                 <button
                   type="button"
-                  className="p-2 bg-red-500 text-white"
+                  className="cursos-btn cursos-btn-cancelar"
                   onClick={() => setMostrarFormulario(false)}
                 >
                   Cancelar
@@ -150,36 +162,49 @@ const CursosGestion = () => {
       )}
 
       {/* Selector para filtrar cursos por grado */}
-      <select onChange={manejarCambioGrado} className="border p-2 mb-4">
+      <select onChange={manejarCambioGrado} className="cursos-select">
         <option value="">Selecciona un grado</option>
         {grados.map((grado) => (
-          <option key={grado.id} value={grado.id}>{grado.numero} - {grado.categoria}</option>
+          <option key={grado.id} value={grado.id}>
+            {grado.numero} - {grado.categoria}
+          </option>
         ))}
       </select>
 
       {/* Tabla de cursos filtrados por grado */}
-      <table className="min-w-full bg-white border">
+      <table className="cursos-table">
         <thead>
           <tr>
-            <th className="border px-4 py-2">Nombre</th>
-            <th className="border px-4 py-2">Descripción</th>
-            <th className="border px-4 py-2">Materias</th>
-            <th className="border px-4 py-2">Acciones</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Materias</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {cursos.filter(curso => !gradoSeleccionado || curso.grado?.id == gradoSeleccionado).map((curso) => (
             <tr key={curso.id}>
-              <td className="border px-4 py-2">{curso.name || "Sin nombre"}</td>
-              <td className="border px-4 py-2">{curso.description || "Sin descripción"}</td>
-              <td className="border px-4 py-2">
+              <td>{curso.name || "Sin nombre"}</td>
+              <td>{curso.description || "Sin descripción"}</td>
+              <td>
                 {curso.course_subjects?.length
                   ? curso.course_subjects.map(m => m.subject.name).join(", ")
                   : "Sin materias"}
               </td>
-              <td className="border px-4 py-2">
-                <button onClick={() => navigate(`/admin/cursos/${curso.id}`)} className="p-2 bg-green-500 text-white mr-2">Ver Detalles</button>
-                <button onClick={() => manejarEliminacion(curso.id)} className="p-2 bg-red-500 text-white">Eliminar</button>
+              <td>
+                <button 
+                  onClick={() => navigate(`/admin/cursos/${curso.id}`)} 
+                  className="cursos-btn cursos-btn-guardar"
+                  style={{ marginRight: 'var(--space-2)' }}
+                >
+                  Ver Detalles
+                </button>
+                <button 
+                  onClick={() => manejarEliminacion(curso.id)} 
+                  className="cursos-btn cursos-btn-cancelar"
+                >
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}
@@ -188,4 +213,5 @@ const CursosGestion = () => {
     </div>
   );
 };
+
 export default CursosGestion;

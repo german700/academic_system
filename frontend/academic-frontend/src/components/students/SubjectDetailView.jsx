@@ -6,12 +6,13 @@ import {
   obtenerPeriodoActual,
   obtenerIAAnalisisEstudiante
 } from "../services/estudiantesService";
+import "./students_css/SubjectDetailView.css"; // <- Importación del archivo CSS
+
 const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
-  const [gradesData, setGradesData] = useState({ grades: [], teacher: null }); // Agregado teacher
+  const [gradesData, setGradesData] = useState({ grades: [], teacher: null });
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState(1);
   const [error, setError] = useState("");
-  // ✅ 1. Nuevo estado para el modal del docente
   const [showTeacherModal, setShowTeacherModal] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
       setLoading(true);
       try {
         const data = await getGradesForStudentSubject(studentId, course.id, subject.id, period);
-        console.log("📦 Respuesta desde getGradesForStudentSubject:", data); // <-- AQUI
+        console.log("📦 Respuesta desde getGradesForStudentSubject:", data);
         setGradesData(data);
         setError("");
       } catch (err) {
@@ -31,7 +32,6 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
 
     fetchGrades();
   }, [subject, course, period, studentId]);
-
 
   const getColor = (nota) => {
     if (nota >= 4.5) return "text-green-600";
@@ -47,7 +47,6 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
     return "bg-red-50";
   };
 
-  // Calcular la definitiva del periodo
   const calcularDefinitiva = () => {
     if (!gradesData.grades) return null;
 
@@ -67,7 +66,6 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
     return sumaPesos > 0 ? sumaNotasPonderadas / sumaPesos : null;
   };
 
-  // Obtener estadísticas básicas
   const obtenerEstadisticas = () => {
     const totalActividades = gradesData.grades.length;
     const actividadesCalificadas = gradesData.grades.filter(g => g.score !== null).length;
@@ -87,14 +85,14 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
   const estadisticas = obtenerEstadisticas();
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      {/* ✅ MODAL DEL PERFIL DEL DOCENTE - Movido al inicio para evitar problemas de z-index */}
+    <div className="subject-container">
+      {/* Modal del perfil del docente */}
       {showTeacherModal && gradesData.teacher && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative mx-4">
+        <div className="teacher-modal-backdrop">
+          <div className="teacher-modal">
             <button
               onClick={() => setShowTeacherModal(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              className="close-button"
             >
               ×
             </button>
@@ -164,7 +162,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
             <div className="mt-6 pt-4 border-t">
               <button
                 onClick={() => setShowTeacherModal(false)}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="teacher-close-button"
               >
                 Cerrar
               </button>
@@ -179,7 +177,7 @@ const SubjectDetailView = ({ subject, course, onBack, studentId }) => {
           <p className="text-sm text-gray-500 flex items-center gap-2">
             <BookOpen className="w-4 h-4" /> Curso: {course.nombre} ({course.grado}° grado)
           </p>
-          {/* ✅ INFORMACIÓN DEL DOCENTE CON BOTÓN PARA MODAL */}
+          {/* Información del docente con botón para modal */}
           {gradesData.teacher && (
             <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
               <User className="w-4 h-4" />

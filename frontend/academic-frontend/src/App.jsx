@@ -9,13 +9,14 @@ import ConfirmarCorreo from './components/auth/ConfirmarCorreo.jsx';
 import PrivateRoute from './components/shared/PrivateRoute.jsx';
 
 // Componentes de admin/directivo
+import AdminLayout from './components/layout/AdminLayout.jsx';
 import DirectivoDashboard from './components/admin/DirectivoDashboard.jsx';
 import EstudiantesGestion from "./components/admin/EstudiantesGestion.jsx";
 import DocentesGestion from "./components/admin/DocentesGestion.jsx";
 import AdministrativosGestion from "./components/admin/AdministrativosGestion.jsx";
 import CursosGestion from "./components/admin/CursosGestion.jsx";
 import MateriasGestion from "./components/admin/MateriasGestion.jsx";
-import PeriodosGestion from "./components/admin/PeriodosGestion.jsx"; // ✅ NUEVO IMPORT
+import PeriodosGestion from "./components/admin/PeriodosGestion.jsx";
 import CursosPorGrado from "./components/admin/CursosPorGrado.jsx";
 import CursoDetalle from "./components/admin/CursoDetalle.jsx";
 import StudentsPerGrade from './components/students/StudentsPerGrade.jsx';
@@ -57,89 +58,39 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cambiar-contraseña/:uid/:token" element={<ConfirmarCorreo />} />
 
-          {/* Rutas para directores/admin */}
-          <Route path="/directivo-dashboard" element={
+          {/* ✅ RUTAS AGRUPADAS PARA ADMINISTRADOR CON LAYOUT */}
+          <Route path="/" element={
             <PrivateRoute allowedRoles={["director"]}>
-              <DirectivoDashboard />
+              <AdminLayout />
             </PrivateRoute>
-          } />
-
-          <Route path="/admin/estudiantes" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <EstudiantesGestion />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/docentes" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <DocentesGestion />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/administrativos" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <AdministrativosGestion />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/cursos" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <CursosGestion />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/materias" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <MateriasGestion />
-            </PrivateRoute>
-          } />
-          {/* ✅ NUEVA RUTA PARA PERÍODOS */}
-          <Route path="/admin/periodos" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <PeriodosGestion />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/cursos-por-grado" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <CursosPorGrado />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/cursos/:id" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <CursoDetalle />
-            </PrivateRoute>
-          } />
-          <Route path="/admin/students-per-grade" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <StudentsPerGrade />
-            </PrivateRoute>
-          } />
-
-          {/* ✅ RUTAS CORREGIDAS PARA DETALLES */}
-          {/* Ruta para detalle de estudiante - CORREGIDA */}
-          <Route path="/admin/estudiantes/:id" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <StudentDetail />
-            </PrivateRoute>
-          } />
-          
-          {/* Ruta para detalle de docente - CORREGIDA */}
-          <Route path="/admin/docentes/:teacherId" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <TeacherDetail />
-            </PrivateRoute>
-          } />
-          
-          {/* Mantener rutas originales como fallback */}
-          <Route path="/students/:id" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <StudentDetail />
-            </PrivateRoute>
-          } />
-          
-          <Route path="/students/:id/edit" element={<EditarEstudiante />} />
-
-          <Route path="/teacher/:teacherId" element={
-            <PrivateRoute allowedRoles={["director"]}>
-              <TeacherDetail />
-            </PrivateRoute>
-          } />
+          }>
+            {/* Dashboard principal */}
+            <Route path="directivo-dashboard" element={<DirectivoDashboard />} />
+            
+            {/* Gestión de usuarios */}
+            <Route path="admin/estudiantes" element={<EstudiantesGestion />} />
+            <Route path="admin/docentes" element={<DocentesGestion />} />
+            <Route path="admin/administrativos" element={<AdministrativosGestion />} />
+            
+            {/* Gestión académica */}
+            <Route path="admin/cursos" element={<CursosGestion />} />
+            <Route path="admin/materias" element={<MateriasGestion />} />
+            <Route path="admin/periodos" element={<PeriodosGestion />} />
+            
+            {/* Vistas de cursos y grados */}
+            <Route path="admin/cursos-por-grado" element={<CursosPorGrado />} />
+            <Route path="admin/cursos/:id" element={<CursoDetalle />} />
+            <Route path="admin/students-per-grade" element={<StudentsPerGrade />} />
+            
+            {/* Detalles de usuarios */}
+            <Route path="admin/estudiantes/:id" element={<StudentDetail />} />
+            <Route path="admin/docentes/:teacherId" element={<TeacherDetail />} />
+            
+            {/* Rutas de compatibilidad/fallback */}
+            <Route path="students/:id" element={<StudentDetail />} />
+            <Route path="students/:id/edit" element={<EditarEstudiante />} />
+            <Route path="teacher/:teacherId" element={<TeacherDetail />} />
+          </Route>
 
           {/* Layout y rutas de profesores - CORREGIDO */}
           <Route path="/teachers" element={

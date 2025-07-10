@@ -1,8 +1,11 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\TeacherDetail\IAAnalysisSection.jsx\IAInsightNarrative.jsx
+import React from "react";
+import "./IAAnalysisSection_css/IAInsightNarrative.css";
+
 const IAInsightNarrative = ({ narrative }) => (
-  <>
-    <h3 className="font-semibold mb-2">Narrativa IA</h3>
-    <p className="text-gray-700">{narrative}</p>
-  </>
+  <div className="ia-narrative-container">
+    <h3 className="ia-narrative-title">Narrativa IA</h3>
+    <p className="ia-narrative-text">{narrative}</p>
+  </div>
 );
+
 export default IAInsightNarrative;

@@ -1,7 +1,6 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\PeriodosGestion.jsx
-// 📍 Versión actualizada con validación de fechas y edit_deadline editable
-
 import React, { useState, useEffect } from "react";
+import "./admin_css/PeriodosGestion.css";
 import {
     obtenerPeriodos,
     crearPeriodo,
@@ -147,16 +146,16 @@ const PeriodosGestion = () => {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4 text-blue-700">Gestión de Períodos Académicos</h1>
+        <div className="periodos-container">
+            <h1 className="periodos-title">Gestión de Períodos Académicos</h1>
 
             {mensaje && (
-                <div className="mb-4 p-3 rounded bg-blue-100 text-blue-800 border border-blue-300">
+                <div className="periodos-message">
                     {mensaje}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="periodos-form">
                 <input
                     type="text"
                     name="name"
@@ -164,14 +163,14 @@ const PeriodosGestion = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="p-2 border rounded"
+                    className="periodos-input"
                 />
                 <select
                     name="number"
                     value={formData.number}
                     onChange={handleInputChange}
                     required
-                    className="p-2 border rounded"
+                    className="periodos-select"
                 >
                     <option value={1}>Periodo 1</option>
                     <option value={2}>Periodo 2</option>
@@ -185,10 +184,10 @@ const PeriodosGestion = () => {
                     value={formData.academic_year}
                     onChange={handleInputChange}
                     required
-                    className="p-2 border rounded"
+                    className="periodos-input"
                 />
-                <div className="md:col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div>
+                    <label className="periodos-label">
                         Fecha de inicio
                     </label>
                     <input
@@ -197,11 +196,11 @@ const PeriodosGestion = () => {
                         value={formData.start_date}
                         onChange={handleInputChange}
                         required
-                        className="p-2 border rounded w-full"
+                        className="periodos-input"
                     />
                 </div>
-                <div className="md:col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div>
+                    <label className="periodos-label">
                         Fecha de fin
                     </label>
                     <input
@@ -210,11 +209,11 @@ const PeriodosGestion = () => {
                         value={formData.end_date}
                         onChange={handleInputChange}
                         required
-                        className="p-2 border rounded w-full"
+                        className="periodos-input"
                     />
                 </div>
-                <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="periodos-full-width">
+                    <label className="periodos-label">
                         Fecha límite para ediciones
                     </label>
                     <input
@@ -223,51 +222,51 @@ const PeriodosGestion = () => {
                         value={formData.edit_deadline}
                         onChange={handleInputChange}
                         required
-                        className="p-2 border rounded w-full"
+                        className="periodos-input"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="col-span-1 md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                    className="periodos-submit"
                 >
                     {loading ? "Guardando..." : editId ? "Actualizar Período" : "Crear Período"}
                 </button>
             </form>
 
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">📋 Lista de Períodos</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full table-auto border">
-                        <thead className="bg-gray-100">
+            <div>
+                <h2 className="periodos-title">📋 Lista de Períodos</h2>
+                <div>
+                    <table className="periodos-table">
+                        <thead>
                             <tr>
-                                <th className="border px-3 py-2">Nombre</th>
-                                <th className="border px-3 py-2">#</th>
-                                <th className="border px-3 py-2">Año</th>
-                                <th className="border px-3 py-2">Inicio</th>
-                                <th className="border px-3 py-2">Fin</th>
-                                <th className="border px-3 py-2">Límite Edición</th>
-                                <th className="border px-3 py-2">Acciones</th>
+                                <th>Nombre</th>
+                                <th>#</th>
+                                <th>Año</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Límite Edición</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {periodos.map((p) => (
                                 <tr key={p.id}>
-                                    <td className="border px-3 py-2">{p.name}</td>
-                                    <td className="border px-3 py-2">{p.number}</td>
-                                    <td className="border px-3 py-2">{p.academic_year}</td>
-                                    <td className="border px-3 py-2">{p.start_date}</td>
-                                    <td className="border px-3 py-2">{p.end_date}</td>
-                                    <td className="border px-3 py-2">{p.edit_deadline || "No definido"}</td>
-                                    <td className="border px-3 py-2 space-x-2">
+                                    <td>{p.name}</td>
+                                    <td>{p.number}</td>
+                                    <td>{p.academic_year}</td>
+                                    <td>{p.start_date}</td>
+                                    <td>{p.end_date}</td>
+                                    <td>{p.edit_deadline || "No definido"}</td>
+                                    <td className="periodos-actions">
                                         <button
                                             onClick={() => handleEdit(p.id)}
-                                            className="bg-yellow-400 px-2 py-1 rounded hover:bg-yellow-500"
+                                            className="periodos-btn-edit"
                                         >
                                             Editar
                                         </button>
                                         <button
                                             onClick={() => handleDelete(p.id)}
-                                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                            className="periodos-btn-delete"
                                         >
                                             Eliminar
                                         </button>
@@ -276,7 +275,7 @@ const PeriodosGestion = () => {
                             ))}
                             {periodos.length === 0 && (
                                 <tr>
-                                    <td colSpan="7" className="text-center py-4 text-gray-500">
+                                    <td colSpan="7" className="periodos-empty">
                                         No hay períodos registrados.
                                     </td>
                                 </tr>
@@ -286,15 +285,12 @@ const PeriodosGestion = () => {
                 </div>
             </div>
 
-            <div className="bg-yellow-100 border border-yellow-300 p-4 rounded mb-6 text-yellow-800">
+            <div className="periodos-note">
                 <strong>⚠️ Nota:</strong> Cuando crees el último período del año, el sistema
                 reentrenará automáticamente el modelo de IA. También puedes forzar el
                 reentrenamiento manualmente:
-                <div className="mt-3">
-                    <button
-                        onClick={handleReentrenarIA}
-                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                    >
+                <div className="periodos-note-button">
+                    <button onClick={handleReentrenarIA} className="periodos-btn-retrain">
                         Finalizar año y reentrenar modelo IA
                     </button>
                 </div>

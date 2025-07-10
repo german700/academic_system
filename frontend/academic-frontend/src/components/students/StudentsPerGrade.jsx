@@ -1,6 +1,7 @@
 //C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\students\StudentsPerGrade.jsx
 import React, { useEffect, useState } from 'react';
 import { getStudentsPerGrade } from '../services/analyticsService';
+import './students_css/StudentsPerGrade.css'; // <- Nuevo import
 
 const StudentsPerGrade = () => {
   const [data, setData] = useState([]);
@@ -19,20 +20,20 @@ const StudentsPerGrade = () => {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Cantidad de estudiantes por grado</h2>
-      <table className="min-w-full border border-gray-200">
-        <thead className="bg-gray-100">
+    <div className="students-per-grade-container">
+      <h2 className="students-per-grade-title">Cantidad de estudiantes por grado</h2>
+      <table className="students-per-grade-table">
+        <thead>
           <tr>
-            <th className="border px-4 py-2 text-left">Grado</th>
-            <th className="border px-4 py-2 text-left">Cantidad de Estudiantes</th>
+            <th>Grado</th>
+            <th>Cantidad de Estudiantes</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, index) => (
-            <tr key={index} className="border-t">
-              <td className="px-4 py-2">{item.grado}</td>
-              <td className="px-4 py-2">{item.cantidad_estudiantes}</td>
+            <tr key={index}>
+              <td>{item.grado}</td>
+              <td>{item.cantidad_estudiantes}</td>
             </tr>
           ))}
         </tbody>

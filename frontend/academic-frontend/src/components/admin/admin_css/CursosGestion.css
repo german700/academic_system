@@ -1,0 +1,118 @@
+.cursos-container {
+  padding: var(--space-6);
+  background-color: var(--bg-primary);
+}
+
+.cursos-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+  color: var(--primary-600);
+}
+
+.cursos-btn {
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cursos-btn-volver {
+  background-color: var(--neutral-500);
+  color: var(--text-inverse);
+  margin-right: var(--space-2);
+}
+
+.cursos-btn-agregar {
+  background-color: var(--primary-600);
+  color: var(--text-inverse);
+}
+
+.cursos-btn-volver:hover {
+  background-color: var(--neutral-700);
+}
+
+.cursos-btn-agregar:hover {
+  background-color: var(--primary-700);
+}
+
+.cursos-select {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
+  width: 100%;
+}
+
+.cursos-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.cursos-table th,
+.cursos-table td {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.cursos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(31, 41, 55, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cursos-modal {
+  background-color: white;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  width: 24rem;
+}
+
+.cursos-modal h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+}
+
+.cursos-input {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2);
+  width: 100%;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+}
+
+.cursos-modal-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+}
+
+.cursos-btn-guardar {
+  background-color: var(--success-500);
+  color: var(--text-inverse);
+  border: 1px solid var(--success-500);
+}
+
+.cursos-btn-guardar:hover {
+  background-color: var(--primary-600);
+}
+
+.cursos-btn-cancelar {
+  background-color: var(--error-500);
+  color: var(--text-inverse);
+  border: 1px solid var(--error-500);
+}
+
+.cursos-btn-cancelar:hover {
+  background-color: var(--primary-700);
+}

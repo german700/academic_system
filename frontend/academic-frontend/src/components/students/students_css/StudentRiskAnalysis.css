@@ -1,0 +1,19 @@
+.risk-analysis-card {
+  padding: 1rem;
+}
+
+.risk-analysis-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.risk-analysis-percentage,
+.risk-analysis-level {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.risk-analysis-loading {
+  color: #4b5563; /* gray-600 */
+}

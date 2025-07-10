@@ -404,3 +404,65 @@ def promote_students(academic_year):
 
             student.save()
     """
+
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.db import transaction
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+import random, string
+
+from academic.models import Administrator
+from academic.serializers import AdministratorSerializer
+from authentication.models import User  # Modelo de usuario
+
+class AdministratorViewSet(viewsets.ModelViewSet):
+    queryset = Administrator.objects.all()
+    serializer_class = AdministratorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        with transaction.atomic():
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            admin = serializer.save()
+
+            provisional_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            user = User.objects.create_user(
+                email=admin.email,
+                password=provisional_password,
+                first_name=admin.first_name,
+                last_name=admin.last_name,
+                user_type="director",
+                email_confirmed=False
+            )
+            admin.user = user
+            admin.save()
+
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            frontend_link = f"http://localhost:5173/cambiar-contraseña/{uid}/{token}/"
+
+            print(f"Enviando correo a {admin.email} con link {frontend_link}")
+            print(f"[DEBUG] Creando usuario admin {admin.email}")
+            print(f"[DEBUG] Enviando correo a {admin.email}")
+            send_mail(
+                subject="Activa tu cuenta de administrador",
+                message=(
+                    f"¡Hola {admin.first_name}!\n\n"
+                    f"Para activar tu cuenta y elegir tu contraseña, haz clic aquí:\n\n"
+                    f"{frontend_link}\n\n"
+                    "Este enlace expira en 24 horas. Si tienes problemas, copia y pega la URL en tu navegador."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[admin.email],
+                fail_silently=False,
+            )
+            print(f"[DEBUG] Correo enviado")
+            return Response(self.get_serializer(admin).data, status=status.HTTP_201_CREATED)
+
+

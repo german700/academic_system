@@ -1,0 +1,186 @@
+/* Contenedor principal */
+.periodos-container {
+  padding: 1.5rem;
+  max-width: 48rem;
+  margin: 0 auto;
+  background-color: var(--bg-primary);
+}
+
+/* Título */
+.periodos-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+  color: var(--primary-600);
+}
+
+/* Mensaje de estado */
+.periodos-message {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--info-100);
+  color: var(--info-500);
+  border: 1px solid var(--info-500);
+}
+
+/* Formulario */
+.periodos-form {
+  margin-bottom: var(--space-6);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: var(--bp-md)) {
+  .periodos-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Inputs y selects */
+.periodos-input,
+.periodos-select {
+  padding: var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  width: 100%;
+}
+
+/* Labels pequeños */
+.periodos-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+/* Botón de submit */
+.periodos-submit {
+  grid-column: span 2;
+  background-color: var(--primary-600);
+  color: var(--text-inverse);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.periodos-submit:hover {
+  background-color: var(--primary-700);
+}
+
+/* Tabla */
+.periodos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-6);
+}
+
+.periodos-table th,
+.periodos-table td {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.periodos-table thead {
+  background-color: var(--neutral-100);
+}
+
+.periodos-empty {
+  text-align: center;
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+
+/* Nota final */
+.periodos-note {
+  background-color: var(--warning-100);
+  border: 1px solid var(--warning-500);
+  color: var(--warning-500);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-6);
+}
+
+.periodos-note button {
+  margin-top: var(--space-3);
+  background-color: var(--success-500);
+  color: var(--text-inverse);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.periodos-note button:hover {
+  background-color: var(--success-100);
+  color: var(--success-500);
+}
+
+/* Clase para que el campo ocupe todo el ancho en el grid */
+.periodos-full-width {
+  grid-column: span 2;
+}
+
+/* Acciones de la tabla */
+.periodos-actions {
+  white-space: nowrap;
+}
+
+/* Botones de la tabla */
+.periodos-btn-edit {
+  background-color: var(--warning-400);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: none;
+  margin-right: var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.periodos-btn-edit:hover {
+  background-color: var(--warning-500);
+}
+
+.periodos-btn-delete {
+  background-color: var(--danger-500);
+  color: var(--text-inverse);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.periodos-btn-delete:hover {
+  background-color: var(--danger-600);
+}
+
+/* Contenedor del botón de reentrenamiento */
+.periodos-note-button {
+  margin-top: var(--space-3);
+}
+
+/* Botón de reentrenamiento */
+.periodos-btn-retrain {
+  background-color: var(--success-500);
+  color: var(--text-inverse);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.periodos-btn-retrain:hover {
+  background-color: var(--success-600);
+}

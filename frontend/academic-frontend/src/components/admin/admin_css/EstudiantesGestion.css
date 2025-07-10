@@ -1,0 +1,94 @@
+.estudiantes-container {
+  padding: 1.5rem;
+}
+
+.titulo-principal {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.busqueda-avanzada {
+  background-color: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+}
+
+.formulario-estudiante {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .formulario-estudiante {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.input-form {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+}
+
+.btn-primario {
+  background-color: var(--primary-600);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.btn-primario:hover {
+  background-color: var(--primary-700);
+}
+
+.btn-editar {
+  background-color: var(--warning-500);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-editar:hover {
+  background-color: var(--warning-600);
+}
+
+.btn-eliminar {
+  background-color: var(--error-500);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  background-color: var(--error-600);
+}
+
+.tabla-estudiantes {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-estudiantes th,
+.tabla-estudiantes td {
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.link-detalle {
+  color: var(--link-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link-detalle:hover {
+  text-decoration: underline;
+}

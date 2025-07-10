@@ -383,22 +383,3 @@ class CourseSubjectViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSubjectSerializer
     permission_classes = [IsAuthenticated]
 
-
-class AdministratorViewSet(viewsets.ModelViewSet):
-    """
-    /api/academic/administrators/
-    CRUD de administradores (solo superusuarios pueden listar todos)
-    """
-    queryset = Administrator.objects.all()
-    serializer_class = AdministratorSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.user_type == "director":
-            return Administrator.objects.all()
-        elif user.user_type == "teacher":
-            return Administrator.objects.filter(user=user)
-        elif user.user_type == "student":
-            return Administrator.objects.none()
-        return Administrator.objects.none()

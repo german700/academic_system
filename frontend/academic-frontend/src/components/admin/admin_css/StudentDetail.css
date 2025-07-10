@@ -1,0 +1,20 @@
+.student-detail-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+}
+
+.student-detail-title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1f2937; /* text-gray-800 */
+}
+
+.student-section {
+  margin-bottom: 2rem;
+}
+
+.student-section p {
+  color: #6b7280; /* text-gray-500 */
+  font-style: italic;
+}

@@ -1,0 +1,97 @@
+/* MateriasGestion.css */
+
+.materias-container {
+  padding: 1.5rem;
+}
+
+.titulo-principal {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.boton-volver {
+  padding: 0.5rem 1rem;
+  background-color: #6b7280; /* gray-500 */
+  color: white;
+  margin-bottom: 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.boton-volver:hover {
+  background-color: #4b5563; /* gray-600 */
+}
+
+.select-grado {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 4px;
+}
+
+.formulario-materia {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.input-materia {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 4px;
+}
+
+.boton-agregar {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.boton-agregar:hover {
+  background-color: #2563eb; /* blue-600 */
+}
+
+.tabla-materias {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.tabla-materias th,
+.tabla-materias td {
+  border: 1px solid #e5e7eb; /* gray-200 */
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.tabla-materias th {
+  background-color: #f9fafb; /* gray-50 */
+  font-weight: 600;
+}
+
+.boton-eliminar {
+  padding: 0.4rem 0.75rem;
+  background-color: #ef4444; /* red-500 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.boton-eliminar:hover {
+  background-color: #dc2626; /* red-600 */
+}
+
+.sin-materias {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280; /* gray-500 */
+}

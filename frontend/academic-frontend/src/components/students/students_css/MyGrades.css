@@ -1,0 +1,94 @@
+.mygrades-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mygrades-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+@media (min-width: 640px) {
+  .mygrades-header {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.select-input {
+  border: 1px solid #ccc;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  min-width: 150px;
+}
+
+.table-grades {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.table-grades th,
+.table-grades td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+}
+
+.table-grades thead {
+  background-color: #f3f4f6;
+}
+
+.table-row:hover {
+  background-color: #f9fafb;
+}
+
+.grade-green {
+  color: #16a34a;
+  font-weight: bold;
+}
+.grade-yellow {
+  color: #ca8a04;
+  font-weight: bold;
+}
+.grade-red {
+  color: #dc2626;
+  font-weight: bold;
+}
+.grade-pending {
+  color: #9ca3af;
+}
+.grade-status {
+  font-weight: 500;
+}
+
+.comment-box {
+  background-color: #f9fafb;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 1rem;
+  color: #4b5563;
+}

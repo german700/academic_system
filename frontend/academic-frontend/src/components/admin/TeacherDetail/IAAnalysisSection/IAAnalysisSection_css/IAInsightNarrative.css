@@ -1,0 +1,16 @@
+.ia-narrative-container {
+  font-family: var(--font-primary);
+}
+
+.ia-narrative-title {
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--text-heading);
+}
+
+.ia-narrative-text {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: var(--text-sm);
+}

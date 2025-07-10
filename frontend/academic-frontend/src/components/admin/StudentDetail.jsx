@@ -10,6 +10,8 @@ import StudentAttendance from "./StudentDetail/StudentAttendance";
 import SubjectComparisonChart from "./StudentDetail/SubjectComparisonChart";
 import IAAnalysisSection from "./StudentDetail/IAAnalysisSection";
 
+import "./admin_css/StudentDetail.css";
+
 const StudentDetail = () => {
   const { id } = useParams();
   const [data, setData] = useState(null);
@@ -33,43 +35,52 @@ const StudentDetail = () => {
     cargarDatos();
   }, [id]);
 
-  if (loading) return <p>Cargando datos...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="student-detail-container">Cargando datos...</p>;
+  if (error) return <p className="student-detail-container">{error}</p>;
 
   if (!data || !data.student || Object.keys(data.student).length === 0) {
-    return <p>Perfil del estudiante no disponible.</p>;
+    return <p className="student-detail-container">Perfil del estudiante no disponible.</p>;
   }
 
   return (
-    <div>
-      <h1>Análisis detallado del estudiante</h1>
+    <div className="student-detail-container">
+      <h1 className="student-detail-title">Análisis detallado del estudiante</h1>
 
-      {/* CAMBIO AQUÍ: Cambié profile={data.student} por student={data.student} */}
-      <StudentProfile student={data.student} />
+      <div className="student-section">
+        <StudentProfile student={data.student} />
+      </div>
 
-      {data.grades_summary ? (
-        <StudentGradesTable gradesData={data.grades_summary} />
-      ) : (
-        <p>Calificaciones no disponibles.</p>
-      )}
+      <div className="student-section">
+        {data.grades_summary ? (
+          <StudentGradesTable gradesData={data.grades_summary} />
+        ) : (
+          <p>Calificaciones no disponibles.</p>
+        )}
+      </div>
 
-      {data.attendance ? (
-        <StudentAttendance attendance={data.attendance} />
-      ) : (
-        <p>Datos de asistencia no disponibles.</p>
-      )}
+      <div className="student-section">
+        {data.attendance ? (
+          <StudentAttendance attendance={data.attendance} />
+        ) : (
+          <p>Datos de asistencia no disponibles.</p>
+        )}
+      </div>
 
-      {data.subject_comparison ? (
-        <SubjectComparisonChart comparisonData={data.subject_comparison} />
-      ) : (
-        <p>Comparación de materias no disponible.</p>
-      )}
+      <div className="student-section">
+        {data.subject_comparison ? (
+          <SubjectComparisonChart comparisonData={data.subject_comparison} />
+        ) : (
+          <p>Comparación de materias no disponible.</p>
+        )}
+      </div>
 
-      {data.ia_analysis ? (
-        <IAAnalysisSection ia={data.ia_analysis} />
-      ) : (
-        <p>Análisis de IA no disponible.</p>
-      )}
+      <div className="student-section">
+        {data.ia_analysis ? (
+          <IAAnalysisSection ia={data.ia_analysis} />
+        ) : (
+          <p>Análisis de IA no disponible.</p>
+        )}
+      </div>
     </div>
   );
 };

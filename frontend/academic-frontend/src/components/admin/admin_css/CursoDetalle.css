@@ -1,0 +1,72 @@
+.cursodetalle-container {
+  padding: var(--space-6);
+  background-color: var(--bg-primary);
+}
+
+.cursodetalle-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+  color: var(--primary-700);
+}
+
+.cursodetalle-subtitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-2);
+}
+
+.cursodetalle-table {
+  width: 100%;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-collapse: collapse;
+  margin-top: var(--space-2);
+}
+
+.cursodetalle-table th,
+.cursodetalle-table td {
+  border: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.cursodetalle-btn {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text-inverse);
+  margin-right: var(--space-2);
+}
+
+.cursodetalle-btn-volver {
+  background-color: var(--neutral-600);
+}
+
+.cursodetalle-btn-volver:hover {
+  background-color: var(--neutral-700);
+}
+
+.cursodetalle-btn-editar {
+  background-color: var(--primary-600);
+}
+
+.cursodetalle-btn-editar:hover {
+  background-color: var(--primary-700);
+}
+
+.cursodetalle-btn-guardar {
+  background-color: var(--success-600);
+}
+
+.cursodetalle-btn-guardar:hover {
+  background-color: var(--success-700);
+}
+
+.cursodetalle-select {
+  padding: var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-right: var(--space-2);
+}

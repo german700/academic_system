@@ -1,0 +1,136 @@
+.risk-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-family: var(--font-primary);
+}
+
+.risk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.risk-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+/* Estilos específicos para el Select del RiskDistributionChart */
+.risk-chart-container .risk-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 180px !important;
+  padding: var(--space-2) var(--space-3) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-size: var(--text-sm) !important;
+  font-family: var(--font-primary) !important;
+  cursor: pointer !important;
+  transition: var(--transition-fast) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.risk-chart-container .risk-select-trigger:hover {
+  border-color: var(--border-hover) !important;
+  background-color: var(--hover-bg) !important;
+}
+
+.risk-chart-container .risk-select-trigger:focus {
+  outline: none !important;
+  border-color: var(--primary-500) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.risk-chart-container .risk-select-trigger svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-muted) !important;
+  transition: var(--transition-fast) !important;
+  flex-shrink: 0 !important;
+}
+
+.risk-chart-container .risk-select-trigger[data-state="open"] svg {
+  transform: rotate(180deg) !important;
+}
+
+.risk-select-content {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: var(--space-1) 0 !important;
+  min-width: 180px !important;
+  z-index: 50 !important;
+}
+
+.risk-select-item {
+  padding: var(--space-2) var(--space-3) !important;
+  color: var(--text-primary) !important;
+  font-size: var(--text-sm) !important;
+  font-family: var(--font-primary) !important;
+  cursor: pointer !important;
+  transition: var(--transition-fast) !important;
+  border-radius: 0 !important;
+}
+
+.risk-select-item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.risk-select-item[data-highlighted] {
+  background-color: var(--hover-bg) !important;
+}
+
+.risk-select-item[data-state="checked"] {
+  background-color: var(--primary-50) !important;
+  color: var(--primary-700) !important;
+}
+
+.risk-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.risk-chart-card {
+  padding: var(--space-4);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.risk-chart-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.risk-chart-total {
+  text-align: center;
+}
+
+.risk-chart-total .count {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.risk-chart-total .label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.risk-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
