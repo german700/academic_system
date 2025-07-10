@@ -1,38 +1,45 @@
 /* Contenedor principal */
 .periodos-container {
   padding: 1.5rem;
-  max-width: 48rem;
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: var(--bg-primary);
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Título */
 .periodos-title {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  margin-bottom: var(--space-4);
-  color: var(--primary-600);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2563eb;
+  text-align: center;
 }
 
 /* Mensaje de estado */
 .periodos-message {
-  margin-bottom: var(--space-4);
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  background-color: var(--info-100);
-  color: var(--info-500);
-  border: 1px solid var(--info-500);
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+  font-weight: 500;
 }
 
 /* Formulario */
 .periodos-form {
-  margin-bottom: var(--space-6);
+  margin-bottom: 2rem;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
+  gap: 1rem;
+  background-color: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
 }
 
-@media (min-width: var(--bp-md)) {
+@media (min-width: 768px) {
   .periodos-form {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -41,87 +48,132 @@
 /* Inputs y selects */
 .periodos-input,
 .periodos-select {
-  padding: var(--space-2);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.periodos-input:focus,
+.periodos-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Labels pequeños */
 .periodos-label {
   display: block;
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--text-primary);
-  margin-bottom: var(--space-1);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 /* Botón de submit */
 .periodos-submit {
   grid-column: span 2;
-  background-color: var(--primary-600);
-  color: var(--text-inverse);
-  padding: var(--space-2) var(--space-4);
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1rem;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-base);
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color 0.2s;
 }
 
 .periodos-submit:hover {
-  background-color: var(--primary-700);
+  background-color: #1d4ed8;
+}
+
+.periodos-submit:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
 /* Tabla */
 .periodos-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: var(--space-6);
+  margin-bottom: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.periodos-table th,
-.periodos-table td {
-  border: 1px solid var(--border-color);
-  padding: var(--space-2) var(--space-3);
+.periodos-table th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 1rem 0.75rem;
   text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
-.periodos-table thead {
-  background-color: var(--neutral-100);
+.periodos-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.periodos-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.periodos-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .periodos-empty {
   text-align: center;
-  padding: var(--space-6) 0;
-  color: var(--text-muted);
+  padding: 3rem 0;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* Nota final */
 .periodos-note {
-  background-color: var(--warning-100);
-  border: 1px solid var(--warning-500);
-  color: var(--warning-500);
-  padding: var(--space-4);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-6);
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 2rem;
 }
 
-.periodos-note button {
-  margin-top: var(--space-3);
-  background-color: var(--success-500);
-  color: var(--text-inverse);
-  padding: var(--space-2) var(--space-4);
+.periodos-note strong {
+  color: #b45309;
+}
+
+/* Contenedor del botón de reentrenamiento */
+.periodos-note-button {
+  margin-top: 0.75rem;
+}
+
+/* Botón de reentrenamiento */
+.periodos-btn-retrain {
+  background-color: #059669;
+  color: white;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 0.375rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
-.periodos-note button:hover {
-  background-color: var(--success-100);
-  color: var(--success-500);
+.periodos-btn-retrain:hover {
+  background-color: #047857;
 }
 
 /* Clase para que el campo ocupe todo el ancho en el grid */
@@ -132,55 +184,107 @@
 /* Acciones de la tabla */
 .periodos-actions {
   white-space: nowrap;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 /* Botones de la tabla */
 .periodos-btn-edit {
-  background-color: var(--warning-400);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
   border: none;
-  margin-right: var(--space-2);
   cursor: pointer;
-  font-size: var(--text-sm);
-  transition: background-color var(--transition-fast);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
 }
 
 .periodos-btn-edit:hover {
-  background-color: var(--warning-500);
+  background-color: #d97706;
+  transform: translateY(-1px);
 }
 
 .periodos-btn-delete {
-  background-color: var(--danger-500);
-  color: var(--text-inverse);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  background-color: #dc2626;
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
   border: none;
   cursor: pointer;
-  font-size: var(--text-sm);
-  transition: background-color var(--transition-fast);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
 }
 
 .periodos-btn-delete:hover {
-  background-color: var(--danger-600);
+  background-color: #b91c1c;
+  transform: translateY(-1px);
 }
 
-/* Contenedor del botón de reentrenamiento */
-.periodos-note-button {
-  margin-top: var(--space-3);
+/* Responsividad para la tabla */
+@media (max-width: 768px) {
+  .periodos-table {
+    font-size: 0.75rem;
+  }
+  
+  .periodos-table th,
+  .periodos-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .periodos-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .periodos-btn-edit,
+  .periodos-btn-delete {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 50px;
+  }
 }
 
-/* Botón de reentrenamiento */
-.periodos-btn-retrain {
-  background-color: var(--success-500);
-  color: var(--text-inverse);
-  padding: var(--space-2) var(--space-4);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
+/* Mejoras adicionales para el formulario */
+.periodos-form > div {
+  display: flex;
+  flex-direction: column;
 }
 
-.periodos-btn-retrain:hover {
-  background-color: var(--success-600);
+/* Efecto de carga en el botón submit */
+.periodos-submit:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.periodos-submit:disabled::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

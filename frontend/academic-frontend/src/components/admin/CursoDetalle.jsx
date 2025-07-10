@@ -58,10 +58,11 @@ const CursoDetalle = () => {
 
     try {
       await asignarDocenteAMateria(materia.id, docenteId);
-      await cargarCurso();
-      await cargarMaterias();
+      // Reload completo de la página para mostrar los cambios
+      window.location.reload();
     } catch (error) {
       console.error("Error al asignar docente:", error);
+      alert('Error al asignar docente');
     }
   };
 

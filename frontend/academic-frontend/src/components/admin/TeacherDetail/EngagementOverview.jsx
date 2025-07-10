@@ -1,4 +1,3 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\admin\TeacherDetail\EngagementOverview.jsx
 import React, { useState, useMemo } from "react";
 import {
   Select,
@@ -80,6 +79,10 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
     return data;
   }, [overview]);
 
+  // Cursos disponibles para la tabla
+  const cursosTabla = Object.keys(resumenPorCurso).sort();
+  const [cursoTablaSeleccionado, setCursoTablaSeleccionado] = useState(cursosTabla[0] || null);
+
   return (
     <section className="engagement-section">
       <h2>Resumen de Compromiso Estudiantil</h2>
@@ -95,18 +98,20 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
         <Card className="narrative-card">
           <h3>Narrativa Detallada por Curso:</h3>
 
-          <Select value={cursoSeleccionado} onValueChange={setCursoSeleccionado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona un curso" />
-            </SelectTrigger>
-            <SelectContent>
-              {cursosDisponibles.map((curso) => (
-                <SelectItem key={curso} value={curso}>
-                  {curso}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="select-container">
+            <Select value={cursoSeleccionado} onValueChange={setCursoSeleccionado}>
+              <SelectTrigger className="select-trigger">
+                <SelectValue placeholder="Selecciona un curso" />
+              </SelectTrigger>
+              <SelectContent className="select-content">
+                {cursosDisponibles.map((curso) => (
+                  <SelectItem key={curso} value={curso} className="select-item">
+                    {curso}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="narrative-text">
             {narrativaPorCurso[cursoSeleccionado]?.map((linea, i) => (
@@ -119,33 +124,47 @@ const EngagementOverview = ({ overview = [], narrative = "" }) => {
       {/* 📊 Tabla resumen por curso y periodo */}
       <Card className="tabla-resumen">
         <h3>Resumen Tabulado por Curso y Periodo</h3>
-        {Object.entries(resumenPorCurso).map(([curso, registros]) => (
-          <div key={curso} className="tabla-curso">
-            <h4>Curso {curso}</h4>
+        
+        {/* Select para elegir el curso de la tabla */}
+        <div className="select-container">
+          <Select value={cursoTablaSeleccionado} onValueChange={setCursoTablaSeleccionado}>
+            <SelectTrigger className="select-trigger">
+              <SelectValue placeholder="Selecciona un curso" />
+            </SelectTrigger>
+            <SelectContent className="select-content">
+              {cursosTabla.map((curso) => (
+                <SelectItem key={curso} value={curso} className="select-item">
+                  Curso {curso}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Mostrar solo el curso seleccionado */}
+        {cursoTablaSeleccionado && resumenPorCurso[cursoTablaSeleccionado] && (
+          <div className="tabla-curso">
+            <h4>Curso {cursoTablaSeleccionado}</h4>
             <Table>
               <thead>
                 <tr>
                   <th>Periodo</th>
                   <th>Materia</th>
-                  <th>Asistencias</th>
-                  <th>Ausencias</th>
                   <th>Entregas Tardías</th>
                 </tr>
               </thead>
               <tbody>
-                {registros.map((r, i) => (
+                {resumenPorCurso[cursoTablaSeleccionado].map((r, i) => (
                   <tr key={i}>
                     <td>{r.periodo}</td>
                     <td>{r.subject}</td>
-                    <td>{r.attendance_records}</td>
-                    <td>{r.absences}</td>
                     <td>{r.late_submissions}</td>
                   </tr>
                 ))}
               </tbody>
             </Table>
           </div>
-        ))}
+        )}
       </Card>
     </section>
   );

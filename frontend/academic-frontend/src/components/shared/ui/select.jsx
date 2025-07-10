@@ -1,4 +1,3 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\shared\ui\select.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { cn } from "../../../utils/utils";
 
@@ -62,14 +61,15 @@ export function SelectTrigger({ className, children, onClick, isOpen, selectedVa
     <button
       type="button"
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-12 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        isOpen && "open", // Agregar clase para CSS
         className
       )}
       onClick={onClick}
       {...props}
     >
       {children}
-      <ChevronDownIcon className={cn("h-4 w-4 opacity-50 transition-transform", isOpen && "rotate-180")} />
+      <ChevronDownIcon className={cn("h-5 w-5 opacity-50 transition-transform", isOpen && "rotate-180")} />
     </button>
   );
 }
@@ -112,18 +112,15 @@ export function SelectItem({ className, children, value, onSelect, isSelected, .
   return (
     <div
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        isSelected && "bg-gray-100",
+        // REMOVIDO: pl-8 para quitar espacio del checkmark
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-3 pl-4 pr-3 text-base outline-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        isSelected && "bg-blue-500 text-white hover:bg-blue-600", // Mejor indicador visual
         className
       )}
       onClick={() => onSelect(value)}
       {...props}
     >
-      {isSelected && (
-        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <CheckIcon className="h-4 w-4" />
-        </span>
-      )}
+      {/* REMOVIDO: El checkmark completamente */}
       {children}
     </div>
   );
@@ -149,6 +146,7 @@ function ChevronDownIcon({ className, ...props }) {
   );
 }
 
+// CheckIcon ya no se usa, pero lo dejo por si acaso
 function CheckIcon({ className, ...props }) {
   return (
     <svg

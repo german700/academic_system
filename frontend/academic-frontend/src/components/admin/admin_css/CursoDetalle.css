@@ -32,41 +32,110 @@
   font-size: var(--text-sm);
 }
 
+/* CORECCIÓN PRINCIPAL: Estilos base para todos los botones */
 .cursodetalle-btn {
   padding: var(--space-2);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
-  color: var(--text-inverse);
+  color: var(--text-inverse, white);
   margin-right: var(--space-2);
+  cursor: pointer;
+  border: none; /* Eliminar borde por defecto */
+  transition: all 0.2s ease;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cursodetalle-btn-volver {
-  background-color: var(--neutral-600);
+  background-color: var(--neutral-600, #6b7280) !important;
+  color: var(--text-inverse, white) !important;
+  border: 1px solid var(--neutral-600, #6b7280) !important;
 }
 
 .cursodetalle-btn-volver:hover {
-  background-color: var(--neutral-700);
+  background-color: var(--neutral-700, #374151) !important;
+  border-color: var(--neutral-700, #374151) !important;
 }
 
 .cursodetalle-btn-editar {
-  background-color: var(--primary-600);
+  background-color: var(--primary-600, #2563eb) !important;
+  color: var(--text-inverse, white) !important;
+  border: 1px solid var(--primary-600, #2563eb) !important;
 }
 
 .cursodetalle-btn-editar:hover {
-  background-color: var(--primary-700);
+  background-color: var(--primary-700, #1d4ed8) !important;
+  border-color: var(--primary-700, #1d4ed8) !important;
 }
 
+/* SOLUCIÓN AL PROBLEMA: Botón guardar con colores visibles */
 .cursodetalle-btn-guardar {
-  background-color: var(--success-600);
+  background-color: var(--success-600, #10b981) !important;
+  color: var(--text-inverse, white) !important;
+  border: 1px solid var(--success-600, #10b981) !important;
 }
 
 .cursodetalle-btn-guardar:hover {
-  background-color: var(--success-700);
+  background-color: var(--success-700, #059669) !important;
+  border-color: var(--success-700, #059669) !important;
 }
 
 .cursodetalle-select {
   padding: var(--space-2);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color, #d1d5db);
   border-radius: var(--radius-sm);
   margin-right: var(--space-2);
+  background-color: white;
+  color: var(--text-primary, #1f2937);
+}
+
+/* Estilos adicionales para mejorar la usabilidad */
+.cursodetalle-btn:focus {
+  outline: 2px solid var(--primary-600, #2563eb);
+  outline-offset: 2px;
+}
+
+.cursodetalle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fallback para botones sin clase específica */
+.cursodetalle-btn:not([class*="btn-"]) {
+  background-color: #6b7280 !important;
+  color: white !important;
+  border: 1px solid #6b7280 !important;
+}
+
+/* Estilos para las celdas de la tabla con texto centrado */
+.cursodetalle-table .text-center {
+  text-align: center;
+}
+
+.cursodetalle-table .p-4 {
+  padding: 1rem;
+}
+
+/* Mejoras para el responsive */
+@media (max-width: 768px) {
+  .cursodetalle-container {
+    padding: var(--space-4);
+  }
+  
+  .cursodetalle-table {
+    font-size: var(--text-xs);
+  }
+  
+  .cursodetalle-btn {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    margin-right: var(--space-1);
+  }
+  
+  .cursodetalle-select {
+    margin-right: var(--space-1);
+    margin-bottom: var(--space-2);
+  }
 }

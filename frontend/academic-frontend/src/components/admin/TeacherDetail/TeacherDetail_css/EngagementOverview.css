@@ -35,6 +35,14 @@
   margin-bottom: var(--space-2);
 }
 
+/* CONTENEDOR DEL SELECT CON ANCHO LIMITADO */
+.narrative-card .select-container,
+.tabla-resumen .select-container {
+  margin-bottom: var(--space-3);
+  width: 100%;
+  max-width: 300px; /* Limitar el ancho máximo */
+}
+
 .narrative-text {
   margin-top: var(--space-3);
   display: flex;
@@ -68,17 +76,21 @@
 }
 
 /* =============================================== */
-/* ESTILOS PARA EL SELECT - CURSO SELECTOR */
+/* ESTILOS PARA EL SELECT - AMBOS SELECTORES */
 /* =============================================== */
 
-/* Container del select */
-.narrative-card .select-container {
-  margin-bottom: var(--space-3);
+/* Trigger del select - ANCHO LIMITADO */
+.narrative-card .select-container > div,
+.tabla-resumen .select-container > div {
+  max-width: 100%;
 }
 
-/* Trigger del select */
-.narrative-card [data-radix-select-trigger] {
+.narrative-card [data-radix-select-trigger],
+.narrative-card .select-trigger,
+.tabla-resumen [data-radix-select-trigger],
+.tabla-resumen .select-trigger {
   width: 100%;
+  max-width: 300px; /* Limitar ancho del trigger */
   padding: var(--space-3) var(--space-4);
   border: 2px solid var(--border-color, #e2e8f0);
   border-radius: var(--radius-md);
@@ -95,39 +107,56 @@
   box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.1));
 }
 
-.narrative-card [data-radix-select-trigger]:hover {
+.narrative-card [data-radix-select-trigger]:hover,
+.narrative-card .select-trigger:hover,
+.tabla-resumen [data-radix-select-trigger]:hover,
+.tabla-resumen .select-trigger:hover {
   border-color: var(--primary-color, #3b82f6);
   box-shadow: var(--shadow-md, 0 4px 12px rgba(59, 130, 246, 0.15));
 }
 
-.narrative-card [data-radix-select-trigger]:focus {
+.narrative-card [data-radix-select-trigger]:focus,
+.narrative-card .select-trigger:focus,
+.tabla-resumen [data-radix-select-trigger]:focus,
+.tabla-resumen .select-trigger:focus {
   border-color: var(--primary-color, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 
 /* Placeholder del select */
-.narrative-card [data-radix-select-trigger] [data-placeholder] {
+.narrative-card [data-radix-select-trigger] [data-placeholder],
+.narrative-card .select-trigger [data-placeholder],
+.tabla-resumen [data-radix-select-trigger] [data-placeholder],
+.tabla-resumen .select-trigger [data-placeholder] {
   color: var(--text-muted, #94a3b8);
   font-weight: var(--font-normal);
 }
 
 /* Contenido del dropdown */
-.narrative-card [data-radix-select-content] {
+.narrative-card [data-radix-select-content],
+.narrative-card .select-content,
+.tabla-resumen [data-radix-select-content],
+.tabla-resumen .select-content {
   background-color: var(--bg-primary, #ffffff);
   border: 1px solid var(--border-color, #e2e8f0);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.15));
   padding: var(--space-2) 0;
   min-width: 200px;
+  max-width: 300px; /* Limitar ancho del dropdown */
   max-height: 300px;
   overflow-y: auto;
   z-index: 1000;
 }
 
-/* Items del select */
-.narrative-card [data-radix-select-item] {
+/* Items del select SIN CHECKMARK */
+.narrative-card [data-radix-select-item],
+.narrative-card .select-item,
+.tabla-resumen [data-radix-select-item],
+.tabla-resumen .select-item {
   padding: var(--space-3) var(--space-4);
+  padding-left: var(--space-4) !important; /* Quitar espacio del checkmark */
   font-size: var(--text-sm);
   color: var(--text-primary);
   cursor: pointer;
@@ -139,68 +168,124 @@
   user-select: none;
 }
 
-.narrative-card [data-radix-select-item]:hover {
+.narrative-card [data-radix-select-item]:hover,
+.narrative-card .select-item:hover,
+.tabla-resumen [data-radix-select-item]:hover,
+.tabla-resumen .select-item:hover {
   background-color: var(--bg-hover, #f1f5f9);
   color: var(--text-primary);
 }
 
-.narrative-card [data-radix-select-item][data-state="checked"] {
+.narrative-card [data-radix-select-item][data-state="checked"],
+.narrative-card .select-item.selected,
+.tabla-resumen [data-radix-select-item][data-state="checked"],
+.tabla-resumen .select-item.selected {
   background-color: var(--primary-color, #3b82f6);
   color: var(--text-white, #ffffff);
   font-weight: var(--font-medium);
 }
 
-.narrative-card [data-radix-select-item][data-state="checked"]:hover {
+.narrative-card [data-radix-select-item][data-state="checked"]:hover,
+.narrative-card .select-item.selected:hover,
+.tabla-resumen [data-radix-select-item][data-state="checked"]:hover,
+.tabla-resumen .select-item.selected:hover {
   background-color: var(--primary-dark, #2563eb);
 }
 
-/* CRÍTICO: Ocultar el checkmark/indicator */
-.narrative-card [data-radix-select-item] [data-radix-select-item-indicator] {
+/* CRÍTICO: Ocultar TODOS los checkmarks e iconos */
+.narrative-card [data-radix-select-item] [data-radix-select-item-indicator],
+.narrative-card [data-radix-select-item] .check-icon,
+.narrative-card .select-item .check-icon,
+.tabla-resumen [data-radix-select-item] [data-radix-select-item-indicator],
+.tabla-resumen [data-radix-select-item] .check-icon,
+.tabla-resumen .select-item .check-icon {
   display: none !important;
 }
 
-/* También ocultamos cualquier ícono de check que pueda aparecer */
 .narrative-card [data-radix-select-item] svg,
-.narrative-card [data-radix-select-item] .check-icon,
+.narrative-card .select-item svg,
+.tabla-resumen [data-radix-select-item] svg,
+.tabla-resumen .select-item svg {
+  display: none !important;
+}
+
 .narrative-card [data-radix-select-item]::before,
-.narrative-card [data-radix-select-item]::after {
+.narrative-card [data-radix-select-item]::after,
+.narrative-card .select-item::before,
+.narrative-card .select-item::after,
+.tabla-resumen [data-radix-select-item]::before,
+.tabla-resumen [data-radix-select-item]::after,
+.tabla-resumen .select-item::before,
+.tabla-resumen .select-item::after {
   display: none !important;
 }
 
 /* Flecha del trigger */
-.narrative-card [data-radix-select-trigger] [data-radix-select-icon] {
+.narrative-card [data-radix-select-trigger] [data-radix-select-icon],
+.narrative-card .select-trigger svg,
+.tabla-resumen [data-radix-select-trigger] [data-radix-select-icon],
+.tabla-resumen .select-trigger svg {
   width: 12px;
   height: 12px;
   transition: transform 0.2s ease;
 }
 
-.narrative-card [data-radix-select-trigger][data-state="open"] [data-radix-select-icon] {
+.narrative-card [data-radix-select-trigger][data-state="open"] [data-radix-select-icon],
+.narrative-card .select-trigger.open svg,
+.tabla-resumen [data-radix-select-trigger][data-state="open"] [data-radix-select-icon],
+.tabla-resumen .select-trigger.open svg {
   transform: rotate(180deg);
 }
 
 /* Estilos para el viewport del select */
-.narrative-card [data-radix-select-viewport] {
+.narrative-card [data-radix-select-viewport],
+.tabla-resumen [data-radix-select-viewport] {
   padding: 0;
 }
 
 /* Asegurar que no haya estilos conflictivos */
-.narrative-card [data-radix-select-item] * {
+.narrative-card [data-radix-select-item] *,
+.narrative-card .select-item *,
+.tabla-resumen [data-radix-select-item] *,
+.tabla-resumen .select-item * {
   pointer-events: none;
 }
 
-.narrative-card [data-radix-select-item] {
+.narrative-card [data-radix-select-item],
+.narrative-card .select-item,
+.tabla-resumen [data-radix-select-item],
+.tabla-resumen .select-item {
   pointer-events: auto;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .narrative-card [data-radix-select-trigger] {
+  .narrative-card .select-container,
+  .tabla-resumen .select-container {
+    max-width: 100%;
+  }
+  
+  .narrative-card [data-radix-select-trigger],
+  .narrative-card .select-trigger,
+  .tabla-resumen [data-radix-select-trigger],
+  .tabla-resumen .select-trigger {
+    max-width: 100%;
     padding: var(--space-2) var(--space-3);
     min-height: 40px;
     font-size: var(--text-xs);
   }
   
-  .narrative-card [data-radix-select-item] {
+  .narrative-card [data-radix-select-content],
+  .narrative-card .select-content,
+  .tabla-resumen [data-radix-select-content],
+  .tabla-resumen .select-content {
+    max-width: 100%;
+  }
+  
+  .narrative-card [data-radix-select-item],
+  .narrative-card .select-item,
+  .tabla-resumen [data-radix-select-item],
+  .tabla-resumen .select-item {
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
   }
