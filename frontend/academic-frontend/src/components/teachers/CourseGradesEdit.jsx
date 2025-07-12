@@ -27,7 +27,8 @@ import {
     fetchTeacherDashboard,
     updateAssignmentWeights
 } from "../services/docentesService";
-import GradeInputCell from "./GradeInputCell"; // Import the new component
+import GradeInputCell from "./GradeInputCell";
+import "./teachers_css/CourseGradesView.css";
 
 // Constante para los tipos de actividades
 const ASSIGNMENT_TYPES = [
@@ -183,7 +184,6 @@ export default function CourseGradesEdit() {
                 await updateAssignmentWeights(courseId, subjectId, currentPeriod, weightsPayload);
             }
 
-            // Updated to handle the new grade structure
             const gradesData = [];
             Object.entries(grades).forEach(([key, value]) => {
                 const [studentId, assignmentId] = key.split("-");
@@ -310,16 +310,58 @@ export default function CourseGradesEdit() {
             0
         );
 
-        if (total <= 0) return;
+        if (total <= 0) {
+            setError("No hay pesos válidos para ajustar");
+            return;
+        }
 
-        const adjusted = assignments.map(a => {
+        // Calcular los pesos proporcionales con decimales
+        const proportionalWeights = assignments.map(a => {
             const current = parseInt(a.newWeight) || 0;
-            return {
-                ...a,
-                newWeight: Math.round((current / total) * 100)
-            };
+            return (current / total) * 100;
         });
+
+        // Redondear hacia abajo inicialmente
+        const roundedWeights = proportionalWeights.map(weight => Math.floor(weight));
+
+        // Calcular la diferencia para llegar a 100
+        const currentSum = roundedWeights.reduce((sum, weight) => sum + weight, 0);
+        const difference = 100 - currentSum;
+
+        // Distribuir la diferencia entre los elementos con mayor parte decimal
+        const decimals = proportionalWeights.map((weight, index) => ({
+            index,
+            decimal: weight - Math.floor(weight)
+        }));
+
+        // Ordenar por parte decimal descendente
+        decimals.sort((a, b) => b.decimal - a.decimal);
+
+        // Añadir 1 a los elementos con mayor parte decimal
+        for (let i = 0; i < difference; i++) {
+            const index = decimals[i].index;
+            roundedWeights[index] += 1;
+        }
+
+        // Aplicar los nuevos pesos
+        const adjusted = assignments.map((a, index) => ({
+            ...a,
+            newWeight: roundedWeights[index]
+        }));
+
+        // Verificar que la suma sea exactamente 100
+        const finalSum = adjusted.reduce((sum, a) => sum + (parseInt(a.newWeight) || 0), 0);
+
+        if (finalSum !== 100) {
+            console.error("Error: La suma no es 100%", finalSum);
+            setError("Error al ajustar los pesos");
+            return;
+        }
+
+        // Actualizar solo el estado local
         setAssignments(adjusted);
+
+        setSuccessMessage("Pesos ajustados automáticamente al 100%. Presiona 'Guardar Cambios' para confirmar.");
     };
 
     const handleSaveWeights = async () => {
@@ -344,95 +386,145 @@ export default function CourseGradesEdit() {
         }
     };
 
-    if (!user || !user.token) return <p>Redirigiendo...</p>;
-    if (loading) return <p>Cargando...</p>;
+    if (!user || !user.token) return <div className="loading-container"><div className="loading-text">Redirigiendo...</div></div>;
+    if (loading) return <div className="loading-container"><div className="loading-text">Cargando...</div></div>;
 
     return (
-        <div className="p-6 space-y-6">
-            <h1 className="text-2xl">Editar Notas</h1>
+        <div className="course-grades-view">
+            {/* Header */}
+            <div className="grades-header">
+                <h1 className="grades-header-title">Editar Notas - {periodLabel}</h1>
+                <div className="grades-header-actions">
+                    <button
+                        className="grades-action-btn outline"
+                        onClick={() => navigate(`/teachers/courses/${courseId}/subject/${subjectId}/grades`)}
+                    >
+                        ← Volver
+                    </button>
+                    <button
+                        className="grades-action-btn primary"
+                        onClick={handleSave}
+                        disabled={saving}
+                    >
+                        {saving ? "Guardando..." : "💾 Guardar Cambios"}
+                    </button>
+                </div>
+            </div>
 
+            {/* Alerts */}
             {error && (
-                <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="error-container">
+                    <div className="error-text">⚠️ {error}</div>
+                </div>
             )}
             {successMessage && (
-                <Alert>
-                    <AlertDescription>{successMessage}</AlertDescription>
-                </Alert>
-            )}
-
-            {showWeightWarning && (
-                <Alert>
-                    <AlertDescription>
-                        ⚖️ Se redistribuyeron automáticamente los pesos para mantener el 100%.
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            {assignments.length > 0 && totalWeight !== 100 && (
-                <div className="flex items-center gap-2">
-                    <p className="text-sm text-red-600">
-                        Los pesos no suman 100% ({totalWeight}%)
-                    </p>
-                    <Button variant="secondary" onClick={normalizeWeightsTo100}>
-                        Ajustar automáticamente a 100%
-                    </Button>
+                <div className="grades-card" style={{ background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)', border: '2px solid #10b981' }}>
+                    <div style={{ color: '#059669', fontWeight: '600' }}>
+                        ✅ {successMessage}
+                    </div>
                 </div>
             )}
 
-            <div className="w-full bg-gray-200 h-2 rounded">
-                <div className="h-2 bg-green-500 rounded" style={{ width: `${totalWeight}%` }} />
-            </div>
-            <p className="text-sm">Pesos asignados: {totalWeight}% / 100%</p>
+            {showWeightWarning && (
+                <div className="grades-card" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '2px solid #f59e0b' }}>
+                    <div style={{ color: '#d97706', fontWeight: '600' }}>
+                        ⚖️ Se redistribuyeron automáticamente los pesos para mantener el 100%.
+                    </div>
+                </div>
+            )}
 
+            {/* Weight Progress */}
+            <div className="grades-card">
+                <div className="grades-card-header">
+                    <h2 className="grades-card-title">Control de Pesos</h2>
+                </div>
+                <div className="grades-card-content">
+                    <div className="weight-progress">
+                        <div className="weight-progress-bar">
+                            <div
+                                className="weight-progress-fill"
+                                style={{ width: `${totalWeight}%` }}
+                            />
+                        </div>
+                        <div className="weight-progress-text">
+                            Pesos asignados: {totalWeight}% / 100%
+                            {totalWeight > 100 && (
+                                <span className="weight-progress-warning">
+                                    ⚠️ Excede el 100%
+                                </span>
+                            )}
+                        </div>
+                        {assignments.length > 0 && totalWeight !== 100 && (
+                            <button
+                                className="grades-action-btn secondary"
+                                onClick={normalizeWeightsTo100}
+                                disabled={saving}
+                                style={{ marginTop: '12px' }}
+                            >
+                                {saving ? "Ajustando..." : "⚖️ Ajustar automáticamente a 100%"}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Existing Assignments */}
             {assignments.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Actividades Existentes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
+                <div className="grades-card">
+                    <div className="grades-card-header">
+                        <h2 className="grades-card-title">Actividades Existentes</h2>
+                    </div>
+                    <div className="grades-card-content">
+                        <div className="search-grid">
                             {assignments.map((assignment) => (
-                                <div key={assignment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{assignment.name}</span>
-                                            <span className="text-sm text-gray-500">
-                                                {ASSIGNMENT_TYPES.find(t => t.value === assignment.assignment_type)?.label || assignment.assignment_type}
-                                            </span>
+                                <div key={assignment.id} className="grades-card" style={{ margin: '0', padding: '20px' }}>
+                                    <div className="search-field">
+                                        <div className="search-label">{assignment.name}</div>
+                                        <div className="grade-badge outline">
+                                            {ASSIGNMENT_TYPES.find(t => t.value === assignment.assignment_type)?.label || assignment.assignment_type}
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm text-gray-600">Peso:</span>
-                                            <Input
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                                            <span style={{ fontSize: '14px', fontWeight: '600' }}>Peso:</span>
+                                            <input
                                                 type="number"
                                                 min="1"
                                                 max="100"
                                                 value={assignment.newWeight || ""}
                                                 onChange={(e) => handleWeightChange(assignment.id, e.target.value)}
-                                                className="w-20"
+                                                className="search-input"
+                                                style={{ width: '80px' }}
                                             />
-                                            <span className="text-sm text-gray-600">%</span>
+                                            <span style={{ fontSize: '14px', fontWeight: '600' }}>%</span>
                                         </div>
+                                        <button
+                                            className="grades-action-btn"
+                                            style={{
+                                                background: 'linear-gradient(135deg, #ef4444, #f87171)',
+                                                color: 'white',
+                                                marginTop: '8px',
+                                                width: '100%'
+                                            }}
+                                            onClick={() => handleDeleteAssignment(assignment.id, assignment.name)}
+                                        >
+                                            🗑️ Eliminar
+                                        </button>
                                     </div>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => handleDeleteAssignment(assignment.id, assignment.name)}
-                                        className="bg-red-500 hover:bg-red-600 text-white"
-                                    >
-                                        🗑️ Eliminar
-                                    </Button>
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-4 flex justify-end">
-                            <Button onClick={handleSaveWeights}>Guardar Pesos</Button>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                            <button
+                                className="grades-action-btn secondary"
+                                onClick={handleSaveWeights}
+                            >
+                                💾 Guardar Pesos
+                            </button>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             )}
 
+            {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -453,88 +545,100 @@ export default function CourseGradesEdit() {
                 </AlertDialogContent>
             </AlertDialog>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Gestionar Actividades</CardTitle>
-                </CardHeader>
-                <CardContent className="flex gap-4 items-end">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Nombre</label>
-                        <Input
-                            value={newAssignmentName}
-                            onChange={(e) => setNewAssignmentName(e.target.value)}
-                            placeholder="Nombre de la actividad"
-                        />
+            {/* Create Assignment Form */}
+            <div className="grades-card">
+                <div className="grades-card-header">
+                    <h2 className="grades-card-title">Crear Nueva Actividad</h2>
+                </div>
+                <div className="grades-card-content">
+                    <div className="search-grid">
+                        <div className="search-field">
+                            <label className="search-label">Nombre</label>
+                            <input
+                                type="text"
+                                value={newAssignmentName}
+                                onChange={(e) => setNewAssignmentName(e.target.value)}
+                                placeholder="Nombre de la actividad"
+                                className="search-input"
+                            />
+                        </div>
+                        <div className="search-field">
+                            <label className="search-label">Tipo</label>
+                            <select
+                                value={newAssignmentType}
+                                onChange={(e) => setNewAssignmentType(e.target.value)}
+                                className="search-input"
+                            >
+                                {ASSIGNMENT_TYPES.map(opt => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="search-field">
+                            <label className="search-label">Peso (%)</label>
+                            <input
+                                type="number"
+                                min="1"
+                                max={safeRemaining}
+                                value={newAssignmentWeight}
+                                onChange={(e) => setNewAssignmentWeight(parseInt(e.target.value) || 0)}
+                                className="search-input"
+                            />
+                            {newAssignmentWeight > remainingWeight && (
+                                <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                                    ⚠️ Excede {remainingWeight}% restante
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Tipo</label>
-                        <select
-                            value={newAssignmentType}
-                            onChange={(e) => setNewAssignmentType(e.target.value)}
-                            className="border rounded p-2 h-10 min-w-[120px]"
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <button
+                            className="grades-action-btn primary"
+                            onClick={handleCreateAssignment}
+                            disabled={!newAssignmentName || newAssignmentWeight > remainingWeight}
                         >
-                            {ASSIGNMENT_TYPES.map(opt => (
-                                <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
+                            ➕ Añadir Actividad
+                        </button>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Peso (%)</label>
-                        <Input
-                            type="number"
-                            min="1"
-                            max={safeRemaining}
-                            value={newAssignmentWeight}
-                            onChange={(e) => setNewAssignmentWeight(parseInt(e.target.value) || 0)}
-                        />
-                    </div>
-                    {newAssignmentWeight > remainingWeight && (
-                        <p className="text-red-600 text-sm">Excede {remainingWeight}% restante</p>
-                    )}
-                    <Button
-                        onClick={handleCreateAssignment}
-                        disabled={!newAssignmentName || newAssignmentWeight > remainingWeight}
-                    >
-                        Añadir
-                    </Button>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Notas del Periodo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="overflow-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Estudiante</TableHead>
+            {/* Grades Table */}
+            <div className="grades-card">
+                <div className="grades-card-header">
+                    <h2 className="grades-card-title">Notas del Periodo</h2>
+                </div>
+                <div className="grades-card-content">
+                    <div className="grades-table-container">
+                        <table className="grades-table">
+                            <thead className="grades-table-header">
+                                <tr className="grades-table-header-row">
+                                    <th className="grades-table-header-cell">Estudiante</th>
                                     {assignments.map((a) => (
-                                        <TableHead key={a.id}>
-                                            <div className="flex flex-col items-center">
-                                                <div className="flex items-center gap-1">
-                                                    <span>{a.name}</span>
-                                                    <span className="text-xs text-gray-500">({a.newWeight || 0}%)</span>
-                                                </div>
-                                                <span className="text-xs text-gray-400">
+                                        <th key={a.id} className="grades-table-header-cell">
+                                            <div className="assignment-header">
+                                                <div className="assignment-name">{a.name}</div>
+                                                <div className="assignment-weight">({a.newWeight || 0}%)</div>
+                                                <div style={{ fontSize: '10px', color: '#64748b' }}>
                                                     {ASSIGNMENT_TYPES.find(t => t.value === a.assignment_type)?.label || a.assignment_type}
-                                                </span>
+                                                </div>
                                             </div>
-                                        </TableHead>
+                                        </th>
                                     ))}
-                                    <TableHead>Definitiva</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                                    <th className="grades-table-header-cell">Definitiva</th>
+                                    <th className="grades-table-header-cell">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody className="grades-table-body">
                                 {students.map((s) => (
-                                    <TableRow key={s.student_id}>
-                                        <TableCell>{s.student_name}</TableCell>
+                                    <tr key={s.student_id} className="grades-table-row">
+                                        <td className="grades-table-cell">
+                                            <div className="student-name">{s.student_name}</div>
+                                        </td>
                                         {assignments.map((a) => (
-                                            <TableCell key={a.id} className="text-center">
+                                            <td key={a.id} className="grades-table-cell">
                                                 <GradeInputCell
                                                     value={grades[`${s.student_id}-${a.id}`]?.score}
                                                     late={grades[`${s.student_id}-${a.id}`]?.late_submission}
@@ -543,32 +647,46 @@ export default function CourseGradesEdit() {
                                                         [`${s.student_id}-${a.id}`]: val
                                                     }))}
                                                 />
-                                            </TableCell>
+                                            </td>
                                         ))}
-                                        <TableCell className="text-center font-semibold">{calculateFinal(s.student_id)}</TableCell>
-                                        <TableCell className="text-center">
-                                            <span
-                                                className={`px-2 py-1 rounded text-xs ${calculateFinal(s.student_id) >= 3 ? "bg-green-100" : "bg-red-100"
-                                                    }`}
-                                            >
+                                        <td className="grades-table-cell">
+                                            <div className="final-grade">
+                                                {calculateFinal(s.student_id)}
+                                            </div>
+                                        </td>
+                                        <td className="grades-table-cell">
+                                            <span className={`status-badge ${calculateFinal(s.student_id) >= 3 ? "approved" : "failed"}`}>
                                                 {calculateFinal(s.student_id) >= 3 ? "Aprobado" : "Reprobado"}
                                             </span>
-                                        </TableCell>
-                                    </TableRow>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
-            <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => navigate(`/teachers/courses/${courseId}/subject/${subjectId}/grades`)}>
-                    Cancelar
-                </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                    {saving ? "Guardando..." : "Guardar Cambios"}
-                </Button>
+            {/* Botón flotante fijo */}
+            <div className="floating-save-container">
+                <button
+                    className="floating-save-btn"
+                    onClick={handleSave}
+                    disabled={saving}
+                    title="Guardar cambios"
+                >
+                    {saving ? (
+                        <>
+                            <div className="spinner"></div>
+                            <span>Guardando...</span>
+                        </>
+                    ) : (
+                        <>
+                            💾
+                            <span>Guardar</span>
+                        </>
+                    )}
+                </button>
             </div>
         </div>
     );

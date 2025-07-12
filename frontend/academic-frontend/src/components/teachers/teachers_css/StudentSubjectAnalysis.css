@@ -1,1 +1,316 @@
 /* Styles for StudentSubjectAnalysis.jsx */
+/* StudentSubjectAnalysis.css */
+/* Extending the CourseAnalysis.css with additional styles for student analysis */
+
+/* Student-specific header styles */
+.student-name {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.student-info {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-detail, .course-detail {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.inline-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Risk badge styles */
+.risk-badge {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.risk-badge-low {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #065f46;
+  border: 2px solid #10b981;
+}
+
+.risk-badge-moderate {
+  background: linear-gradient(135deg, #fefbeb 0%, #fef3c7 100%);
+  color: #92400e;
+  border: 2px solid #f59e0b;
+}
+
+.risk-badge-high {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  color: #991b1b;
+  border: 2px solid #ef4444;
+}
+
+/* Grade color classes */
+.grade-high { color: #10b981; }
+.grade-medium { color: #f59e0b; }
+.grade-low { color: #ef4444; }
+
+/* Grade range display */
+.grade-range {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.grade-separator {
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Attendance rate styling */
+.attendance-rate {
+  color: #10b981;
+}
+
+/* Late submissions styling */
+.late-submissions {
+  color: #f59e0b;
+}
+
+/* Submission summary */
+.submission-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.summary-value.total-evaluations {
+  color: #2563eb;
+}
+
+.summary-value.late-submissions {
+  color: #f59e0b;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Warning message */
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #fefbeb 0%, #fef3c7 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.warning-icon {
+  width: 20px;
+  height: 20px;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.warning-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #92400e;
+  font-weight: 600;
+}
+
+/* Chart sections */
+.chart-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Card icons */
+.card-icon {
+  width: 20px;
+  height: 20px;
+  color: #2563eb;
+}
+
+/* No data message */
+.no-data-message {
+  text-align: center;
+  padding: 64px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+.no-data-text {
+  font-size: 18px;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.no-data-subtitle {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Comparison summary */
+.comparison-summary {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.comparison-text {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.comparison-value {
+  font-weight: 700;
+}
+
+.comparison-value.positive {
+  color: #10b981;
+}
+
+.comparison-value.negative {
+  color: #ef4444;
+}
+
+/* Narrative sections */
+.narrative-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.narrative-item {
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid;
+  transition: all 0.3s ease;
+}
+
+.narrative-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.narrative-item.performance {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+}
+
+.narrative-item.risk.green {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+/* Continuación de narrative-item.risk.yellow */
+.narrative-item.risk.yellow {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+  border-color: #f59e0b;
+}
+
+.narrative-item.risk.red {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-color: #ef4444;
+}
+
+/* Asistencia narrativa */
+.narrative-item.attendance {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+/* Tendencia */
+.narrative-item.trend {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-color: #60a5fa;
+}
+
+/* Recomendaciones */
+.narrative-item.recommendations {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #38bdf8;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.recommendation-item {
+  font-size: 14px;
+  color: #334155;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-left: 4px solid #38bdf8;
+  border-radius: 6px;
+}
+
+/* Botón de impresión */
+.print-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.print-btn {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.print-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.print-icon {
+  width: 18px;
+  height: 18px;
+}

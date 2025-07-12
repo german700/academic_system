@@ -1,4 +1,3 @@
-//C:\Users\germa\Desktop\academic_system\frontend\academic-frontend\src\components\teachers\CourseAttendance.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../shared/ui/card';
 import { Button } from '../shared/ui/button';
 import { Check, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import './teachers_css/CourseAttendance.css';
 
 export default function CourseAttendance({ courseId: propCourseId, subjectId: propSubjectId }) {
   const params = useParams();
@@ -75,74 +75,94 @@ export default function CourseAttendance({ courseId: propCourseId, subjectId: pr
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Registro de Asistencia</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4 mb-4">
-          <label htmlFor="date">Fecha:</label>
-          <input
-            id="date"
-            type="date"
-            value={date.toLocaleDateString("en-CA")}
-            onChange={e => {
-              const [year, month, day] = e.target.value.split("-");
-              setDate(new Date(year, month - 1, day)); // evita el desfase por zona horaria
-            }}
-            className="border rounded px-2 py-1"
-          />
+    <div className="course-attendance-container">
+      <div className="attendance-card">
+        <div className="attendance-card-header">
+          <h1 className="attendance-card-title">Registro de Asistencia</h1>
         </div>
+        <div className="attendance-card-content">
+          <div className="date-selector">
+            <label htmlFor="date">Fecha:</label>
+            <input
+              id="date"
+              type="date"
+              value={date.toLocaleDateString("en-CA")}
+              onChange={e => {
+                const [year, month, day] = e.target.value.split("-");
+                setDate(new Date(year, month - 1, day)); // evita el desfase por zona horaria
+              }}
+              className="date-input"
+            />
+          </div>
 
-        {loading ? (
-          <p>Cargando asistencia…</p>
-        ) : (
-          <>
-            <table className="w-full mt-2 border">
-              <thead>
-                <tr>
-                  <th className="text-left p-2">Estudiante</th>
-                  <th className="text-center">Asistencia</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((r, i) => (
-                  <tr key={r.studentId}>
-                    <td className="p-2">{r.studentName}</td>
-                    <td className="text-center">
-                      <button
-                        className="text-xl"
-                        onClick={() => toggle(i)}
-                        disabled={!isEditable}
-                      >
-                        {r.present ? (
-                          <Check className="text-green-600 inline" />
-                        ) : (
-                          <X className="text-red-600 inline" />
-                        )}{" "}
-                        {r.present ? "Presente" : "Ausente"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="mt-4">
-              {!isEditable && (
-                <p className="text-amber-600 text-sm mb-2">
-                  ⚠️ Solo se puede registrar asistencia del mes actual
-                </p>
-              )}
-              <div className="text-right">
-                <Button onClick={save} disabled={saving || !isEditable}>
-                  {saving ? "Guardando..." : "Guardar asistencia"}
-                </Button>
-              </div>
+          {loading ? (
+            <div className="attendance-loading">
+              <p className="attendance-loading-text">Cargando asistencia...</p>
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            <>
+              <div className="attendance-table-container">
+                <table className="attendance-table">
+                  <thead className="attendance-table-header">
+                    <tr>
+                      <th>Estudiante</th>
+                      <th>Asistencia</th>
+                    </tr>
+                  </thead>
+                  <tbody className="attendance-table-body">
+                    {records.map((r, i) => (
+                      <tr key={r.studentId} className="attendance-table-row">
+                        <td className="attendance-table-cell">
+                          <span className="student-name">{r.studentName}</span>
+                        </td>
+                        <td className="attendance-table-cell">
+                          <button
+                            className={`attendance-toggle-btn ${r.present ? 'present' : 'absent'}`}
+                            onClick={() => toggle(i)}
+                            disabled={!isEditable}
+                          >
+                            {r.present ? (
+                              <Check className="icon" />
+                            ) : (
+                              <X className="icon" />
+                            )}
+                            {r.present ? "Presente" : "Ausente"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="attendance-actions">
+                {!isEditable && (
+                  <div className="editable-warning">
+                    <span className="editable-warning-icon">⚠️</span>
+                    <p className="editable-warning-text">
+                      Solo se puede registrar asistencia del mes actual
+                    </p>
+                  </div>
+                )}
+                <button 
+                  className="attendance-save-btn"
+                  onClick={save} 
+                  disabled={saving || !isEditable}
+                >
+                  {saving ? (
+                    <>
+                      <div className="spinner"></div>
+                      Guardando...
+                    </>
+                  ) : (
+                    "Guardar asistencia"
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

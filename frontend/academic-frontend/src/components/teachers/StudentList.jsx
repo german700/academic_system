@@ -12,22 +12,59 @@ export default function StudentList({ students, courseId, subjectId, period, cou
     });
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-4">
-                <Input
-                    placeholder="Buscar estudiante..."
-                    value={q}
-                    onChange={e => setQ(e.target.value)}
-                    className="w-1/3"
-                />
-                <span className="text-sm text-gray-500">
-                    {filtered.length} de {students.length} estudiantes
-                </span>
+        <div className="teacher-dashboard">
+            {/* Header con información del curso */}
+            <div className="dashboard-header">
+                <div className="dashboard-header-title">
+                    Lista de Estudiantes
+                </div>
+                <div className="period-card">
+                    <div className="period-label">Curso</div>
+                    <div className="period-value">{courseName} - {subjectName}</div>
+                </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filtered.map(s => (
-                    <div key={s.student_id} className="relative">
+
+            {/* Sección de búsqueda y estadísticas */}
+            <div className="analysis-card">
+                <div className="analysis-card-header">
+                    <div className="analysis-card-title">
+                        Buscar Estudiantes
+                    </div>
+                </div>
+
+                <div className="period-selector-section">
+                    <Input
+                        placeholder="Buscar estudiante..."
+                        value={q}
+                        onChange={e => setQ(e.target.value)}
+                        className="period-select"
+                        style={{ width: '300px' }}
+                    />
+                    <div className="analysis-description">
+                        {filtered.length} de {students.length} estudiantes
+                    </div>
+                </div>
+            </div>
+
+            {/* Grid de estudiantes */}
+            <div className="section-title">
+                Estudiantes ({filtered.length})
+            </div>
+
+            {filtered.length === 0 ? (
+                <div className="empty-state">
+                    <div className="empty-title">
+                        {q ? "No se encontraron estudiantes" : "No hay estudiantes"}
+                    </div>
+                    <div className="empty-description">
+                        {q ? `No hay estudiantes que coincidan con "${q}"` : "No hay estudiantes registrados en este curso."}
+                    </div>
+                </div>
+            ) : (
+                <div className="courses-grid">
+                    {filtered.map(s => (
                         <StudentCard
+                            key={s.student_id}
                             student={s}
                             courseId={courseId}
                             subjectId={subjectId}
@@ -35,9 +72,10 @@ export default function StudentList({ students, courseId, subjectId, period, cou
                             courseName={courseName}
                             subjectName={subjectName}
                         />
-                    </div>
-                ))}
-            </div>
+
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

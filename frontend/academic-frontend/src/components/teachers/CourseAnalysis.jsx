@@ -12,6 +12,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from ".
 import { Button } from "../shared/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { TrendingUp, TrendingDown, Users, Target, Award, AlertTriangle } from "lucide-react";
+import './teachers_css/CourseAnalysis.css';
 
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#8884D8'];
 
@@ -38,23 +39,23 @@ export default function CourseAnalysis() {
       try {
         setLoading(true);
         let effectivePeriod = period;
-        
+
         // Si no hay periodo seleccionado, obtener el periodo actual
         if (!effectivePeriod) {
           const dashboard = await fetchTeacherDashboard();
           effectivePeriod = dashboard.current_period.number.toString();
           setPeriod(effectivePeriod);
         }
-        
+
         // Cargar análisis del período efectivo
         const data = await fetchCourseAnalysis(courseId, subjectId, effectivePeriod);
-        
+
         setAnalysis(data);
         setCourseInfo({
           courseName: data.metadata?.courseName || `${courseId}`,
           subjectName: data.metadata?.subjectName || "Matemáticas"
         });
-        
+
       } catch (error) {
         console.error("Error al cargar análisis:", error);
       } finally {
@@ -112,26 +113,27 @@ export default function CourseAnalysis() {
     }
   };
 
-  if (loading) return <p>Cargando análisis…</p>;
-  if (!analysis) return <p>Error al cargar datos.</p>;
+  // Estados de carga y error actualizados
+  if (loading) return <div className="analysis-loading"><p className="analysis-loading-text">Cargando análisis…</p></div>;
+  if (!analysis) return <div className="analysis-error"><p className="analysis-error-text">Error al cargar datos.</p></div>;
 
   // Preparar datos para gráficos de rendimiento
   const performanceData = [
     {
       name: 'Alto rendimiento',
-      value: analysis.highPerformancePct,
+      value: Math.round(analysis.highPerformancePct * 100) / 100, // Redondear a 2 decimales
       color: '#00C49F',
       description: '≥ 4.0'
     },
     {
       name: 'Rendimiento medio',
-      value: Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct),
+      value: Math.round(Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct) * 100) / 100,
       color: '#FFBB28',
       description: '3.0 - 3.9'
     },
     {
       name: 'Bajo rendimiento',
-      value: analysis.lowPerformancePct,
+      value: Math.round(analysis.lowPerformancePct * 100) / 100,
       color: '#FF8042',
       description: '< 3.0'
     }
@@ -151,228 +153,215 @@ export default function CourseAnalysis() {
   // Calcular estadísticas de asistencia
   const avgAttendance = analysis.avgAsistenciaPeriodo || analysis.avgAsistenciaCurso || 0;
   const attendanceStatus = avgAttendance >= 0.8 ? 'Excelente' : avgAttendance >= 0.6 ? 'Buena' : 'Necesita atención';
-  const attendanceColor = avgAttendance >= 0.8 ? 'text-green-600' : avgAttendance >= 0.6 ? 'text-yellow-600' : 'text-red-600';
+  const attendanceColor = avgAttendance >= 0.8 ? 'attendance-excellent' : avgAttendance >= 0.6 ? 'attendance-good' : 'attendance-poor';
 
   // ✅ Obtener label del período seleccionado
   const selectedPeriodLabel = periods.find(p => p.value === period)?.label;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="course-analysis">
       {/* Componente de impresión oculto */}
-      <div
-        id="print-content"
-        style={{
-          position: 'absolute',
-          left: '-9999px',
-          top: 0,
-          width: '210mm',
-          minHeight: '297mm',
-          overflow: 'hidden',
-          visibility: 'hidden'
-        }}
-      >
+      <div className="print-content" id="print-content">
         <PrintCourseAnalysis
           analysis={analysis}
           metadata={{
             courseName: courseInfo.courseName,
             subjectName: courseInfo.subjectName,
-            courseId: courseId  
+            courseId: courseId
           }}
           period={period}
         />
-
       </div>
 
       {/* Encabezado con información del curso */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold">
-          Análisis de <span className="text-blue-600">{courseInfo.subjectName}</span> en el curso <span className="text-green-600">{courseInfo.courseName}</span>, periodo <span className="text-purple-600">{selectedPeriodLabel}</span>
+      <div className="analysis-header">
+        <h2 className="analysis-title">
+          Análisis de <span className="subject-name">{courseInfo.subjectName}</span> en el curso <span className="course-name">{courseInfo.courseName}</span>, periodo <span className="period-name">{selectedPeriodLabel}</span>
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="analysis-description">
           El "Promedio IA" es la probabilidad promedio de que un estudiante caiga en riesgo académico, según nuestro modelo.
         </p>
       </div>
 
       {/* Selector de periodo y botón de imprimir */}
-      <Card>
-        <CardHeader><CardTitle>Periodo</CardTitle></CardHeader>
-        <CardContent className="flex items-center gap-4">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Selecciona un periodo">
-                {selectedPeriodLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {periods.map(p => (
-                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="analysis-card">
+        <div className="analysis-card-header">
+          <h3 className="analysis-card-title">Periodo</h3>
+        </div>
+        <div className="analysis-card-content">
+          <div className="period-selector-section">
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="period-select">
+                <SelectValue placeholder="Selecciona un periodo">
+                  {selectedPeriodLabel}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {periods.map(p => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Button
-            onClick={handlePrint}
-            className="flex items-center gap-2"
-            variant="outline"
-          >
-            📄 Imprimir Análisis
-          </Button>
-        </CardContent>
-      </Card>
+            <button
+              onClick={handlePrint}
+              className="print-btn"
+            >
+              📄 Imprimir Análisis
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Métricas generales mejoradas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Promedio Real</p>
-                <p className="text-2xl font-bold">{analysis.realAverage}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-blue-500" />
+      <div className="metrics-grid">
+        <div className="metric-card">
+          <div className="metric-card-content">
+            <div className="metric-info">
+              <p className="metric-label">Promedio Real</p>
+              <p className="metric-value">{analysis.realAverage}</p>
             </div>
-          </CardContent>
-        </Card>
+            <TrendingUp className="metric-icon blue" />
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Promedio IA</p>
-                <p className="text-2xl font-bold">{analysis.iaAverage}</p>
-              </div>
-              <Target className="h-8 w-8 text-purple-500" />
+        <div className="metric-card">
+          <div className="metric-card-content">
+            <div className="metric-info">
+              <p className="metric-label">Promedio IA</p>
+              <p className="metric-value">{analysis.iaAverage}</p>
             </div>
-          </CardContent>
-        </Card>
+            <Target className="metric-icon purple" />
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Estudiantes</p>
-                <p className="text-2xl font-bold">{studentsWithData}/{totalStudents}</p>
-                <p className="text-xs text-gray-500">con datos</p>
-              </div>
-              <Users className="h-8 w-8 text-green-500" />
+        <div className="metric-card">
+          <div className="metric-card-content">
+            <div className="metric-info">
+              <p className="metric-label">Estudiantes</p>
+              <p className="metric-value">{studentsWithData}/{totalStudents}</p>
+              <p className="metric-subtitle">con datos</p>
             </div>
-          </CardContent>
-        </Card>
+            <Users className="metric-icon green" />
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Asistencia</p>
-                <p className={`text-2xl font-bold ${attendanceColor}`}>
-                  {Math.round(avgAttendance * 100)}%
-                </p>
-                <p className="text-xs text-gray-500">{attendanceStatus}</p>
-              </div>
-              <Award className="h-8 w-8 text-yellow-500" />
+        <div className="metric-card">
+          <div className="metric-card-content">
+            <div className="metric-info">
+              <p className="metric-label">Asistencia</p>
+              <p className={`metric-value ${attendanceColor}`}>
+                {Math.round(avgAttendance * 100)}%
+              </p>
+              <p className="metric-subtitle">{attendanceStatus}</p>
             </div>
-          </CardContent>
-        </Card>
+            <Award className="metric-icon yellow" />
+          </div>
+        </div>
       </div>
 
       {/* Resumen de rendimiento del curso */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="analysis-card">
+        <div className="analysis-card-header">
+          <h3 className="analysis-card-title">
             <Target className="h-5 w-5" />
             Resumen de Rendimiento del Curso
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          </h3>
+        </div>
+        <div className="analysis-card-content">
+          <div className="performance-summary">
             {/* Distribución de rendimiento */}
-            <div>
-              <h4 className="font-medium mb-4">Distribución de Rendimiento</h4>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={performanceData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, value }) => `${name}: ${value}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {performanceData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="performance-chart">
+              <h4 className="performance-chart-title">Distribución de Rendimiento</h4>
+              <div className="chart-container pie">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={performanceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {performanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
             {/* Estadísticas textuales */}
-            <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  <span className="font-medium text-green-800">Alto Rendimiento</span>
+            <div className="performance-stats">
+              <div className="performance-stat high">
+                <div className="performance-stat-header">
+                  <TrendingUp className="icon high" />
+                  <span className="performance-stat-title high">Alto Rendimiento</span>
                 </div>
-                <p className="text-2xl font-bold text-green-600">{analysis.highPerformancePct}%</p>
-                <p className="text-sm text-green-600">Estudiantes con promedio ≥ 4.0</p>
+                <p className="performance-stat-value high">{analysis.highPerformancePct}%</p>
+                <p className="performance-stat-description high">Estudiantes con promedio ≥ 4.0</p>
               </div>
 
-              <div className="bg-red-50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
-                  <span className="font-medium text-red-800">Necesitan Atención</span>
+              <div className="performance-stat low">
+                <div className="performance-stat-header">
+                  <AlertTriangle className="icon low" />
+                  <span className="performance-stat-title low">Necesitan Atención</span>
                 </div>
-                <p className="text-2xl font-bold text-red-600">{analysis.lowPerformancePct}%</p>
-                <p className="text-sm text-red-600">Estudiantes con promedio &lt; 3.0</p>
+                <p className="performance-stat-value low">{analysis.lowPerformancePct}%</p>
+                <p className="performance-stat-description low">Estudiantes con promedio &lt; 3.0</p>
               </div>
 
               {studentsWithoutData > 0 && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-gray-600" />
-                    <span className="font-medium text-gray-800">Sin Datos</span>
+                <div className="performance-stat no-data">
+                  <div className="performance-stat-header">
+                    <AlertTriangle className="icon no-data" />
+                    <span className="performance-stat-title no-data">Sin Datos</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-600">{studentsWithoutData}</p>
-                  <p className="text-sm text-gray-600">Estudiantes sin evaluaciones</p>
+                  <p className="performance-stat-value no-data">{studentsWithoutData}</p>
+                  <p className="performance-stat-description no-data">Estudiantes sin evaluaciones</p>
                 </div>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Promedios por tipo de evaluación */}
       {evaluationTypesData.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Promedios por Tipo de Evaluación</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={evaluationTypesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="tipo"
-                  tick={{ fontSize: 12 }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis domain={[0, 5]} />
-                <Tooltip />
-                <Bar dataKey="promedio" fill="#0088FE">
-                  {evaluationTypesData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <div className="analysis-card">
+          <div className="analysis-card-header">
+            <h3 className="analysis-card-title">Promedios por Tipo de Evaluación</h3>
+          </div>
+          <div className="analysis-card-content">
+            <div className="chart-container bar">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={evaluationTypesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="tipo"
+                    tick={{ fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis domain={[0, 5]} />
+                  <Tooltip />
+                  <Bar dataKey="promedio" fill="#0088FE">
+                    {evaluationTypesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Gráficos existentes */}

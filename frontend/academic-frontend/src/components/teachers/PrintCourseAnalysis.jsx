@@ -8,21 +8,24 @@ import { TrendingUp, Users, Target, Award, AlertTriangle } from "lucide-react";
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#8884D8'];
 
 const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
-    // Preparamos los datos para Pie y Bar, igual que en CourseAnalysis
+    // Función para redondear porcentajes
+    const roundToOneDecimal = (num) => Math.round(num * 10) / 10;
+    
+    // Preparamos los datos para Pie y Bar con porcentajes redondeados
     const performanceData = [
         {
             name: 'Alto rendimiento',
-            value: analysis.highPerformancePct,
+            value: roundToOneDecimal(analysis.highPerformancePct),
             color: COLORS[0],
         },
         {
             name: 'Rendimiento medio',
-            value: Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct),
+            value: roundToOneDecimal(Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct)),
             color: COLORS[1],
         },
         {
             name: 'Bajo rendimiento',
-            value: analysis.lowPerformancePct,
+            value: roundToOneDecimal(analysis.lowPerformancePct),
             color: COLORS[2],
         }
     ].filter(d => d.value > 0);
@@ -137,41 +140,44 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                     Análisis de Rendimiento
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
-                    {/* Gráfico de distribución con leyenda separada */}
+                    {/* Gráfico de distribución con tamaño controlado */}
                     <div className="bg-gray-50 p-4 rounded-lg border">
                         <h3 className="font-semibold text-gray-700 mb-3">Distribución de Rendimiento</h3>
-                        <ResponsiveContainer width="100%" height={200}>
-                            <PieChart>
-                                <Pie
-                                    data={performanceData}
-                                    cx="50%" cy="50%"
-                                    labelLine={false}
-                                    label={({ value }) => `${value}%`}
-                                    outerRadius={110}
-                                    dataKey="value"
-                                    labelStyle={{
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        fill: '#000',
-                                        textAnchor: 'middle',
-                                        dominantBaseline: 'middle',
-                                        textShadow: '1px 1px 2px rgba(255,255,255,0.8)'
-                                    }}
-                                >
-                                    {performanceData.map((entry, idx) => (
-                                        <Cell key={idx} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip formatter={(value) => `${value}%`} />
-                                <Legend 
-                                    layout="horizontal" 
-                                    verticalAlign="bottom" 
-                                    align="left" 
-                                    height={36}
-                                    wrapperStyle={{ paddingTop: 8 }}
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <div style={{ width: '100%', height: '180px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={performanceData}
+                                        cx="50%" 
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({ value }) => `${value}%`}
+                                        outerRadius={60}
+                                        innerRadius={0}
+                                        dataKey="value"
+                                        labelStyle={{
+                                            fontSize: '12px',
+                                            fontWeight: 'bold',
+                                            fill: '#000'
+                                        }}
+                                    >
+                                        {performanceData.map((entry, idx) => (
+                                            <Cell key={idx} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={(value) => `${value}%`} />
+                                    <Legend 
+                                        layout="vertical" 
+                                        verticalAlign="middle" 
+                                        align="right"
+                                        wrapperStyle={{ 
+                                            fontSize: '10px',
+                                            paddingLeft: '10px'
+                                        }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
 
                     {/* Estadísticas de rendimiento */}
@@ -182,7 +188,7 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                                     <p className="font-medium text-green-800">Alto Rendimiento</p>
                                     <p className="text-sm text-green-600">Promedio ≥ 4.0</p>
                                 </div>
-                                <p className="text-2xl font-bold text-green-600">{analysis.highPerformancePct}%</p>
+                                <p className="text-2xl font-bold text-green-600">{roundToOneDecimal(analysis.highPerformancePct)}%</p>
                             </div>
                         </div>
 
@@ -193,7 +199,7 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                                     <p className="text-sm text-yellow-600">Promedio 3.0 - 3.9</p>
                                 </div>
                                 <p className="text-2xl font-bold text-yellow-600">
-                                    {Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct)}%
+                                    {roundToOneDecimal(Math.max(0, 100 - analysis.highPerformancePct - analysis.lowPerformancePct))}%
                                 </p>
                             </div>
                         </div>
@@ -204,7 +210,7 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
                                     <p className="font-medium text-red-800">Necesitan Atención</p>
                                     <p className="text-sm text-red-600">Promedio &lt; 3.0</p>
                                 </div>
-                                <p className="text-2xl font-bold text-red-600">{analysis.lowPerformancePct}%</p>
+                                <p className="text-2xl font-bold text-red-600">{roundToOneDecimal(analysis.lowPerformancePct)}%</p>
                             </div>
                         </div>
                     </div>
@@ -401,6 +407,16 @@ const PrintCourseAnalysis = ({ analysis, metadata, period }) => {
         .border-yellow-200,
         .border-red-200 {
             border-color: #ccc !important;
+        }
+        
+        /* Estilos específicos para el gráfico de torta en impresión */
+        .recharts-pie-chart {
+            max-width: 180px !important;
+            max-height: 180px !important;
+        }
+        
+        .recharts-legend-wrapper {
+            font-size: 9px !important;
         }
     }
 `}</style>

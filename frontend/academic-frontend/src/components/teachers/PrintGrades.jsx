@@ -14,7 +14,7 @@ export default function PrintGrades({
 }) {
     const [includeDefinitiva, setIncludeDefinitiva] = useState(false);
     const [logoBase64, setLogoBase64] = useState('');
-
+    
     // Convertir logo a base64 al cargar el componente
     React.useEffect(() => {
         const convertLogoToBase64 = async () => {
@@ -38,24 +38,20 @@ export default function PrintGrades({
     const calculateFinal = (studentGrades) => {
         let total = 0;
         let weightSum = 0;
-
         for (const assignment of assignments) {
             const grade = studentGrades.find(g => g.assignment_id === assignment.id);
             const weight = (assignment.weightPercentage || 0) / 100;
-
             if (grade && !isNaN(grade.score) && weight > 0) {
                 total += grade.score * weight;
                 weightSum += weight;
             }
         }
-
         return weightSum > 0 ? (total / weightSum).toFixed(2) : "0.00";
     };
 
     // Función auxiliar para manejar la impresión con logo
     const handlePrintWithLogo = (printWindow) => {
         const logo = printWindow.document.querySelector("img.logo");
-
         if (logo && logoBase64) {
             if (logo.complete) {
                 setTimeout(() => printWindow.print(), 100);
@@ -196,14 +192,13 @@ export default function PrintGrades({
                     </div>
                     
                     ${getCourseInfoSection()}
-
                     <table>
                         <thead>
                             <tr>
                                 <th class="student-column">ESTUDIANTE</th>
                                 ${assignments.map(assignment =>
-            `<th class="grade-column">${assignment.name}<br><small>(${assignment.weightPercentage || 0}%)</small></th>`
-        ).join('')}
+                                    `<th class="grade-column">${assignment.name}<br><small>(${assignment.weightPercentage || 0}%)</small></th>`
+                                ).join('')}
                                 <th class="grade-column">DEFINITIVA</th>
                                 <th class="grade-column">OBSERVACIONES</th>
                             </tr>
@@ -222,7 +217,6 @@ export default function PrintGrades({
                             `).join('')}
                         </tbody>
                     </table>
-
                     <div class="footer">
                         <div class="signature">
                             <div>_________________________</div>
@@ -240,11 +234,9 @@ export default function PrintGrades({
                 </body>
             </html>
         `;
-
         const printWindow = window.open('', '_blank');
         printWindow.document.write(printContent);
         printWindow.document.close();
-
         printWindow.onload = () => {
             handlePrintWithLogo(printWindow);
         };
@@ -366,47 +358,45 @@ export default function PrintGrades({
                     </div>
                     
                     ${getCourseInfoSection()}
-
                     <table>
                         <thead>
                             <tr>
                                 <th class="student-column">ESTUDIANTE</th>
                                 ${assignments.map(assignment =>
-            `<th class="grade-column">${assignment.name}<br><small>(${assignment.weightPercentage || 0}%)</small></th>`
-        ).join('')}
+                                    `<th class="grade-column">${assignment.name}<br><small>(${assignment.weightPercentage || 0}%)</small></th>`
+                                ).join('')}
                                 ${includeDefinitiva ? '<th class="grade-column">DEFINITIVA</th>' : ''}
                                 <th class="grade-column">OBSERVACIONES</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${students.map(student => {
-            const definitiva = parseFloat(calculateFinal(student.grades));
-            return `
+                                const definitiva = parseFloat(calculateFinal(student.grades));
+                                return `
                                     <tr>
                                         <td class="student-column">
                                             <div class="student-id">ID: ${student.student_id}</div>
                                             <div class="student-name">${student.student_name.toUpperCase()}</div>
                                         </td>
                                         ${assignments.map(assignment => {
-                const grade = student.grades.find(g => g.assignment_id === assignment.id);
-                return `<td class="grade-column">
+                                            const grade = student.grades.find(g => g.assignment_id === assignment.id);
+                                            return `<td class="grade-column">
                                                 <div class="grade-value">${grade ? grade.score.toFixed(1) : '—'}</div>
                                             </td>`;
-            }).join('')}
+                                        }).join('')}
                                         ${includeDefinitiva ?
-                    `<td class="grade-column">
+                                            `<td class="grade-column">
                                                 <div class="grade-value ${definitiva >= 3 ? 'passed' : 'failed'}">
                                                     ${definitiva.toFixed(2)}
                                                 </div>
                                             </td>` : ''
-                }
+                                        }
                                         <td class="grade-column"></td>
                                     </tr>
                                 `;
-        }).join('')}
+                            }).join('')}
                         </tbody>
                     </table>
-
                     <div class="footer">
                         <div class="signature">
                             <div>_________________________</div>
@@ -424,11 +414,9 @@ export default function PrintGrades({
                 </body>
             </html>
         `;
-
         const printWindow = window.open('', '_blank');
         printWindow.document.write(printContent);
         printWindow.document.close();
-
         printWindow.onload = () => {
             handlePrintWithLogo(printWindow);
         };
@@ -498,7 +486,7 @@ export default function PrintGrades({
                                     </p>
                                 </div>
                             </div>
-
+                            
                             {/* Checkbox para incluir definitiva */}
                             <div className="mt-3 flex items-center space-x-2">
                                 <input
@@ -512,10 +500,11 @@ export default function PrintGrades({
                                     Incluir columna de definitiva
                                 </label>
                             </div>
-
+                            
                             <Button
                                 className="w-full mt-3"
                                 onClick={generateGradesTemplate}
+                                variant="outline"
                             >
                                 <Download size={16} className="mr-2" />
                                 Imprimir Planilla con Notas
@@ -523,6 +512,7 @@ export default function PrintGrades({
                         </CardContent>
                     </Card>
                 </div>
+
                 <div className="mt-6 flex justify-end">
                     <Button variant="outline" onClick={onClose}>
                         Cerrar
