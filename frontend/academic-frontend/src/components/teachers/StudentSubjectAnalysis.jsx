@@ -12,7 +12,7 @@ import {
   Clock, AlertCircle, CheckCircle, Target, Award,
   Users, BarChart3, Printer
 } from "lucide-react";
-import PrintStudentAnalysis from "./PrintStudentAnalysis";
+import PrintStudentAnalysisButton from "./PrintStudentAnalysis";
 import "./teachers_css/StudentSubjectAnalysis.css"; // Importar el CSS
 
 export default function StudentSubjectAnalysis() {
@@ -20,7 +20,7 @@ export default function StudentSubjectAnalysis() {
   const period = new URLSearchParams(useLocation().search).get("period");
   const [data, setData] = useState(null);
   const [group, setGroup] = useState(null);
-  const [shouldPrint, setShouldPrint] = useState(false);
+
 
   useEffect(() => {
     // 1) Traigo el detalle individual completo
@@ -120,9 +120,6 @@ export default function StudentSubjectAnalysis() {
     return formatter ? formatter(value) : value;
   };
 
-  const handlePrint = () => {
-    setShouldPrint(true);
-  };
 
   return (
     <div className="course-analysis">
@@ -501,24 +498,21 @@ export default function StudentSubjectAnalysis() {
         </div>
       </div>
 
-      {/* Botón de impresión */}
       <div className="print-section">
-        <button
-          onClick={handlePrint}
+        <PrintStudentAnalysisButton
+          analysis={data}
+          metadata={{
+            subjectName: data.materia,
+            courseName: data.curso,
+            teacherName: "Nombre del Docente", // Ajusta según tus datos
+            period: period
+          }}
           className="print-btn"
         >
           <Printer className="print-icon" />
           Imprimir análisis completo
-        </button>
+        </PrintStudentAnalysisButton>
       </div>
-
-      {/* Componente de impresión */}
-      {shouldPrint && (
-        <PrintStudentAnalysis
-          analysis={data}
-          metadata={data.metadata}
-        />
-      )}
     </div>
   );
 }
